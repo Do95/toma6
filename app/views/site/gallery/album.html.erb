@@ -1,0 +1,20 @@
+<% content_for :title, page_title(@album.title, "Galería") %>
+<% content_for :description, @album.description.presence || "Álbum #{@album.title}" %>
+
+<div class="gallery-page">
+  <% back = @album.project ? ["‹ #{@album.project.title}", project_path(@album.project.slug)] : ["‹ Galería", gallery_path] %>
+  <%= render "site/shared/page_head", title: @album.title, intro: @album.description, back: back do %>
+    <p class="g-count"><%= pluralize(@media.size, "elemento", plural: "elementos") %><% if @album.project %> · <%= link_to "Ver el proyecto", project_path(@album.project.slug) %><% end %></p>
+  <% end %>
+
+  <div class="masonry">
+    <% @media.each do |item| %><%= media_tile(item) %><% end %>
+  </div>
+
+  <% if @siblings.any? %>
+    <section class="albums-strip" aria-labelledby="moreAlbums">
+      <div class="albums-head"><h2 id="moreAlbums">Más álbumes de este proyecto</h2></div>
+      <div class="albums-row"><%= render partial: "site/gallery/album_card", collection: @siblings, as: :album %></div>
+    </section>
+  <% end %>
+</div>

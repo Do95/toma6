@@ -1,0 +1,5 @@
+<% if section.words.any? %>
+  <div class="ticker <%= 'ticker-alt' if section.theme == 'light' %>" id="<%= section.anchor %>" aria-hidden="true"><div class="ticker-track">
+    <% 2.times do %><span><%= (section.words * 5).map { |w| "#{w} ✦ " }.join %></span><% end %>
+  </div></div>
+<% end %>

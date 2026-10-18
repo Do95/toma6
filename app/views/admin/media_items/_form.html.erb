@@ -1,0 +1,53 @@
+<%= form_with model: [:admin, record], html: { multipart: true }, data: { controller: "toggle" } do |f| %>
+  <%= hidden_field_tag :return_to, params[:return_to] if params[:return_to].present? %>
+  <% if @gallery %><%= hidden_field_tag(@gallery.is_a?(Album) ? :album_id : :project_id, @gallery.id) %><% end %>
+  <div class="layout-aside">
+    <div>
+      <%= form_errors(record) %>
+      <div class="card">
+        <div class="card-body form-grid">
+          <div class="field span-2">
+            <span class="label">Tipo</span>
+            <div class="network-picks">
+              <% MediaItem::KINDS.each do |value, label| %>
+                <label class="network-pick"><%= f.radio_button :kind, value, data: { toggle_target: "source", action: "toggle#update" } %> <%= icon(value == "video" ? :play : :image, size: 16) %> <%= label %></label>
+              <% end %>
+            </div>
+          </div>
+          <%= image_field(f, :image, label: "Imagen", hint: "En videos, es la portada que se ve antes de reproducir.", version: :medium) %>
+          <div class="field" data-toggle-target="item" data-show-when="video">
+            <%= f.label :video %>
+            <%= f.file_field :video, accept: "video/mp4,video/webm,video/quicktime", class: "input" %>
+            <% if record.video.present? %><p class="hint">Actual: <%= link_to File.basename(record.video.path.to_s), record.video.url, target: "_blank" %></p><% end %>
+            <%= f.label :duration %><%= f.text_field :duration, placeholder: "0:30" %>
+          </div>
+          <div class="field span-2"><%= f.label :title %><%= f.text_field :title %></div>
+          <div class="field span-2"><%= f.label :description %><%= f.text_area :description, rows: 2 %></div>
+          <div class="field"><%= f.label :category_id, "Categoría" %><%= f.collection_select :category_id, Category.kept.ordered, :id, :name, include_blank: "Sin categoría" %></div>
+          <div class="field" style="gap:12px">
+            <%= switch_field(f, :show_in_gallery, "Mostrar en /galeria", "La galería general del sitio.") %>
+            <%= switch_field(f, :featured, "Destacado en el inicio") %>
+            <%= switch_field(f, :published, "Publicado") %>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><h2>Aparece en</h2><p>Una misma foto puede estar en varios álbumes y proyectos. Marcá todas las galerías donde querés que se vea.</p></div></div>
+        <div class="card-body">
+          <%= render "admin/media_items/galleries_field", record: record, preselected: (@gallery ? [MediaPlacement.gallery_key(@gallery)] : []) %>
+        </div>
+        <%= render "admin/shared/form_actions", form: f, cancel: params[:return_to].presence || admin_media_items_path %>
+      </div>
+    </div>
+    <aside>
+      <% if record.persisted? && record.image.present? %>
+        <div class="card"><img src="<%= record.image_url(:medium) %>" alt="" class="aside-preview"></div>
+      <% end %>
+      <% if record.persisted? && social_unlocked? && can?(:social, :write) && record.photo? %>
+        <%= link_to safe_join([icon(:share, size: 16), "Publicar en redes"]), share_admin_media_item_path(record), class: "btn btn-block" %>
+      <% end %>
+      <%= render "admin/shared/record_meta", record: record, trash: false %>
+    </aside>
+  </div>
+<% end %>
+<% if record.persisted? %><div class="danger-zone"><%= trash_button(record, label: "Enviar a la papelera") %></div><% end %>

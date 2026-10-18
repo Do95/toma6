@@ -1,0 +1,52 @@
+<% content_for :title, page_title("Cotización #{@quote.number}") %>
+<% content_for :robots, "noindex, nofollow" %>
+<section class="pq">
+  <div class="pq-sheet">
+    <header class="pq-head">
+      <%= image_tag(settings.logo.present? ? settings.logo.url : "site/logo-toma6.png", alt: settings.site_name, class: "pq-logo") %>
+      <div class="pq-title">
+        <h1>Cotización</h1>
+        <p>N.º <%= @quote.number %></p>
+      </div>
+    </header>
+    <div class="pq-meta">
+      <div><h2>Para</h2><p><strong><%= @quote.client_name %></strong><br><%= @quote.client_company %></p></div>
+      <div><h2>Proyecto</h2><p><strong><%= @quote.title %></strong><br><%= l(@quote.event_date, format: :long) if @quote.event_date %> <%= @quote.event_location %></p></div>
+      <div><h2>Validez</h2><p>Emitida el <%= l(@quote.issued_on, format: :long) %><% if @quote.valid_until %><br>Válida hasta el <%= l(@quote.valid_until, format: :long) %><% end %></p></div>
+    </div>
+    <table class="pq-items">
+      <thead><tr><th>Descripción</th><th>Cant.</th><th>Precio</th><th>Total</th></tr></thead>
+      <tbody>
+        <% @quote.items.each do |item| %>
+          <tr>
+            <td><strong><%= item.description %></strong><% if item.details.present? %><small><%= item.details %></small><% end %></td>
+            <td><%= item.quantity.to_d.to_s("F").sub(/\.0\z/, "") %></td>
+            <td><%= @quote.money(item.unit_price) %></td>
+            <td><%= @quote.money(item.total) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <dl class="pq-totals">
+      <div><dt>Subtotal</dt><dd><%= @quote.money(@quote.subtotal) %></dd></div>
+      <% if @quote.discount_amount.positive? %><div><dt>Descuento</dt><dd>−<%= @quote.money(@quote.discount_amount) %></dd></div><% end %>
+      <% if @quote.tax_rate.positive? %><div><dt><%= @quote.tax_name %> (<%= @quote.tax_rate.to_d.to_s("F").sub(/\.0\z/, "") %>%)</dt><dd><%= @quote.money(@quote.tax_amount) %></dd></div><% end %>
+      <div class="pq-total"><dt>Total</dt><dd><%= @quote.money(@quote.total) %></dd></div>
+    </dl>
+    <% [["Notas", @quote.notes], ["Condiciones", @quote.terms], ["Forma de pago", @quote.payment_info]].each do |title, body| %>
+      <% next if body.blank? %>
+      <section class="pq-note"><h2><%= title %></h2><%= simple_format(body) %></section>
+    <% end %>
+    <footer class="pq-actions">
+      <%= link_to public_quote_pdf_path(@quote.token), class: "link", target: "_blank" do %>Descargar PDF<% end %>
+      <% if @quote.status == "accepted" %>
+        <p class="pq-accepted">✓ Aceptada el <%= l(@quote.accepted_at.to_date, format: :long) %>. ¡Gracias!</p>
+      <% elsif @quote.status.in?(%w[draft sent]) && !@quote.expired? %>
+        <%= button_to "Aceptar cotización", accept_public_quote_path(@quote.token), method: :patch, class: "btn primary",
+                      form: { data: { turbo_confirm: "¿Confirmás que aceptás esta cotización?" } } %>
+      <% else %>
+        <p class="pq-expired">Esta cotización ya no está vigente. <%= link_to "Escribinos", root_path(anchor: "contacto") %> y la actualizamos.</p>
+      <% end %>
+    </footer>
+  </div>
+</section>

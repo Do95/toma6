@@ -1,0 +1,5 @@
+<% title = @record.video? ? "Nuevo video" : "Nueva foto" %>
+<% content_for :title, title %>
+<% content_for :crumbs do %><%= link_to "Biblioteca", admin_media_items_path %> / <%= title %><% end %>
+<%= render "admin/shared/header", title: title, subtitle: (@record.photo? ? "Para subir muchas fotos juntas usá el recuadro de la biblioteca, de un álbum o de un proyecto." : nil) %>
+<%= render "form", record: @record %>

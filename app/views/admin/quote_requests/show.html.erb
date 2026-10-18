@@ -1,0 +1,62 @@
+<% content_for :title, "Solicitud de #{@record.name}" %>
+<% content_for :crumbs do %><%= link_to "Solicitudes", admin_quote_requests_path %> / <%= @record.name %><% end %>
+<%= render "admin/shared/header", title: @record.name, live: @record.status == "new",
+           subtitle: "#{@record.number} · recibida el #{l(@record.created_at, format: :long)}",
+           actions: safe_join([
+             (if @record.quote
+                link_to(safe_join([icon(:file, size: 16), "Ver cotización #{@record.quote.number}"]), admin_quote_path(@record.quote), class: "btn btn-dark")
+              elsif can?(:sales, :write)
+                button_to(safe_join([icon(:file, size: 16), "Convertir en cotización"]), convert_admin_quote_request_path(@record), class: "btn btn-primary")
+              end)
+           ].compact) %>
+<div class="layout-aside">
+  <div>
+    <div class="card">
+      <div class="card-head"><h2>Lo que eligió</h2></div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Concepto</th><th class="num">Cant.</th><th class="num">Precio</th><th class="num">Total</th></tr></thead>
+          <tbody>
+            <% @record.selection_lines.each do |line| %>
+              <tr>
+                <td><% if line["label"] == line["service"] %><strong><%= line["label"] %></strong><% else %><span style="padding-left:14px">+ <%= line["label"] %></span><% end %></td>
+                <td class="num"><%= line["quantity"] %></td>
+                <td class="num"><%= money(line["unit_price"]) %></td>
+                <td class="num"><%= money(line["total"]) %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      <div class="card-foot totals-box" style="max-width:320px;margin-left:auto">
+        <div><span>Subtotal</span><span><%= money(@record.subtotal) %></span></div>
+        <% if @record.discount.positive? %><div><span>Combo de servicios</span><span>−<%= money(@record.discount) %></span></div><% end %>
+        <div class="grand"><span>Estimado</span><strong><%= money(@record.estimated_total) %></strong></div>
+      </div>
+    </div>
+    <% if @record.message.present? %>
+      <div class="card"><div class="card-head"><h2>Mensaje</h2></div><div class="card-body"><%= simple_format(@record.message) %></div></div>
+    <% end %>
+  </div>
+  <aside>
+    <div class="card">
+      <div class="card-head"><h2>Contacto</h2></div>
+      <div class="card-body" style="display:grid;gap:8px">
+        <a href="mailto:<%= @record.email %>"><%= @record.email %></a>
+        <% if @record.phone.present? %>
+          <span><%= @record.phone %> · <a href="https://wa.me/<%= @record.phone.gsub(/\D/, "") %>" target="_blank" rel="noopener">WhatsApp</a></span>
+        <% end %>
+        <% if @record.company.present? %><span><%= @record.company %></span><% end %>
+        <% if @record.event_date %><span>Evento: <%= l(@record.event_date, format: :long) %></span><% end %>
+        <% if @record.location.present? %><span>Lugar: <%= @record.location %></span><% end %>
+      </div>
+    </div>
+    <% if can?(:sales, :write) %>
+      <%= form_with model: [:admin, @record], class: "card", data: { controller: "autosubmit" } do |f| %>
+        <div class="card-head"><h2>Estado</h2></div>
+        <div class="card-body field"><%= f.select :status, QuoteRequest::STATUSES.invert, {}, data: { action: "autosubmit#submit" } %></div>
+      <% end %>
+    <% end %>
+    <%= render "admin/shared/record_meta", record: @record %>
+  </aside>
+</div>

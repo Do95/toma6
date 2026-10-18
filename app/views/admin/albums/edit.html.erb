@@ -1,0 +1,24 @@
+<% content_for :title, @record.title %>
+<% content_for :crumbs do %>
+  <% if @record.project %><%= link_to "Proyectos", admin_projects_path %> / <%= link_to @record.project.title.truncate(40), edit_admin_project_path(@record.project, tab: "albumes") %><% else %><%= link_to "Álbumes", admin_albums_path %><% end %> / <%= @record.title %>
+<% end %>
+<%= render "admin/shared/header", title: @record.title, live: @record.published?,
+           subtitle: (@record.project ? "Álbum de #{@record.project.title}" : "Álbum suelto de la galería"),
+           actions: link_to(safe_join([icon(:eye, size: 16), "Ver en el sitio"]), album_path(@record.slug), class: "btn", target: "_blank") %>
+<div class="layout-aside">
+  <div>
+    <%= render "admin/media_items/uploader", gallery: @record, title: "Subí fotos a «#{@record.title}»" %>
+    <div class="card" style="margin-top:18px">
+      <div class="card-head"><div><h2>Fotos y videos</h2><p><%= pluralize(@placements.size, "elemento", plural: "elementos") %> · arrastrá para ordenar · ★ elige la portada · ✕ quita del álbum (no borra la foto)</p></div>
+        <div class="actions" style="display:flex;gap:8px">
+          <%= link_to safe_join([icon(:plus, size: 16), "Video"]), new_admin_media_item_path(kind: "video", album_id: @record.id, return_to: request.path), class: "btn btn-sm" %>
+        </div></div>
+      <div class="card-body"><%= render "admin/media_items/placement_grid", placements: @placements, album: @record %></div>
+    </div>
+    <details class="card" style="margin-top:18px" <%= "open" if @record.errors.any? %>>
+      <summary class="card-head" style="cursor:pointer"><h2>Datos del álbum</h2></summary>
+      <div style="padding:0"><%= render "form", record: @record %></div>
+    </details>
+  </div>
+  <aside><%= render "admin/shared/record_meta", record: @record %></aside>
+</div>

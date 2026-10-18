@@ -1,0 +1,4 @@
+<% content_for :title, "Nuevo álbum" %>
+<% content_for :crumbs do %><%= link_to "Álbumes", admin_albums_path %> / Nuevo<% end %>
+<%= render "admin/shared/header", title: "Nuevo álbum", subtitle: "Después de crearlo vas a poder subir las fotos." %>
+<div style="max-width:820px"><%= render "form", record: @record %></div>

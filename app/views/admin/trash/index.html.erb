@@ -1,0 +1,38 @@
+<% content_for :title, "Papelera" %>
+<%= render "admin/shared/header", title: "Papelera",
+           subtitle: "Lo eliminado queda acá #{@retention} días y después se borra definitivamente, con sus archivos.",
+           actions: (button_to(safe_join([icon(:trash, size: 16), "Vaciar papelera ahora"]), admin_empty_trash_path, method: :delete, class: "btn btn-danger",
+                               form: { data: { turbo_confirm: "Se va a borrar definitivamente todo lo que está en la papelera. No se puede deshacer. ¿Continuar?" } }) if can?(:trash, :purge) && @groups.any?) %>
+<div class="trash-note"><%= icon(:clock, size: 20) %><span>La limpieza automática corre todos los días a las 3:00. <%= "Última: #{l(settings.last_trash_purge_at, format: :long)}." if settings.last_trash_purge_at %> Podés cambiar los días en <%= can?(:settings) ? link_to("Ajustes", edit_admin_settings_path) : "Ajustes" %>.</span></div>
+<% if @groups.empty? %>
+  <div class="card"><%= render "admin/shared/empty", title: "La papelera está vacía", text: "Cuando elimines algo, va a aparecer acá por si querés restaurarlo." %></div>
+<% end %>
+<% @groups.each do |model, records| %>
+  <div class="card">
+    <div class="card-head"><h2><%= model.model_name.human(count: 2) %> <span class="muted">(<%= records.size %>)</span></h2></div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Registro</th><th>Eliminado por</th><th>Cuándo</th><th>Se borra el</th><th></th></tr></thead>
+        <tbody>
+          <% records.each do |record| %>
+            <tr>
+              <td><strong><%= record.display_name.truncate(70) %></strong></td>
+              <td><span class="audit-line"><%= avatar_for(record.deleter, size: 20) %> <%= record.deleter&.name || "Sistema" %></span></td>
+              <td>hace <%= time_ago_in_words(record.deleted_at) %></td>
+              <td><span class="purge-in"><%= l(record.purge_on, format: :long) %></span></td>
+              <td class="actions-cell">
+                <% if can?(model.permission_resource, :write) && can?(:trash, :restore) %>
+                  <%= button_to safe_join([icon(:refresh, size: 14), "Restaurar"]), admin_restore_trash_path(type: model.name, id: record.id), class: "btn btn-sm" %>
+                <% end %>
+                <% if can?(:trash, :purge) %>
+                  <%= button_to icon(:x, size: 14, title: "Eliminar definitivamente"), admin_purge_trash_path(type: model.name, id: record.id), method: :delete, class: "icon-btn btn-danger",
+                                form: { data: { turbo_confirm: "¿Eliminar definitivamente «#{record.display_name.truncate(40)}»? No se puede deshacer." } } %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% end %>

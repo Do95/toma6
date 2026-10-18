@@ -1,0 +1,31 @@
+<%= form_with model: [:admin, record], html: { multipart: true } do |f| %>
+  <div class="layout-aside">
+    <div>
+      <%= form_errors(record) %>
+      <div class="card">
+        <div class="card-body form-grid">
+          <div class="field"><%= f.label :name %><%= f.text_field :name, required: true %></div>
+          <div class="field"><%= f.label :email %><%= f.email_field :email, required: true %></div>
+          <div class="field span-2">
+            <span class="label">Rol</span>
+            <div class="role-picks">
+              <% User::ROLES.each do |key, label| %>
+                <label class="role-pick"><%= f.radio_button :role, key %><span><strong><%= label %></strong><small><%= User::ROLE_DESCRIPTIONS[key] %></small></span></label>
+              <% end %>
+            </div>
+          </div>
+          <div class="field"><%= f.label :password, record.persisted? ? "Nueva contraseña (opcional)" : "Contraseña" %><%= f.password_field :password, autocomplete: "new-password" %>
+            <% unless record.persisted? %><%= field_hint("Si la dejás vacía se genera una temporal.") %><% end %></div>
+          <div class="field"><%= f.label :password_confirmation %><%= f.password_field :password_confirmation, autocomplete: "new-password" %></div>
+          <% unless record.persisted? %>
+            <div class="span-2"><label class="check-inline"><%= check_box_tag :send_invite, "1", true %> Enviarle un correo para que cree su propia contraseña</label></div>
+          <% end %>
+          <div class="span-2"><%= switch_field(f, :active, "Cuenta activa", "Si la desactivás, no puede entrar pero se conserva su historial.") %></div>
+        </div>
+        <%= render "admin/shared/form_actions", form: f, cancel: admin_users_path %>
+      </div>
+    </div>
+    <aside><%= render "admin/shared/record_meta", record: record, trash: false %></aside>
+  </div>
+<% end %>
+<% if record.persisted? && record != current_user %><div class="danger-zone"><%= trash_button(record, label: "Eliminar usuario") %></div><% end %>

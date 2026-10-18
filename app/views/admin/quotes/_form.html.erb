@@ -1,0 +1,77 @@
+<% services = Service.kept.ordered %>
+<% catalog = services.to_h { |s| [s.id.to_s, { title: s.title, price: s.base_price.to_f }] } %>
+<%= form_with model: [:admin, record], data: { controller: "quote-form nested-form", quote_form_currency_value: record.currency_symbol.presence || settings.currency_symbol,
+                                                quote_form_services_value: catalog.to_json, action: "nested-form:changed->quote-form#recalc input->quote-form#recalc" } do |f| %>
+  <%= form_errors(record) %>
+  <div class="layout-aside">
+    <div>
+      <div class="card">
+        <div class="card-head"><h2>Cliente y proyecto</h2></div>
+        <div class="card-body form-grid">
+          <div class="field"><%= f.label :client_name %><%= f.text_field :client_name, required: true %></div>
+          <div class="field"><%= f.label :client_company %><%= f.text_field :client_company %></div>
+          <div class="field"><%= f.label :client_email %><%= f.email_field :client_email %></div>
+          <div class="field"><%= f.label :client_phone %><%= f.telephone_field :client_phone %></div>
+          <div class="field"><%= f.label :client_tax_id %><%= f.text_field :client_tax_id %></div>
+          <div class="field"><%= f.label :title, "Título de la propuesta" %><%= f.text_field :title, placeholder: "Cobertura de boda" %></div>
+          <div class="field"><%= f.label :event_date %><%= f.date_field :event_date %></div>
+          <div class="field"><%= f.label :event_location %><%= f.text_field :event_location %></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div><h2>Ítems</h2><p>Elegí un servicio para completar descripción y precio, o escribí uno libre.</p></div></div>
+        <div class="card-body table-wrap">
+          <table class="items-table">
+            <thead><tr><th>Ítem</th><th class="num">Cant.</th><th class="num">Precio</th><th class="num">Total</th><th></th></tr></thead>
+            <tbody data-nested-form-target="list">
+              <%= f.fields_for :items do |itf| %>
+                <%= render "admin/quotes/item_fields", f: itf, item: itf.object, services: services %>
+              <% end %>
+            </tbody>
+          </table>
+          <template data-nested-form-target="template">
+            <%= f.fields_for :items, QuoteItem.new(quantity: 1), child_index: "NEW_RECORD" do |itf| %>
+              <%= render "admin/quotes/item_fields", f: itf, item: itf.object, services: services %>
+            <% end %>
+          </template>
+          <button type="button" class="btn btn-sm" style="margin-top:10px" data-action="nested-form#add"><%= icon(:plus, size: 16) %> Agregar ítem</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div><h2>Textos del PDF</h2><p>Vienen precargados desde Ajustes; podés ajustarlos para este cliente.</p></div></div>
+        <div class="card-body form-grid">
+          <div class="field span-2"><%= f.label :notes %><%= f.text_area :notes, rows: 2 %></div>
+          <div class="field span-2"><%= f.label :terms %><%= f.text_area :terms, rows: 4 %></div>
+          <div class="field span-2"><%= f.label :payment_info %><%= f.text_area :payment_info, rows: 3 %></div>
+        </div>
+      </div>
+    </div>
+
+    <aside>
+      <div class="card">
+        <div class="card-head"><h2>Totales</h2></div>
+        <div class="card-body form-grid">
+          <div class="field"><%= f.label :issued_on %><%= f.date_field :issued_on %></div>
+          <div class="field"><%= f.label :valid_until %><%= f.date_field :valid_until %></div>
+          <div class="field"><%= f.label :discount_type, "Descuento" %><%= f.select :discount_type, Quote::DISCOUNT_TYPES.invert, {}, data: { action: "quote-form#recalc" } %></div>
+          <div class="field"><%= f.label :discount_value, "Valor" %><%= f.number_field :discount_value, step: "0.01", min: 0 %></div>
+          <div class="field"><%= f.label :tax_name, "Impuesto" %><%= f.text_field :tax_name %></div>
+          <div class="field"><%= f.label :tax_rate, "Tasa (%)" %><%= f.number_field :tax_rate, step: "0.01", min: 0 %></div>
+          <div class="totals-box span-2">
+            <div><span>Subtotal</span><span data-quote-form-target="subtotal"></span></div>
+            <div><span>Descuento</span><span data-quote-form-target="discount"></span></div>
+            <div><span>Impuesto (<span data-quote-form-target="taxLabel"></span>)</span><span data-quote-form-target="tax"></span></div>
+            <div class="grand"><span>Total</span><strong data-quote-form-target="total"></strong></div>
+          </div>
+        </div>
+        <div class="card-foot" style="display:flex;gap:8px;justify-content:flex-end">
+          <%= link_to "Cancelar", record.persisted? ? admin_quote_path(record) : admin_quotes_path, class: "btn btn-ghost" %>
+          <button type="submit" class="btn btn-primary"><%= icon(:check, size: 16) %> <%= record.persisted? ? "Guardar" : "Crear cotización" %></button>
+        </div>
+      </div>
+      <%= render "admin/shared/record_meta", record: record, trash: false %>
+    </aside>
+  </div>
+<% end %>

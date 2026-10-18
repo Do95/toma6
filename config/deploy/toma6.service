@@ -1,0 +1,16 @@
+# /etc/systemd/system/toma6.service
+[Unit]
+Description=toma6 (Rails + Puma)
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=deploy
+WorkingDirectory=/home/deploy/toma6
+EnvironmentFile=/home/deploy/toma6/.env
+ExecStart=/home/deploy/.rbenv/shims/bundle exec puma -C config/puma.rb
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

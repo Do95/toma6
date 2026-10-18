@@ -1,0 +1,10 @@
+<% if @steps.present? %>
+  <section class="section process" id="<%= section.anchor %>">
+    <div class="wrap">
+      <div class="section-head"><h2><%= section.title %></h2><% if section.lead.present? %><p><%= section.lead %></p><% end %></div>
+      <ol class="steps" style="--cols:<%= [@steps.size, 5].min %>">
+        <% @steps.each do |step| %><li><h3><%= step.title %></h3><p><%= step.description %></p></li><% end %>
+      </ol>
+    </div>
+  </section>
+<% end %>

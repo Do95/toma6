@@ -1,0 +1,9 @@
+<% content_for :title, @record.display_name %>
+<% content_for :crumbs do %>
+  <% if @record.project %><%= link_to "Proyectos", admin_projects_path %> / <%= link_to @record.project.title, edit_admin_project_path(@record.project, tab: "secciones") %><% else %><%= link_to "Secciones del inicio", admin_sections_path %><% end %> / <%= @record.display_name.truncate(40) %>
+<% end %>
+<% view_url = @record.page == "home" ? "#{root_path}##{@record.anchor}" : "#{project_path(@record.project.slug)}##{@record.anchor}" %>
+<%= render "admin/shared/header", title: @record.display_name.truncate(60), live: @record.published?,
+           subtitle: "#{@record.kind_label}#{' · sección fija' if @record.builtin?}",
+           actions: link_to(safe_join([icon(:eye, size: 16), "Ver en el sitio"]), view_url, class: "btn", target: "_blank") %>
+<%= render "form", record: @record %>

@@ -1,0 +1,5 @@
+<% if section.body.present? %>
+  <section class="manifesto" id="<%= section.anchor %>" aria-label="Manifiesto" data-controller="manifesto">
+    <div class="manifesto-sticky"><p data-manifesto-target="text"><%= section.body %></p></div>
+  </section>
+<% end %>

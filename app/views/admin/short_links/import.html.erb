@@ -1,0 +1,62 @@
+<% content_for :title, "Importar enlaces" %>
+<% content_for :crumbs do %><%= link_to "Enlaces y QR", admin_short_links_path %> / Importar<% end %>
+<%= render "admin/shared/header", title: "Importar enlaces desde CSV",
+           subtitle: "Creá muchos enlaces con su QR de una vez: por ejemplo, uno por mesa de un evento o uno por cada producto de un catálogo." %>
+<div class="layout-aside">
+  <div>
+    <% if @result %>
+      <div class="card">
+        <div class="card-head"><div><h2><%= @result.created.any? ? "Listo: #{pluralize(@result.created.size, 'enlace creado', plural: 'enlaces creados')}" : "No se creó ningún enlace" %></h2>
+          <% if @result.errors.any? %><p><%= pluralize(@result.errors.size, "fila con problemas", plural: "filas con problemas") %>: las demás se crearon igual.</p><% end %></div></div>
+        <% if @result.created.any? %>
+          <ul class="sort-list">
+            <% @result.created.each do |link| %>
+              <li class="sort-item">
+                <img src="<%= qr_admin_short_link_path(link) %>" alt="" class="sort-thumb" style="object-fit:contain;background:#fff">
+                <div class="sort-main"><%= link_to admin_short_link_path(link) do %><strong><%= link.title %></strong><% end %><p><%= link.short_url %> → <%= link.destination_url.truncate(60) %></p></div>
+                <%= link_to safe_join([icon(:download, size: 14), "PNG"]), qr_admin_short_link_path(link, format: :png, size: 2048, download: 1), class: "btn btn-sm", data: { turbo: false } %>
+              </li>
+            <% end %>
+          </ul>
+        <% end %>
+        <% if @result.errors.any? %>
+          <div class="card-body"><div class="form-errors" style="animation:none"><ul><% @result.errors.each do |e| %><li><%= e %></li><% end %></ul></div></div>
+        <% end %>
+        <div class="card-foot" style="display:flex;gap:8px;justify-content:flex-end">
+          <%= link_to "Importar otro archivo", import_admin_short_links_path, class: "btn btn-ghost" %>
+          <%= link_to "Ver todos los enlaces", admin_short_links_path, class: "btn btn-primary" %>
+        </div>
+      </div>
+    <% else %>
+      <%= form_with url: import_admin_short_links_path, method: :post, multipart: true, class: "card" do %>
+        <div class="card-body">
+          <label class="uploader" style="display:block;cursor:pointer">
+            <span class="icon-big"><%= icon(:upload, size: 24) %></span>
+            <h3>Elegí el archivo CSV</h3>
+            <p>Exportado desde Excel o Google Sheets (separado por comas o punto y coma). Hasta <%= ShortLinkCsv::MAX_ROWS %> filas.</p>
+            <input type="file" name="file" accept=".csv,text/csv" required style="margin-top:14px">
+          </label>
+        </div>
+        <div class="form-actions"><%= link_to "Cancelar", admin_short_links_path, class: "btn btn-ghost" %><button class="btn btn-primary" type="submit"><%= icon(:upload, size: 16) %> Importar y crear los QR</button></div>
+      <% end %>
+    <% end %>
+  </div>
+  <aside>
+    <div class="card">
+      <div class="card-head"><div><h2>Formato</h2><p>La primera fila son los encabezados.</p></div></div>
+      <div class="card-body" style="display:grid;gap:10px">
+        <table class="table" style="font-size:13px">
+          <tbody>
+            <tr><td><code>nombre</code></td><td>Obligatorio</td></tr>
+            <tr><td><code>destino</code></td><td>Obligatorio: https://… o /página</td></tr>
+            <tr><td><code>codigo</code></td><td>Opcional (si no, se genera)</td></tr>
+            <tr><td><code>utm_source</code>, <code>utm_medium</code>, <code>utm_campaign</code></td><td>Opcionales</td></tr>
+            <tr><td><code>texto_marco</code></td><td>Opcional</td></tr>
+            <tr><td><code>estilo</code></td><td>brand, classic o inverse</td></tr>
+          </tbody>
+        </table>
+        <%= link_to safe_join([icon(:download, size: 14), "Descargar plantilla de ejemplo"]), template_admin_short_links_path(format: :csv), class: "btn btn-sm", data: { turbo: false } %>
+      </div>
+    </div>
+  </aside>
+</div>

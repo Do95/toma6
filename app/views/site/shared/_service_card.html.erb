@@ -1,0 +1,62 @@
+<%# Tarjeta de servicio con el visual animado que corresponde a su estilo. %>
+<article class="service">
+  <div class="service-text">
+    <span class="take">Toma <%= service_counter + 1 %></span>
+    <h3><%= service.title %></h3>
+    <p><%= service.summary %></p>
+    <% if service.tag_list.any? %>
+      <ul><% service.tag_list.first(3).each do |tag| %><li><%= tag %></li><% end %></ul>
+    <% end %>
+    <% if local_assigns[:show_price] && service.quotable? && service.base_price.positive? %>
+      <p class="service-price"><%= service.price_prefix %> <strong><%= money(service.base_price, round: true) %></strong> <%= service.price_unit %></p>
+    <% end %>
+  </div>
+  <% case service.visual_style %>
+  <% when "video" %>
+    <div class="visual v-video pr" aria-hidden="true">
+      <img class="layer sky sky-photo" data-speed="0.08" decoding="async" src="<%= service_image(service, :image, 'imagen-04.jpg') %>" alt="">
+      <div class="layer frame">
+        <span class="corner c-tl"></span><span class="corner c-tr"></span><span class="corner c-bl"></span><span class="corner c-br"></span>
+        <div class="vf-top"><span>REC</span><span>4K 24p</span></div>
+        <div class="vf-cross"></div>
+      </div>
+    </div>
+  <% when "photo" %>
+    <div class="visual v-photo pr" aria-hidden="true">
+      <div class="layer print-wrap p1" data-speed="0.12"><div class="print"><div><img loading="lazy" decoding="async" src="<%= service_image(service, :image, 'imagen-05.jpg') %>" alt=""></div></div></div>
+      <div class="layer print-wrap p2" data-speed="-0.08"><div class="print"><div><img loading="lazy" decoding="async" src="<%= service_image(service, :image_secondary, 'imagen-06.jpg') %>" alt=""></div></div></div>
+      <div class="layer print-wrap p3" data-speed="0.02"><div class="print"><div><img loading="lazy" decoding="async" src="<%= service_image(service, :image_tertiary, 'imagen-07.jpg') %>" alt=""></div></div></div>
+    </div>
+  <% when "edit" %>
+    <div class="visual v-edit pr" aria-hidden="true">
+      <div class="layer editor" data-speed="0.05">
+        <div class="monitor"><img src="<%= service_image(service, :image, 'imagen-08.jpg') %>" alt="" loading="lazy"></div>
+        <div class="tracks">
+          <div class="track t1"><span class="clip" style="left:0;width:28%"></span><span class="clip" style="left:30%;width:40%"></span><span class="clip" style="left:72%;width:26%"></span></div>
+          <div class="track t2"><span class="clip" style="left:12%;width:22%"></span><span class="clip" style="left:48%;width:30%"></span></div>
+          <div class="track t3"><span class="clip" style="left:0;width:64%"></span><span class="clip" style="left:66%;width:34%"></span></div>
+          <div class="track t4"><span class="clip" style="left:0;width:100%"></span></div>
+          <span class="playhead"></span>
+        </div>
+      </div>
+    </div>
+  <% when "social" %>
+    <div class="visual v-social pr" aria-hidden="true">
+      <div class="layer phone ph1" data-speed="0.14"><div><img loading="lazy" decoding="async" src="<%= service_image(service, :image, 'imagen-09.jpg') %>" alt=""></div></div>
+      <div class="layer phone ph3" data-speed="0.2"><div><img loading="lazy" decoding="async" src="<%= service_image(service, :image_secondary, 'imagen-10.jpg') %>" alt=""></div></div>
+      <div class="layer phone ph2" data-speed="-0.06"><div><img loading="lazy" decoding="async" src="<%= service_image(service, :image_tertiary, 'imagen-11.jpg') %>" alt=""></div></div>
+    </div>
+  <% when "podcast" %>
+    <div class="visual v-live pr" aria-hidden="true">
+      <div class="layer live-badge">REC</div>
+      <div class="layer viewers">Episodio 12 · 42:18</div>
+      <div class="layer wave" data-controller="wave" data-speed="0.06"></div>
+      <%= render "site/mic" %>
+      <div class="layer live-bar"></div>
+    </div>
+  <% else %>
+    <div class="visual v-image pr" aria-hidden="true">
+      <img class="layer sky sky-photo" data-speed="0.06" loading="lazy" src="<%= service_image(service, :image, 'imagen-04.jpg') %>" alt="">
+    </div>
+  <% end %>
+</article>

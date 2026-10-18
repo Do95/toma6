@@ -1,0 +1,35 @@
+<% content_for :title, "Álbumes" %>
+<%= render "admin/shared/header", title: "Álbumes",
+           subtitle: "Los álbumes de un proyecto son pestañas en su página. Los marcados para la galería general también aparecen en /galeria.",
+           actions: (link_to(safe_join([icon(:plus, size: 16), "Nuevo álbum"]), new_admin_album_path, class: "btn btn-primary") if can?(:content, :write)) %>
+<div class="toolbar chips">
+  <%= filter_chip "Todos", { project_id: nil }, params[:project_id].blank? %>
+  <%= filter_chip "Sin proyecto", { project_id: "none" }, params[:project_id] == "none" %>
+  <% Project.kept.ordered.joins(:all_albums).merge(Album.kept).distinct.each do |p| %>
+    <%= filter_chip p.title, { project_id: p.id }, params[:project_id] == p.id.to_s %>
+  <% end %>
+</div>
+<div class="card">
+  <% if @records.any? %>
+    <ul class="sort-list" data-controller="sortable" data-sortable-model-value="albums" data-sortable-url-value="<%= admin_sort_path %>">
+      <% @records.each do |album| %>
+        <li class="sort-item" data-id="<%= album.id %>">
+          <span class="sort-handle"><%= icon(:grip, size: 18) %></span>
+          <% if (img = album.cover_url(:thumb)) %><%= image_tag img, class: "sort-thumb", alt: "" %><% else %><span class="sort-thumb"><%= illustration("fotos") %></span><% end %>
+          <div class="sort-main">
+            <%= link_to edit_admin_album_path(album) do %><strong><%= album.title %></strong><% end %>
+            <p><%= album.project&.title || "Sin proyecto" %> · <%= pluralize(album.media_items.size, "elemento", plural: "elementos") %></p>
+          </div>
+          <div class="sort-meta">
+            <% if album.show_in_gallery? %><span class="badge badge-info">En galería</span><% end %>
+            <%= published_badge(album) %>
+            <%= link_to icon(:edit, size: 16, title: "Editar"), edit_admin_album_path(album), class: "icon-btn" %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <%= render "admin/shared/empty", title: "No hay álbumes", action: link_to("Crear álbum", new_admin_album_path, class: "btn btn-primary") %>
+  <% end %>
+</div>
+<%= pagination_nav %>

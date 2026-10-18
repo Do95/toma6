@@ -1,0 +1,27 @@
+module Admin
+  class ServicesController < ResourceController
+    self.resource_class = Service
+    self.sortable = true
+
+    def new
+      @record = Service.new(visual_style: "image", quotable: true, price_prefix: "Desde")
+      @record.options.build(kind: "addon")
+    end
+
+    private
+
+    def collection = super.includes(:options)
+
+    def after_save_path = edit_admin_service_path(@record)
+
+    def record_params
+      params.require(:service).permit(
+        :title, :slug, :summary, :description, :tags, :visual_style,
+        :image, :image_secondary, :image_tertiary, :remove_image, :remove_image_secondary, :remove_image_tertiary,
+        :quotable, :base_price, :price_prefix, :price_unit, :published,
+        options_attributes: %i[id name description kind group_name price unit_label min_quantity max_quantity
+                               default_selected published position remove]
+      )
+    end
+  end
+end

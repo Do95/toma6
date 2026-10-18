@@ -1,0 +1,81 @@
+<% content_for :title, "Integraciones" %>
+<%= render "admin/shared/header", title: "Integraciones",
+           subtitle: "Opcional. Al conectar tu página de Facebook se desbloquean las publicaciones; si la cuenta de Instagram profesional está vinculada a esa página, también Instagram." %>
+<div class="layout-aside">
+  <div>
+    <% if @integration.page_connected? %>
+      <div class="connected-card">
+        <span class="big-icon"><%= icon(:check, size: 26) %></span>
+        <div style="flex:1">
+          <strong style="font-size:16px"><%= @integration.page_name %></strong>
+          <p class="hint" style="margin-top:2px">Conectada <%= "por #{@integration.connected_by.name} " if @integration.connected_by %>el <%= l(@integration.connected_at, format: :long) if @integration.connected_at %>.
+            <%= @integration.instagram_linked? ? "Instagram: @#{@integration.instagram_username}" : "Sin cuenta de Instagram vinculada." %></p>
+        </div>
+        <% if can?(:integrations, :write) %>
+          <%= button_to "Desconectar", admin_integration_path, method: :delete, class: "btn btn-ghost btn-danger",
+                        form: { data: { turbo_confirm: "¿Desconectar la página? Las publicaciones quedan bloqueadas hasta volver a conectar." } } %>
+        <% end %>
+      </div>
+      <%= form_with model: @integration, url: admin_integration_path, method: :patch, class: "card", style: "margin-top:18px" do |f| %>
+        <div class="card-head"><div><h2>Qué se puede publicar</h2><p>Podés apagar una red sin desconectar la página.</p></div></div>
+        <div class="card-body" style="display:grid;gap:14px">
+          <%= switch_field(f, :facebook_enabled, "Facebook", "Publicar en #{@integration.page_name}.") %>
+          <% if @integration.instagram_linked? %>
+            <%= switch_field(f, :instagram_enabled, "Instagram", "Publicar en @#{@integration.instagram_username}. Requiere que el sitio esté publicado en internet (Instagram descarga la foto desde tu dominio).") %>
+          <% end %>
+        </div>
+        <div class="form-actions"><button class="btn btn-primary" type="submit">Guardar</button></div>
+      <% end %>
+    <% elsif @pages.present? %>
+      <div class="card">
+        <div class="card-head"><div><h2>Elegí la página</h2><p>Estas son las páginas que administra tu cuenta.</p></div></div>
+        <ul class="sort-list">
+          <% @pages.each do |page| %>
+            <li class="sort-item">
+              <span class="sort-thumb" style="display:grid;place-items:center"><%= icon(:facebook, size: 22) %></span>
+              <div class="sort-main"><strong><%= page["name"] %></strong><p><%= page["ig_username"] ? "Instagram vinculado: @#{page['ig_username']}" : "Sin Instagram vinculado" %></p></div>
+              <%= button_to "Usar esta página", select_page_admin_integration_path(page_id: page["id"]), class: "btn btn-primary btn-sm" %>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    <% else %>
+      <%= form_with model: @integration, url: admin_integration_path, method: :patch, class: "card" do |f| %>
+        <%= form_errors(@integration) %>
+        <div class="card-head"><div><h2>1. Datos de tu app de Meta</h2><p>Se guardan cifrados.</p></div></div>
+        <div class="card-body form-grid">
+          <div class="field"><%= f.label :app_id, "App ID" %><%= f.text_field :app_id, autocomplete: "off" %></div>
+          <div class="field"><%= f.label :app_secret, "App Secret" %><%= f.password_field :app_secret, autocomplete: "new-password", placeholder: (@integration.app_secret.present? ? "•••••••• (guardado)" : "") %></div>
+          <div class="field"><%= f.label :graph_version %><%= f.text_field :graph_version %></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn" type="submit">Guardar datos</button>
+          <% if @integration.app_configured? %>
+            <%= link_to safe_join([icon(:facebook, size: 16), "2. Conectar con Facebook"]), connect_admin_integration_path, class: "btn btn-primary", data: { turbo: false } %>
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+    <% if @integration.last_error.present? %>
+      <div class="form-errors" style="margin-top:18px"><strong>Último error de Meta:</strong> <%= @integration.last_error %></div>
+    <% end %>
+  </div>
+
+  <aside>
+    <div class="card">
+      <div class="card-head"><h2>Cómo configurarla</h2></div>
+      <div class="card-body">
+        <ol class="steps-list">
+          <li>Entrá a <strong>developers.facebook.com</strong> → Mis apps → Crear app (tipo <strong>Empresa</strong>).</li>
+          <li>Agregá los productos <strong>Inicio de sesión con Facebook</strong> e <strong>Instagram</strong>.</li>
+          <li>En «URI de redireccionamiento de OAuth válidos» pegá:<div class="code-line" style="margin-top:6px"><%= callback_admin_integration_url %></div></li>
+          <li>Copiá el <strong>App ID</strong> y el <strong>App Secret</strong> (Configuración → Básica) acá al lado.</li>
+          <li>Tocá <strong>Conectar con Facebook</strong>, aceptá los permisos y elegí la página.</li>
+          <li>Para Instagram: la cuenta tiene que ser <strong>profesional</strong> y estar vinculada a esa página.</li>
+        </ol>
+        <p class="hint" style="margin-top:14px">Mientras la app esté en modo desarrollo solo pueden conectarla las personas con rol en la app. Para uso normal, pasala a modo activo.</p>
+      </div>
+    </div>
+    <%= render "admin/shared/record_meta", record: @integration, trash: false if @integration.persisted? %>
+  </aside>
+</div>

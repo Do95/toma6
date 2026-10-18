@@ -1,0 +1,85 @@
+<%= form_with model: [:admin, record], html: { multipart: true }, data: { controller: "social-preview toggle" } do |f| %>
+  <%= form_errors(record) %>
+  <div class="layout-aside" style="grid-template-columns:minmax(0,1fr) 360px">
+    <div>
+      <div class="card">
+        <div class="card-body form-grid">
+          <div class="field span-2">
+            <span class="label">Dónde publicar</span>
+            <div class="network-picks">
+              <label class="network-pick <%= 'is-disabled' unless @integration.facebook_ready? %>">
+                <%= f.check_box :to_facebook, disabled: !@integration.facebook_ready? %> <%= icon(:facebook, size: 18) %> <span><strong><%= @integration.page_name || "Facebook" %></strong></span>
+              </label>
+              <label class="network-pick <%= 'is-disabled' unless @integration.instagram_ready? %>">
+                <%= f.check_box :to_instagram, disabled: !@integration.instagram_ready? %> <%= icon(:instagram, size: 18) %> <span><strong><%= @integration.instagram_username ? "@#{@integration.instagram_username}" : "Instagram" %></strong></span>
+              </label>
+            </div>
+            <% unless @integration.instagram_ready? %><%= field_hint("Instagram no está vinculado. Revisalo en Integraciones.") %><% end %>
+          </div>
+          <div class="field span-2">
+            <%= f.label :body %>
+            <%= f.text_area :body, rows: 7, data: { social_preview_target: "body", action: "input->social-preview#update" } %>
+            <div class="counter" data-social-preview-target="counter"></div>
+          </div>
+          <div class="field span-2"><%= f.label :link, "Enlace (solo Facebook; en Instagram va como texto)" %><%= f.url_field :link, placeholder: "#{settings.public_base_url}/proyectos/…", data: { social_preview_target: "link", action: "input->social-preview#update" } %></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div><h2>Imagen</h2><p>Elegí una de la galería o subí una nueva. Instagram la necesita sí o sí.</p></div></div>
+        <div class="card-body">
+          <div class="library">
+            <label title="Sin imagen de la galería" style="display:grid;place-items:center;background:var(--surface-2);font-size:12px;color:var(--ink-3)">
+              <%= f.radio_button :media_item_id, "", data: { action: "social-preview#pickLibrary" } %>Ninguna
+            </label>
+            <% @library.each do |item| %>
+              <label title="<%= item.display_name %>">
+                <%= f.radio_button :media_item_id, item.id, data: { src: item.image_url(:medium), action: "social-preview#pickLibrary" } %>
+                <%= image_tag item.image_url(:thumb), alt: item.display_name, loading: "lazy" %>
+              </label>
+            <% end %>
+          </div>
+          <div class="field" style="margin-top:14px">
+            <%= f.label :image, "…o subí una imagen" %>
+            <%= f.file_field :image, accept: "image/*", class: "input", data: { social_preview_target: "file", action: "social-preview#pickFile" } %>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2>¿Cuándo?</h2></div>
+        <div class="card-body form-grid">
+          <div class="field span-2">
+            <div class="network-picks">
+              <label class="network-pick"><input type="radio" name="intent" value="publish" data-toggle-target="source" data-action="toggle#update" <%= "checked" unless record.scheduled_at %>> <%= icon(:send, size: 16) %> Publicar ahora</label>
+              <label class="network-pick"><input type="radio" name="intent" value="schedule" data-action="toggle#update" <%= "checked" if record.scheduled_at %>> <%= icon(:calendar, size: 16) %> Programar</label>
+              <label class="network-pick"><input type="radio" name="intent" value="draft" data-action="toggle#update"> <%= icon(:file, size: 16) %> Guardar borrador</label>
+            </div>
+          </div>
+          <div class="field" data-toggle-target="item" data-show-when="schedule" hidden>
+            <%= f.label :scheduled_at %><%= f.datetime_local_field :scheduled_at, min: Time.current.strftime("%Y-%m-%dT%H:%M") %>
+            <%= field_hint("Se revisa cada 5 minutos. Hora de #{Time.zone.name.tr('_', ' ')}.") %>
+          </div>
+        </div>
+        <div class="form-actions">
+          <%= link_to "Cancelar", admin_social_posts_path, class: "btn btn-ghost" %>
+          <button type="submit" class="btn btn-primary"><%= icon(:check, size: 16) %> Continuar</button>
+        </div>
+      </div>
+    </div>
+
+    <aside>
+      <div class="preview-switch">
+        <button type="button" aria-pressed="true" data-network="facebook" data-social-preview-target="switch" data-action="social-preview#network">Facebook</button>
+        <button type="button" aria-pressed="false" data-network="instagram" data-social-preview-target="switch" data-action="social-preview#network">Instagram</button>
+      </div>
+      <div class="preview-phone" data-network="facebook">
+        <div class="pp-head"><%= avatar_for(current_user, size: 34) %><div><strong><%= @integration.page_name || settings.site_name %></strong><small>Vista previa</small></div></div>
+        <div class="pp-img" data-social-preview-target="image">
+          <% if (img = record.image_source_url(:medium)) %><%= image_tag img, alt: "" %><% end %>
+        </div>
+        <div class="pp-body" data-social-preview-target="text"></div>
+      </div>
+    </aside>
+  </div>
+<% end %>

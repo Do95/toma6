@@ -1,0 +1,8 @@
+<% if section.image.present? %>
+  <section class="<%= section_classes(section) %>" id="<%= section.anchor %>">
+    <figure class="sx-full pr">
+      <img src="<%= section.image.url(:large) %>" alt="<%= section.note.presence || section.title %>" loading="lazy" decoding="async" class="layer" data-speed="0.06">
+    </figure>
+    <% if section.note.present? %><p class="sx-caption"><%= section.note %></p><% end %>
+  </section>
+<% end %>

@@ -1,0 +1,4 @@
+<% content_for :title, "Nuevo enlace" %>
+<% content_for :crumbs do %><%= link_to "Enlaces y QR", admin_short_links_path %> / Nuevo<% end %>
+<%= render "admin/shared/header", title: "Nuevo enlace con QR" %>
+<%= render "form", record: @record %>

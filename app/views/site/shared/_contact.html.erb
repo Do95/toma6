@@ -1,0 +1,22 @@
+<% section = local_assigns[:section] || Section.home_kind("contact") %>
+<section class="contact pr" id="<%= section&.anchor || "contacto" %>">
+  <div class="lens layer" data-speed="0.3" aria-hidden="true"><%= render "site/lens_rings" %></div>
+  <div class="contact-inner">
+    <h2><span class="mark"><%= section&.title.presence || settings.contact_title %></span></h2>
+    <p><%= inline_text(section&.lead.presence || settings.contact_intro) %></p>
+    <div class="hero-cta">
+      <%= link_to section&.button_label.presence || "Cotizar proyecto", section&.button_url.presence || services_path(anchor: "cotizador"), class: "btn primary" %>
+      <% if settings.whatsapp_url %>
+        <a class="link" href="<%= settings.whatsapp_url %>" target="_blank" rel="noopener">Escribir por WhatsApp ›</a>
+      <% end %>
+    </div>
+    <div class="contact-meta">
+      <% if settings.contact_email.present? %><a href="mailto:<%= settings.contact_email %>"><%= settings.contact_email %></a><% end %>
+      <% social_links.each do |url, icon_name, label| %>
+        <a class="social" href="<%= url %>" target="_blank" rel="noopener" aria-label="<%= label %> de <%= settings.site_name %>">
+          <%= icon(icon_name, size: 18) if icon_name %><%= handle_from(url) %>
+        </a>
+      <% end %>
+    </div>
+  </div>
+</section>

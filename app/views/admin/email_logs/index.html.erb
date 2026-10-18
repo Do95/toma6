@@ -1,0 +1,41 @@
+<% content_for :title, "Correos" %>
+<%= render "admin/shared/header", title: "Correos", subtitle: "Cada correo que sale del sitio queda registrado acá. Si alguno falla, se reintenta solo hasta 3 veces y podés reenviarlo.",
+           actions: ((@counts["failed"].to_i.positive? && can?(:sales, :write)) ? button_to(safe_join([icon(:refresh, size: 16), "Reintentar fallidos (#{@counts['failed']})"]), retry_failed_admin_email_logs_path, class: "btn btn-primary") : nil) %>
+<%= render "admin/email_templates/tabs", current: :logs %>
+<%= form_with url: admin_email_logs_path, method: :get, class: "toolbar", data: { controller: "autosubmit", turbo_action: "replace" } do %>
+  <label class="search field"><%= icon(:search, size: 16) %><input type="search" name="q" value="<%= params[:q] %>" placeholder="Destinatario o asunto" class="input" data-action="input->autosubmit#submit"></label>
+  <input type="hidden" name="status" value="<%= params[:status] %>">
+  <div class="chips">
+    <%= filter_chip "Todos", { status: nil }, params[:status].blank? %>
+    <% EmailLog::STATUSES.each do |key, label| %>
+      <% next unless @counts[key].to_i.positive? %>
+      <%= filter_chip "#{label} (#{@counts[key]})", { status: key }, params[:status] == key %>
+    <% end %>
+  </div>
+<% end %>
+<div class="card table-wrap">
+  <% if @logs.any? %>
+    <table class="table">
+      <thead><tr><th>Estado</th><th>Correo</th><th>Para</th><th>Intentos</th><th>Cuándo</th><th></th></tr></thead>
+      <tbody>
+        <% @logs.each do |log| %>
+          <tr>
+            <td><%= status_badge({ "sent" => "published", "failed" => "failed", "retrying" => "partial", "skipped" => "draft" }.fetch(log.status, "scheduled"), log.status_label) %></td>
+            <td><%= link_to log.subject.presence || log.template&.name || "#{log.mailer}##{log.action}", admin_email_log_path(log), class: "row-title" %>
+              <% if log.error_message.present? && log.status != "sent" %><span class="row-sub" style="color:var(--red)"><%= log.error_message.truncate(90) %></span><% end %></td>
+            <td><%= log.to.presence || content_tag(:span, "—", class: "muted") %></td>
+            <td><%= log.attempts %></td>
+            <td><span title="<%= l(log.created_at, format: :long) %>">hace <%= time_ago_in_words(log.created_at) %></span></td>
+            <td class="actions-cell">
+              <% if log.retryable? && can?(:sales, :write) %><%= button_to icon(:refresh, size: 16, title: "Reintentar"), retry_admin_email_log_path(log), class: "icon-btn" %><% end %>
+              <%= link_to icon(:eye, size: 16, title: "Ver"), admin_email_log_path(log), class: "icon-btn" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <%= render "admin/shared/empty", title: "Todavía no salió ningún correo", text: "Cuando alguien pida una cotización o envíes una, lo vas a ver acá." %>
+  <% end %>
+</div>
+<%= pagination_nav %>

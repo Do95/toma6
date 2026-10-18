@@ -1,0 +1,10 @@
+<section class="<%= section_classes(section) %>" id="<%= section.anchor %>">
+  <div class="sx-wrap">
+    <%= render "site/sections/head", section: section %>
+    <dl class="sx-stats" style="--n:<%= [section.item_rows.size, 4].min %>">
+      <% section.item_rows.each do |value, label| %>
+        <div><dt data-controller="count-up"><%= value %></dt><dd><%= label %></dd></div>
+      <% end %>
+    </dl>
+  </div>
+</section>

@@ -1,0 +1,18 @@
+<% content_for :head, organization_json_ld %>
+
+<% if @sections.empty? %>
+  <section class="site-empty">
+    <div>
+      <%= illustration("claqueta") %>
+      <h1>Estamos preparando la próxima toma</h1>
+      <p>Muy pronto vas a ver acá nuestros trabajos. Mientras tanto, podés cotizar tu proyecto o escribirnos.</p>
+      <div class="hero-cta"><%= link_to "Cotizar proyecto", services_path(anchor: "cotizador"), class: "btn primary" %><% if settings.whatsapp_url %><a class="link" href="<%= settings.whatsapp_url %>">Escribir por WhatsApp ›</a><% end %></div>
+    </div>
+  </section>
+<% else %>
+<div data-controller="parallax">
+  <% @sections.each do |section| %>
+    <%= render "site/sections/#{section.kind}", section: section %>
+  <% end %>
+</div>
+<% end %>

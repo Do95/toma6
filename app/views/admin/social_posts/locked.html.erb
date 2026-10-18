@@ -1,0 +1,12 @@
+<% content_for :title, "Publicaciones" %>
+<%= render "admin/shared/header", title: "Publicaciones" %>
+<div class="card locked">
+  <div class="lock-art"><%= icon(:lock, size: 36) %></div>
+  <h2>Conectá tus redes para desbloquear</h2>
+  <p>Publicá en tu página de Facebook y en Instagram directo desde el panel: elegí una foto de la galería, escribí el texto y publicalo ahora o programalo. Es opcional; el resto del panel funciona igual sin esto.</p>
+  <% if can?(:integrations, :write) %>
+    <%= link_to safe_join([icon(:plug, size: 16), "Configurar integración"]), admin_integration_path, class: "btn btn-primary" %>
+  <% else %>
+    <p class="hint">Pedile a un administrador que conecte la página en Integraciones.</p>
+  <% end %>
+</div>

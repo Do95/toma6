@@ -1,0 +1,135 @@
+<% content_for :title, page_title("Servicios y cotizador") %>
+<% content_for :description, settings.quote_intro.presence || "Servicios y cotizador en línea" %>
+
+<% heading = page_heading("services", settings.services_title, settings.services_intro) %>
+<%= render "site/shared/page_head", title: heading.first, intro: heading.last %>
+
+<section class="section services services-page" data-controller="parallax">
+  <div class="wrap">
+    <%= render partial: "site/shared/service_card", collection: @services, as: :service, locals: { show_price: true } %>
+  </div>
+</section>
+
+<% if @quotable.any? %>
+<% config = {
+     currency: settings.currency_symbol,
+     bundlePercent: settings.bundle_discount_percent.to_f,
+     bundleMin: settings.bundle_min_services,
+     taxName: settings.tax_name,
+     taxRate: settings.tax_rate.to_f,
+     showTax: settings.estimator_shows_tax,
+     services: @quotable.map(&:estimator_payload)
+   } %>
+<section class="estimator" id="cotizador" aria-labelledby="estTitle"
+         data-controller="estimator" data-estimator-config-value="<%= config.to_json %>">
+  <div class="estimator-inner">
+    <div class="estimator-head">
+      <h2 id="estTitle"><%= settings.quote_title.presence || "Armá tu cotización" %></h2>
+      <p><%= settings.quote_intro %></p>
+      <% if settings.bundle_discount? %>
+        <p class="bundle-note"><span class="mark mark-sm"><%= settings.bundle_discount_percent.to_d.to_s("F").sub(/\.0\z/, "") %>% off</span> al combinar <%= settings.bundle_min_services %> o más servicios.</p>
+      <% end %>
+    </div>
+
+    <%= form_with model: @quote_request, url: quote_requests_path, class: "estimator-grid", data: { action: "submit->estimator#beforeSubmit" } do |f| %>
+      <div class="est-services">
+        <p class="est-step"><span>1</span> Elegí los servicios</p>
+        <% @quotable.each do |service| %>
+          <div class="est-service" data-estimator-target="service" data-service-id="<%= service.id %>">
+            <label class="est-service-head">
+              <input type="checkbox" data-action="estimator#toggleService" value="<%= service.id %>">
+              <span class="est-check" aria-hidden="true"></span>
+              <span class="est-service-title">
+                <strong><%= service.title %></strong>
+                <small><%= service.summary.to_s.truncate(110) %></small>
+              </span>
+              <span class="est-service-price">
+                <% if service.base_price.positive? %><small><%= service.price_prefix %></small><%= money(service.base_price, round: true) %><% else %><small>Precio según opciones</small><% end %>
+                <% if service.price_unit.present? %><small><%= service.price_unit %></small><% end %>
+              </span>
+            </label>
+            <% opts = service.visible_options %>
+            <% if opts.any? %>
+              <div class="est-options" hidden>
+                <% opts.group_by { |o| o.kind == "choice" ? "choice:#{o.group_name}" : o.kind }.each do |key, group| %>
+                  <% if key.start_with?("choice:") %>
+                    <fieldset class="est-group">
+                      <legend><%= group.first.group_name %></legend>
+                      <div class="est-choices">
+                        <% default = group.find(&:default_selected) || group.first %>
+                        <% group.each do |opt| %>
+                          <label class="est-choice">
+                            <input type="radio" name="choice-<%= service.id %>-<%= group.first.group_name.parameterize %>" value="<%= opt.id %>" data-option-id="<%= opt.id %>" data-action="estimator#recalc" <%= "checked" if opt == default %>>
+                            <span><strong><%= opt.name %></strong><em><%= opt.price.positive? ? "+#{money(opt.price, round: true)}" : "Incluido" %></em></span>
+                          </label>
+                        <% end %>
+                      </div>
+                    </fieldset>
+                  <% else %>
+                    <% group.each do |opt| %>
+                      <% if opt.kind == "quantity" %>
+                        <div class="est-qty" data-controller="stepper" data-stepper-min-value="<%= opt.min_quantity %>" data-stepper-max-value="<%= opt.max_quantity %>">
+                          <span class="est-opt-text"><strong><%= opt.name %></strong><% if opt.description.present? %><small><%= opt.description %></small><% end %><em><%= money(opt.price, round: true) %> <%= opt.unit_label.presence || "c/u" %></em></span>
+                          <span class="stepper">
+                            <button type="button" data-action="stepper#down" aria-label="Menos <%= opt.name %>">−</button>
+                            <input type="number" inputmode="numeric" min="<%= opt.min_quantity %>" max="<%= opt.max_quantity %>" value="<%= opt.default_selected ? [opt.min_quantity, 1].max : opt.min_quantity %>" data-option-id="<%= opt.id %>" data-stepper-target="input" data-action="input->estimator#recalc change->estimator#recalc" aria-label="Cantidad de <%= opt.name %>">
+                            <button type="button" data-action="stepper#up" aria-label="Más <%= opt.name %>">+</button>
+                          </span>
+                        </div>
+                      <% else %>
+                        <label class="est-addon">
+                          <input type="checkbox" value="<%= opt.id %>" data-option-id="<%= opt.id %>" data-action="estimator#recalc" <%= "checked" if opt.default_selected %>>
+                          <span class="est-check sm" aria-hidden="true"></span>
+                          <span class="est-opt-text"><strong><%= opt.name %></strong><% if opt.description.present? %><small><%= opt.description %></small><% end %></span>
+                          <em>+<%= money(opt.price, round: true) %></em>
+                        </label>
+                      <% end %>
+                    <% end %>
+                  <% end %>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+
+      <aside class="est-summary" data-estimator-target="summary" aria-live="polite">
+        <div class="est-summary-card">
+          <p class="est-step"><span>2</span> Tu estimado</p>
+          <ul class="est-lines" data-estimator-target="lines"><li class="est-empty">Elegí al menos un servicio para ver el precio.</li></ul>
+          <dl class="est-totals">
+            <div><dt>Subtotal</dt><dd data-estimator-target="subtotal"><%= money(0) %></dd></div>
+            <div class="est-discount" data-estimator-target="discountRow" hidden><dt>Combo de servicios</dt><dd data-estimator-target="discount"></dd></div>
+            <div data-estimator-target="taxRow" hidden><dt><%= settings.tax_name %> (<%= settings.tax_rate.to_d.to_s("F").sub(/\.0\z/, "") %>%)</dt><dd data-estimator-target="tax"></dd></div>
+          </dl>
+          <div class="est-total"><span>Total estimado</span><strong data-estimator-target="total"><%= money(0) %></strong></div>
+          <p class="est-disclaimer"><%= settings.estimator_disclaimer.presence || "Es un precio estimado. Te enviamos una propuesta cerrada después de conocer tu proyecto." %></p>
+        </div>
+
+        <div class="est-form">
+          <p class="est-step"><span>3</span> Tus datos</p>
+          <%= form_errors(@quote_request) if @quote_request.errors.any? %>
+          <div class="est-fields">
+            <label class="fld"><span>Nombre *</span><%= f.text_field :name, required: true, autocomplete: "name" %></label>
+            <label class="fld"><span>Correo *</span><%= f.email_field :email, required: true, autocomplete: "email" %></label>
+            <label class="fld"><span>Teléfono / WhatsApp</span><%= f.telephone_field :phone, autocomplete: "tel" %></label>
+            <label class="fld"><span>Empresa</span><%= f.text_field :company, autocomplete: "organization" %></label>
+            <label class="fld"><span>Fecha del evento</span><%= f.date_field :event_date %></label>
+            <label class="fld"><span>Lugar</span><%= f.text_field :location %></label>
+            <label class="fld fld-wide"><span>Contanos tu idea</span><%= f.text_area :message, rows: 3 %></label>
+            <label class="hp" aria-hidden="true">Sitio web <input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+          </div>
+          <%= hidden_field_tag :selections, params[:selections].presence || "[]", data: { estimator_target: "payload" } %>
+          <button class="btn primary est-submit" type="submit" data-estimator-target="submit" disabled>Enviar solicitud</button>
+          <p class="est-privacy">Usamos tus datos solo para responder esta solicitud.</p>
+        </div>
+      </aside>
+
+      <div class="est-bar" data-estimator-target="bar">
+        <span>Total estimado <strong data-estimator-target="barTotal"><%= money(0) %></strong></span>
+        <a class="btn primary" href="#cotizador-resumen" data-action="estimator#jumpToSummary">Continuar</a>
+      </div>
+    <% end %>
+  </div>
+</section>
+<% end %>

@@ -1,0 +1,25 @@
+<% if @heading %><h1><%= @heading %></h1><% end %>
+<%= @body_html %>
+<% if @details && @details[:kind] == :request %>
+  <% r = @details[:record] %>
+  <table class="lines">
+    <% r.selection_lines.each do |line| %>
+      <tr>
+        <td><% if line["label"] == line["service"] %><strong><%= line["label"] %></strong><% else %>+ <%= line["label"] %><% end %><%= " × #{line['quantity']}" if line["quantity"].to_i > 1 %></td>
+        <td class="r"><%= money(line["total"]) %></td>
+      </tr>
+    <% end %>
+    <% if r.discount.to_d.positive? %><tr><td>Combo de servicios</td><td class="r">−<%= money(r.discount) %></td></tr><% end %>
+  </table>
+  <div class="total">Total estimado: <%= money(r.estimated_total) %></div>
+  <p class="muted"><%= settings.estimator_disclaimer %></p>
+<% elsif @details && @details[:kind] == :quote %>
+  <% q = @details[:record] %>
+  <table class="lines">
+    <% q.items.each do |item| %>
+      <tr><td><%= item.description %><%= " × #{item.quantity.to_d.to_s('F').sub(/\.0\z/, '')}" if item.quantity.to_d != 1 %></td><td class="r"><%= q.money(item.total) %></td></tr>
+    <% end %>
+  </table>
+  <div class="total">Total: <%= q.money(q.total) %></div>
+<% end %>
+<% if @button_label && @button_url %><p class="cta"><a href="<%= @button_url %>"><%= @button_label %></a></p><% end %>

@@ -1,0 +1,31 @@
+<% plural = resource_class.model_name.human(count: 2) %>
+<% content_for :title, plural %>
+<%= render "admin/shared/header", title: plural, subtitle: (sortable? ? "Arrastrá desde ⋮⋮ para cambiar el orden en el sitio." : nil),
+           actions: (can?(resource_class.permission_resource, :write) ? link_to(safe_join([icon(:plus, size: 16), new_label(resource_class)]), new_record_path, class: "btn btn-primary") : nil) %>
+
+<div class="card">
+  <% if @records.any? %>
+    <ul class="sort-list" <% if sortable? && can?(resource_class.permission_resource, :write) %>data-controller="sortable" data-sortable-model-value="<%= resource_class.model_name.plural %>" data-sortable-url-value="<%= admin_sort_path %>"<% end %>>
+      <% @records.each do |record| %>
+        <li class="sort-item" data-id="<%= record.id %>">
+          <% if sortable? %><span class="sort-handle" title="Arrastrar para ordenar"><%= icon(:grip, size: 18) %></span><% end %>
+          <div class="sort-main">
+            <%= link_to edit_polymorphic_path([:admin, record]) do %><strong><%= record.display_name %></strong><% end %>
+            <% sub = record.try(:description).presence || record.try(:answer).presence %>
+            <% if sub %><p><%= sub.truncate(140) %></p><% end %>
+            <% if record.respond_to?(:media_count) %><p><%= pluralize(record.media_count.to_i, "medio", plural: "medios") %></p><% end %>
+          </div>
+          <div class="sort-meta">
+            <% if record.respond_to?(:published?) %><%= published_badge(record) %><% end %>
+            <%= audit_line(record) %>
+            <%= link_to icon(:edit, size: 16, title: "Editar"), edit_polymorphic_path([:admin, record]), class: "icon-btn" %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <%= render "admin/shared/empty", title: "Todavía no hay #{plural.downcase}",
+               action: (link_to(new_label(resource_class), new_record_path, class: "btn btn-primary") if can?(resource_class.permission_resource, :write)) %>
+  <% end %>
+</div>
+<%= pagination_nav %>

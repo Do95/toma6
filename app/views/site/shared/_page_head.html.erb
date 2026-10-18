@@ -1,0 +1,8 @@
+<header class="page-head">
+  <div class="page-head-inner">
+    <% if local_assigns[:back] %><%= link_to back.first, back.last, class: "back" %><% end %>
+    <h1><%= title %></h1>
+    <% if local_assigns[:intro].present? %><p><%= intro %></p><% end %>
+    <%= yield if block_given? %>
+  </div>
+</header>

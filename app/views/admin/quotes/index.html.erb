@@ -1,0 +1,46 @@
+<% content_for :title, "Cotizaciones" %>
+<%= render "admin/shared/header", title: "Cotizaciones", subtitle: "Propuestas con PDF de la marca, enlace para el cliente y seguimiento de estado.",
+           actions: (link_to(safe_join([icon(:plus, size: 16), "Nueva cotización"]), new_admin_quote_path, class: "btn btn-primary") if can?(:sales, :write)) %>
+
+<div class="stats">
+  <div class="stat is-red"><small>Abiertas (borrador + enviadas)</small><strong><%= money(@stats[:open_total], round: true) %></strong></div>
+  <div class="stat"><small>Aceptado este mes</small><strong><%= money(@stats[:accepted_month], round: true) %></strong></div>
+  <div class="stat"><small>Esperando respuesta</small><strong><%= @stats[:sent_count] %></strong></div>
+  <div class="stat"><small>Tasa de aceptación</small><strong><%= @stats[:acceptance_rate] ? "#{@stats[:acceptance_rate]}%" : "—" %></strong></div>
+</div>
+
+<%= form_with url: admin_quotes_path, method: :get, class: "toolbar", data: { controller: "autosubmit", turbo_action: "replace" } do %>
+  <label class="search field"><%= icon(:search, size: 16) %><input type="search" name="q" value="<%= params[:q] %>" placeholder="Número, cliente o empresa" class="input" data-action="input->autosubmit#submit"></label>
+  <input type="hidden" name="status" value="<%= params[:status] %>">
+  <div class="chips">
+    <%= filter_chip "Todas", { status: nil }, params[:status].blank? %>
+    <% Quote::STATUSES.each do |key, label| %><%= filter_chip label, { status: key }, params[:status] == key %><% end %>
+  </div>
+<% end %>
+
+<div class="card table-wrap">
+  <% if @records.any? %>
+    <table class="table">
+      <thead><tr><th>Número</th><th>Cliente</th><th>Emitida</th><th>Estado</th><th class="num">Total</th><th></th></tr></thead>
+      <tbody>
+        <% @records.each do |quote| %>
+          <tr>
+            <td><%= link_to quote.number, admin_quote_path(quote), class: "row-title" %><span class="row-sub"><%= quote.creator&.name %></span></td>
+            <td><strong><%= quote.client_name %></strong><span class="row-sub"><%= quote.title.presence || quote.client_company %></span></td>
+            <td><%= l(quote.issued_on, format: :short) %><% if quote.expired? %><span class="row-sub" style="color:var(--warn)">Vencida</span><% end %></td>
+            <td><%= status_badge(quote.expired? ? "expired" : quote.status, quote.expired? ? "Vencida" : quote.status_label) %></td>
+            <td class="num"><strong><%= quote.money(quote.total) %></strong></td>
+            <td class="actions-cell">
+              <%= link_to icon(:download, size: 16, title: "Descargar PDF"), pdf_admin_quote_path(quote, download: 1), class: "icon-btn", data: { turbo: false } %>
+              <%= link_to icon(:eye, size: 16, title: "Ver"), admin_quote_path(quote), class: "icon-btn" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <%= render "admin/shared/empty", title: "No hay cotizaciones acá", text: "Creá una desde cero o convertí una solicitud del cotizador web.",
+               action: (link_to("Nueva cotización", new_admin_quote_path, class: "btn btn-primary") if can?(:sales, :write)) %>
+  <% end %>
+</div>
+<%= pagination_nav %>

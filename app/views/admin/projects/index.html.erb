@@ -1,0 +1,36 @@
+<% content_for :title, "Proyectos" %>
+<%= render "admin/shared/header", title: "Proyectos",
+           subtitle: "Cada proyecto tiene su página con galería general y álbumes. Los destacados aparecen en «Trabajos recientes» del inicio.",
+           actions: (link_to(safe_join([icon(:plus, size: 16), "Nuevo proyecto"]), new_admin_project_path, class: "btn btn-primary") if can?(:content, :write)) %>
+
+<%= form_with url: admin_projects_path, method: :get, class: "toolbar", data: { controller: "autosubmit", turbo_action: "replace" } do %>
+  <label class="search field"><%= icon(:search, size: 16) %><input type="search" name="q" value="<%= params[:q] %>" placeholder="Buscar proyecto" data-action="input->autosubmit#submit" class="input"></label>
+<% end %>
+
+<div class="card">
+  <% if @records.any? %>
+    <ul class="sort-list" <% if can?(:content, :write) && params[:q].blank? %>data-controller="sortable" data-sortable-model-value="projects" data-sortable-url-value="<%= admin_sort_path %>"<% end %>>
+      <% @records.each do |project| %>
+        <li class="sort-item" data-id="<%= project.id %>">
+          <span class="sort-handle"><%= icon(:grip, size: 18) %></span>
+          <% if (img = project.hero_image_url(:thumb)) %><%= image_tag img, class: "sort-thumb", alt: "" %><% else %><span class="sort-thumb"><%= illustration("fotos") %></span><% end %>
+          <div class="sort-main">
+            <%= link_to edit_admin_project_path(project) do %><strong><%= project.title %></strong><% end %>
+            <p><%= [project.category_label, project.client_name, pluralize(project.albums.size, "álbum", plural: "álbumes")].compact_blank.join(" · ") %></p>
+          </div>
+          <div class="sort-meta">
+            <% if project.featured? %><span class="badge badge-info">Destacado</span><% end %>
+            <%= published_badge(project) %>
+            <%= audit_line(project) %>
+            <%= link_to icon(:eye, size: 16, title: "Ver en el sitio"), project_path(project.slug), class: "icon-btn", target: "_blank" %>
+            <%= link_to icon(:edit, size: 16, title: "Editar"), edit_admin_project_path(project), class: "icon-btn" %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <%= render "admin/shared/empty", title: params[:q].present? ? "Ningún proyecto coincide con «#{params[:q]}»" : "Todavía no hay proyectos",
+               action: (link_to("Crear proyecto", new_admin_project_path, class: "btn btn-primary") if params[:q].blank?) %>
+  <% end %>
+</div>
+<%= pagination_nav %>

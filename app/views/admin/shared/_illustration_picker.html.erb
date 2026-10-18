@@ -1,0 +1,18 @@
+<%# Selector visual de ilustración. locals: form, attribute (default :illustration), label %>
+<% attribute = local_assigns.fetch(:attribute, :illustration) %>
+<% current = form.object.public_send(attribute).presence || "none" %>
+<div class="field span-2">
+  <span class="label"><%= local_assigns[:label] || "Ilustración" %></span>
+  <div class="illus-picker">
+    <label class="illus-opt" title="Ninguna">
+      <%= form.radio_button attribute, "none", checked: current == "none", data: { action: "illus-preview#pick" } %>
+      <span class="illus-tile illus-none"><%= icon(:x, size: 20) %></span><small>Ninguna</small>
+    </label>
+    <% Illustrations::LIBRARY.each do |key, item| %>
+      <label class="illus-opt" title="<%= item[:label] %>">
+        <%= form.radio_button attribute, key, checked: current == key, data: { action: "illus-preview#pick" } %>
+        <span class="illus-tile"><%= illustration(key) %></span><small><%= item[:label] %></small>
+      </label>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title><%= content_for?(:title) ? yield(:title) : (settings.seo_title.presence || page_title) %></title>
+  <meta name="description" content="<%= content_for?(:description) ? yield(:description) : settings.seo_description %>">
+  <meta name="robots" content="<%= content_for?(:robots) ? yield(:robots) : 'index, follow, max-image-preview:large' %>">
+  <link rel="canonical" href="<%= settings.public_base_url %><%= request.path %>">
+  <meta name="theme-color" content="#171717">
+  <meta name="view-transition" content="same-origin">
+  <% og_image = content_for?(:og_image) ? yield(:og_image) : absolute_url(settings.og_image.present? ? settings.og_image.url(:large) : image_path("site/og-toma6.jpg")) %>
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="es_LA">
+  <meta property="og:site_name" content="<%= settings.site_name %>">
+  <meta property="og:title" content="<%= content_for?(:title) ? yield(:title) : (settings.seo_title.presence || settings.site_name) %>">
+  <meta property="og:description" content="<%= content_for?(:description) ? yield(:description) : settings.seo_description %>">
+  <meta property="og:url" content="<%= settings.public_base_url %><%= request.path %>">
+  <meta property="og:image" content="<%= og_image %>">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23B63830'/%3E%3Crect x='14' y='26' width='36' height='24' fill='none' stroke='%23fff' stroke-width='5'/%3E%3Crect x='24' y='35' width='16' height='6' fill='%23fff'/%3E%3Cpath d='M16 22l8-8M28 22l8-8M40 22l8-8' stroke='%23fff' stroke-width='5'/%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <%= csrf_meta_tags %>
+  <%= preload_link_tag "archivo-variable.woff2", as: "font", type: "font/woff2", crossorigin: "anonymous" %>
+  <%= stylesheet_link_tag "site", "data-turbo-track": "reload" %>
+  <%= javascript_importmap_tags "site" %>
+  <% if settings.google_analytics_id.present? %>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=<%= settings.google_analytics_id %>"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','<%= j settings.google_analytics_id %>');</script>
+  <% end %>
+  <%= yield :head %>
+</head>
+<body class="<%= yield :body_class %>" data-controller="nav lightbox">
+  <a class="skip-link" href="#contenido">Saltar al contenido</a>
+  <header class="nav" data-nav-target="bar">
+    <div class="nav-inner">
+      <a class="brand" href="<%= root_path %>" aria-label="<%= settings.site_name %>, inicio">
+        <%= image_tag(settings.logo.present? ? settings.logo.url(:small) : "site/imagen-02.png", class: "brand-logo", alt: settings.site_name, width: 67, height: 32) %>
+      </a>
+      <ul id="menu" data-nav-target="menu">
+        <% nav_sections.each do |section| %>
+          <li><%= nav_link section.nav_text, section_href(section) %></li>
+        <% end %>
+      </ul>
+      <div class="nav-actions">
+        <%= link_to "Cotizar", services_path(anchor: "cotizador"), class: "btn primary" %>
+        <button class="nav-toggle" type="button" aria-controls="menu" aria-expanded="false" data-action="nav#toggle" data-nav-target="toggle">
+          <span class="sr-only">Abrir menú</span><span class="bars" aria-hidden="true"></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <% flash.each do |type, message| %>
+    <div class="site-flash site-flash-<%= type %>" role="status" data-controller="dismiss" data-dismiss-after-value="6000"><%= message %></div>
+  <% end %>
+
+  <main id="contenido">
+    <%= yield %>
+  </main>
+
+  <footer>
+    <div class="foot">
+      <span>
+        <strong><%= settings.site_name %></strong> · <%= settings.footer_text.presence || "Fotografía y video para eventos y proyectos multimedia" %>
+        <% if settings.contact_email.present? %> · <a href="mailto:<%= settings.contact_email %>"><%= settings.contact_email %></a><% end %>
+        <% social_links.each do |url, _icon, label| %> · <a href="<%= url %>" target="_blank" rel="noopener"><%= label %></a><% end %>
+        <br>© <%= Date.current.year %> <%= settings.legal_name.presence || settings.site_name %>. Todos los derechos reservados.
+      </span>
+      <nav aria-label="Pie de página">
+        <% nav_sections.each do |section| %><%= link_to section.nav_text, section_href(section) %><% end %>
+        <%= link_to "Cotizar", services_path(anchor: "cotizador") %>
+      </nav>
+    </div>
+  </footer>
+
+  <%# Ilustración que reemplaza a cualquier imagen que no cargue %>
+  <template id="illus-fallback"><%= illustration("fotos") %></template>
+  <div class="lb" data-lightbox-target="overlay" role="dialog" aria-modal="true" aria-label="Visor de fotos" hidden>
+    <button class="lb-btn lb-close" type="button" aria-label="Cerrar visor" data-action="lightbox#close">✕</button>
+    <button class="lb-btn lb-prev" type="button" aria-label="Anterior" data-action="lightbox#prev">‹</button>
+    <figure>
+      <div class="lb-img" data-lightbox-target="stage"></div>
+      <figcaption data-lightbox-target="caption"></figcaption>
+    </figure>
+    <button class="lb-btn lb-next" type="button" aria-label="Siguiente" data-action="lightbox#next">›</button>
+    <p class="lb-counter" data-lightbox-target="counter" aria-live="polite"></p>
+    <div class="lb-strip" data-lightbox-target="strip" aria-label="Miniaturas"></div>
+  </div>
+</body>
+</html>

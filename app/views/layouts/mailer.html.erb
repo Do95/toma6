@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body{margin:0;background:#efeeec;font-family:Helvetica,Arial,sans-serif;color:#171717}
+    .wrap{max-width:560px;margin:0 auto;padding:24px 12px}
+    .head{background:#171717;border-bottom:5px solid #b63830;padding:22px 28px;border-radius:8px 8px 0 0}
+    .head img{height:40px;width:auto}
+    .body{background:#fff;padding:28px;border-radius:0 0 8px 8px;font-size:15px;line-height:1.55}
+    h1{font-size:22px;margin:0 0 14px;text-transform:uppercase;letter-spacing:.01em}
+    table.lines{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
+    table.lines td{padding:8px 0;border-bottom:1px solid #ebe9e5}
+    table.lines td.r{text-align:right;white-space:nowrap}
+    .total{background:#b63830;color:#fff;padding:12px 16px;border-radius:6px;font-weight:bold;font-size:18px;text-align:right}
+    .cta a{display:inline-block;background:#b63830;color:#fff !important;text-decoration:none;font-weight:bold;padding:12px 22px;border-radius:6px;box-shadow:0 3px 0 #6e1e18}
+    .muted{color:#6b6b6b;font-size:13px}
+    .foot{text-align:center;color:#8a8784;font-size:12px;padding:18px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="head"><img src="<%= absolute_url(settings.pdf_logo.present? ? settings.pdf_logo.url(:small) : image_path("site/imagen-02.png")) %>" alt="<%= settings.site_name %>"></div>
+    <div class="body"><%= yield %></div>
+    <div class="foot"><%= settings.site_name %> · <%= settings.contact_email %><% if settings.whatsapp_number.present? %> · WhatsApp <%= settings.whatsapp_number %><% end %></div>
+  </div>
+</body>
+</html>

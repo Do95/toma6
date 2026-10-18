@@ -1,0 +1,13 @@
+<section class="<%= section_classes(section) %>" id="<%= section.anchor %>">
+  <div class="sx-wrap sx-cta-box">
+    <% if section.illustration_key %><div class="sx-cta-illus"><%= illustration(section.illustration_key) %></div><% end %>
+    <div class="sx-cta-text">
+      <% if section.title.present? %><h2><%= section.title %></h2><% end %>
+      <% if section.lead.present? %><p class="sx-lead"><%= inline_text(section.lead) %></p><% end %>
+    </div>
+    <div class="sx-actions">
+      <%= section_button(section.button_label, section.button_url, klass: "btn primary inverse") %>
+      <% if section.secondary_label.present? && section.secondary_url.present? %><%= link_to "#{section.secondary_label} ›", section.secondary_url, class: "link" %><% end %>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,13 @@
+<section class="<%= section_classes(section) %>" id="<%= section.anchor %>">
+  <div class="sx-wrap">
+    <%= render "site/sections/head", section: section %>
+    <div class="sx-video">
+      <% if (embed = section.embed_url) %>
+        <iframe src="<%= embed %>" title="<%= section.title.presence || 'Video' %>" loading="lazy" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+      <% elsif section.video.present? %>
+        <video src="<%= section.video.url %>" controls playsinline preload="metadata" <% if section.image.present? %>poster="<%= section.image.url(:large) %>"<% end %>></video>
+      <% end %>
+    </div>
+    <% if section.note.present? %><p class="sx-caption"><%= section.note %></p><% end %>
+  </div>
+</section>

@@ -1,0 +1,8 @@
+<section class="<%= section_classes(section) %>" id="<%= section.anchor %>">
+  <div class="sx-wrap sx-narrow">
+    <% if section.illustration_key %><div class="sx-illus-top"><%= illustration(section.illustration_key) %></div><% end %>
+    <%= render "site/sections/head", section: section %>
+    <div class="sx-body"><%= rich_text(section.body) %></div>
+    <% if section.button_label.present? %><div class="sx-actions"><%= section_button(section.button_label, section.button_url) %></div><% end %>
+  </div>
+</section>

@@ -1,0 +1,56 @@
+<% content_for :title, "Enlaces y QR" %>
+<%= render "admin/shared/header", title: "Enlaces y QR",
+           subtitle: "Enlaces cortos con tu dominio y QR con la marca. Si cambiás el destino, el QR impreso sigue funcionando.",
+           actions: safe_join([
+             link_to(safe_join([icon(:download, size: 16), "Exportar CSV"]), admin_short_links_path(format: :csv, q: params[:q].presence), class: "btn", data: { turbo: false }),
+             (link_to(safe_join([icon(:upload, size: 16), "Importar CSV"]), import_admin_short_links_path, class: "btn") if can?(:content, :write)),
+             (link_to(safe_join([icon(:plus, size: 16), "Nuevo enlace"]), new_admin_short_link_path, class: "btn btn-primary") if can?(:content, :write))
+           ].compact) %>
+
+<% if settings.site_url.blank? %>
+  <div class="info-banner"><%= icon(:alert, size: 18) %><span>Todavía no configuraste el dominio del sitio. Los QR usan <strong><%= settings.public_base_url %></strong>. Completá <em>Dominio del sitio</em> en <%= link_to "Datos del sitio → SEO", edit_admin_site_content_path(tab: "seo") %> antes de imprimir.</span></div>
+<% end %>
+
+<div class="stats">
+  <div class="stat"><small>Enlaces</small><strong><%= @totals[:links] %></strong></div>
+  <div class="stat"><small>Visitas totales</small><strong><%= @totals[:clicks] %></strong></div>
+  <div class="stat"><small>Desde un QR</small><strong><%= @totals[:qr] %></strong></div>
+  <div class="stat is-red"><small>Últimos 30 días</small><strong><%= @totals[:month] %></strong></div>
+</div>
+
+<%= form_with url: admin_short_links_path, method: :get, class: "toolbar", data: { controller: "autosubmit", turbo_action: "replace" } do %>
+  <label class="search field"><%= icon(:search, size: 16) %><input type="search" name="q" value="<%= params[:q] %>" placeholder="Buscar por nombre, código o destino" class="input" data-action="input->autosubmit#submit"></label>
+<% end %>
+
+<% if @records.any? %>
+  <div class="link-grid">
+    <% @records.each do |link| %>
+      <article class="link-card <%= 'is-off' unless link.live? %>">
+        <%= link_to admin_short_link_path(link), class: "link-qr", title: "Ver QR y estadísticas" do %>
+          <img src="<%= qr_admin_short_link_path(link) %>" alt="QR de <%= link.title %>" loading="lazy">
+        <% end %>
+        <div class="link-body">
+          <div class="link-top">
+            <%= link_to link.title, admin_short_link_path(link), class: "link-title" %>
+            <%= status_badge(link.live? ? "published" : (link.expired? ? "expired" : "draft"), link.status_label) %>
+          </div>
+          <div class="share-box" data-controller="copy">
+            <input type="text" class="input mono-input" readonly value="<%= link.short_url %>" data-copy-target="source" aria-label="Enlace corto">
+            <button type="button" class="btn btn-sm" data-copy-target="button" data-action="copy#copy" title="Copiar"><%= icon(:copy, size: 14) %></button>
+          </div>
+          <p class="link-dest" title="<%= link.final_url %>">→ <%= link.destination_url.truncate(64) %></p>
+          <div class="link-metrics">
+            <%= link_to safe_join([icon(:download, size: 12), "PNG"]), qr_admin_short_link_path(link, format: :png, size: 2048, download: 1), class: "link-dl", title: "Descargar el QR (2048 px)", data: { turbo: false } %>
+            <span><strong><%= link.clicks_count %></strong> visitas</span>
+            <span><strong><%= link.qr_clicks_count %></strong> por QR</span>
+            <span><strong><%= @week[link.id].to_i %></strong> esta semana</span>
+          </div>
+        </div>
+      </article>
+    <% end %>
+  </div>
+<% else %>
+  <div class="card"><%= render "admin/shared/empty", title: "Todavía no hay enlaces", text: "Creá uno para un flyer, una tarjeta, un evento o una campaña: tenés el enlace corto y el QR listos para imprimir.",
+                              action: (link_to("Crear el primero", new_admin_short_link_path, class: "btn btn-primary") if can?(:content, :write)) %></div>
+<% end %>
+<%= pagination_nav %>

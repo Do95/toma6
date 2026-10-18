@@ -1,0 +1,12 @@
+/.bundle
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+/storage/*
+!/storage/.keep
+/public/uploads
+/public/assets
+/node_modules
+.env
+/config/master.key

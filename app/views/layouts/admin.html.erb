@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="turbo-refresh-method" content="morph">
+  <meta name="turbo-refresh-scroll" content="preserve">
+  <meta name="view-transition" content="same-origin">
+  <title><%= [content_for(:title), "Panel", settings.site_name].compact_blank.join(" · ") %></title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23B63830'/%3E%3Crect x='14' y='26' width='36' height='24' fill='none' stroke='%23fff' stroke-width='5'/%3E%3Crect x='24' y='35' width='16' height='6' fill='%23fff'/%3E%3Cpath d='M16 22l8-8M28 22l8-8M40 22l8-8' stroke='%23fff' stroke-width='5'/%3E%3C/svg%3E">
+  <%= csrf_meta_tags %>
+  <%= preload_link_tag "archivo-variable.woff2", as: "font", type: "font/woff2", crossorigin: "anonymous" %>
+  <%= stylesheet_link_tag "admin", "data-turbo-track": "reload" %>
+  <%= javascript_importmap_tags "application" %>
+</head>
+<body class="admin" data-controller="sidebar">
+  <aside class="side" data-sidebar-target="panel" aria-label="Menú del panel">
+    <div class="side-brand">
+      <%= link_to admin_root_path, class: "side-logo" do %>
+        <%= image_tag(settings.logo.present? ? settings.logo.url(:small) : "site/imagen-02.png", alt: settings.site_name) %>
+        <span>Panel</span>
+      <% end %>
+    </div>
+    <nav class="side-nav">
+      <%= nav_item "Inicio", admin_root_path, :home, active: current_page?(admin_root_path) %>
+
+      <% if can?(:content) %>
+        <p class="side-group">Sitio web</p>
+        <%= nav_item "Secciones del inicio", admin_sections_path, :layout %>
+        <%= nav_item "Datos del sitio", edit_admin_site_content_path, :globe %>
+        <%= nav_item "Servicios", admin_services_path, :briefcase %>
+        <%= nav_item "Proyectos", admin_projects_path, :film %>
+        <%= nav_item "Álbumes", admin_albums_path, :folder %>
+        <%= nav_item "Biblioteca de fotos", admin_media_items_path, :image %>
+        <%= nav_item "Categorías", admin_categories_path, :tag %>
+        <%= nav_item "Proceso", admin_process_steps_path, :steps %>
+        <%= nav_item "Preguntas frecuentes", admin_faqs_path, :help %>
+        <%= nav_item "Valores", admin_about_values_path, :star %>
+      <% end %>
+
+      <% if can?(:sales) %>
+        <p class="side-group">Ventas</p>
+        <%= nav_item "Solicitudes", admin_quote_requests_path, :inbox, badge: pending_requests_count %>
+        <%= nav_item "Cotizaciones", admin_quotes_path, :file %>
+        <%= nav_item "Correos", admin_email_logs_path, :send, badge: failed_emails_count, active: request.path.start_with?("/admin/correos") %>
+      <% end %>
+
+      <% if can?(:content) || can?(:social) %>
+        <p class="side-group">Redes y marketing</p>
+        <%= nav_item "Enlaces y QR", admin_short_links_path, :share if can?(:content) %>
+      <% end %>
+      <% if can?(:social) %>
+        <%= nav_item "Publicaciones", admin_social_posts_path, :megaphone, locked: !social_unlocked? %>
+      <% end %>
+
+      <p class="side-group">Sistema</p>
+      <%= nav_item "Integraciones", admin_integration_path, :plug if can?(:integrations) %>
+      <%= nav_item "Usuarios", admin_users_path, :users if can?(:users) %>
+      <%= nav_item "Ajustes", edit_admin_settings_path, :settings if can?(:settings) %>
+      <%= nav_item "Actividad", admin_activity_logs_path, :activity if can?(:activity) %>
+      <%= nav_item "Papelera", admin_trash_path, :trash if can?(:trash) %>
+      <%= nav_item "Tareas programadas", "/admin/tareas", :clock if current_user.admin? && Rails.configuration.x.jobs_enabled %>
+    </nav>
+    <div class="side-user">
+      <%= link_to edit_admin_profile_path, class: "side-me" do %>
+        <%= avatar_for(current_user, size: 34) %>
+        <span><strong><%= current_user.name %></strong><small><%= current_user.role_label %></small></span>
+      <% end %>
+      <%= button_to destroy_user_session_path, method: :delete, class: "side-out", title: "Cerrar sesión", form: { data: { turbo: false } } do %>
+        <%= icon(:logout, size: 18, title: "Cerrar sesión") %>
+      <% end %>
+    </div>
+  </aside>
+  <template id="illus-fallback"><%= illustration("fotos") %></template>
+  <div class="side-scrim" data-action="click->sidebar#close" aria-hidden="true"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn menu-btn" type="button" data-action="sidebar#toggle" aria-label="Abrir menú"><%= icon(:menu) %></button>
+      <div class="topbar-crumbs"><%= yield :crumbs %></div>
+      <%= link_to root_path, target: "_blank", class: "btn btn-ghost btn-sm" do %><%= icon(:external, size: 16) %> Ver sitio<% end %>
+    </header>
+
+    <div class="toasts" aria-live="polite">
+      <% flash.each do |type, message| %>
+        <div class="toast toast-<%= type == "alert" ? "error" : "ok" %>" data-controller="toast">
+          <%= icon(type == "alert" ? :alert : :check, size: 18) %>
+          <p><%= message %></p>
+          <button type="button" class="toast-x" data-action="toast#dismiss" aria-label="Cerrar"><%= icon(:x, size: 16) %></button>
+        </div>
+      <% end %>
+    </div>
+
+    <main class="content" id="contenido">
+      <%= yield %>
+    </main>
+  </div>
+</body>
+</html>

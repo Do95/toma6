@@ -1,0 +1,4 @@
+<% content_for :title, "Nueva publicación" %>
+<% content_for :crumbs do %><%= link_to "Publicaciones", admin_social_posts_path %> / Nueva<% end %>
+<%= render "admin/shared/header", title: "Nueva publicación" %>
+<%= render "form", record: @record %>

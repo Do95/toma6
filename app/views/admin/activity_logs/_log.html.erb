@@ -1,0 +1,23 @@
+<div class="log-row">
+  <%= avatar_for(log.user, size: 30) %>
+  <div class="what">
+    <strong><%= log.user_name %></strong>
+    <span class="log-action <%= log.action %>"><%= log.action_label %></span>
+    <% if log.subject_type && log.action != "sign_in" %><span class="muted"><%= log.subject_model_name %>:</span> <%= subject_link(log) %><% end %>
+    <% if log.changeset.present? %>
+      <details class="diff">
+        <summary><%= pluralize(log.changeset.size, "cambio", plural: "cambios") %></summary>
+        <table class="diff-table">
+          <% log.changeset.each do |attr, (from, to)| %>
+            <tr>
+              <td><%= humanize_attribute(log.subject_type, attr) %></td>
+              <td><span class="diff-old"><%= changeset_value(from) %></span></td>
+              <td><span class="diff-new"><%= changeset_value(to) %></span></td>
+            </tr>
+          <% end %>
+        </table>
+      </details>
+    <% end %>
+  </div>
+  <time datetime="<%= log.created_at.iso8601 %>" title="<%= l(log.created_at, format: :long) %><%= " · #{log.ip_address}" if log.ip_address %>">hace <%= time_ago_in_words(log.created_at) %></time>
+</div>

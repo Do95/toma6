@@ -1,0 +1,29 @@
+<% new_record = block.new_record? %>
+<div class="nested-row block-row" data-nested-row data-new-record="<%= new_record %>" data-id="<%= block.id %>" data-controller="illus-preview">
+  <%= f.hidden_field :id unless new_record %>
+  <%= f.hidden_field :remove, value: "0" %>
+  <%= f.hidden_field :position, data: { position_field: true } %>
+  <div class="block-row-head">
+    <span class="sort-handle" title="Arrastrar"><%= icon(:grip, size: 18) %></span>
+    <span class="block-thumb" data-illus-preview-target="thumb">
+      <% if block.image.present? %><img src="<%= block.image.url(:thumb) %>" alt=""><% elsif block.illustration_key %><%= illustration(block.illustration_key) %><% end %>
+    </span>
+    <strong data-illus-preview-target="title"><%= block.title.presence || "Columna" %></strong>
+    <span class="spacer"></span>
+    <button type="button" class="icon-btn btn-danger" data-action="nested-form#remove" title="Quitar columna"><%= icon(:trash, size: 16) %></button>
+  </div>
+  <div class="form-grid">
+    <div class="field"><%= f.label :title, "Título" %><%= f.text_field :title %></div>
+    <div class="field"><%= f.label :eyebrow, "Antetítulo (opcional)" %><%= f.text_field :eyebrow %></div>
+    <div class="field span-2"><%= f.label :body, "Texto" %><%= f.text_area :body, rows: 2 %></div>
+    <div class="field"><%= f.label :button_label, "Texto del enlace (opcional)" %><%= f.text_field :button_label %></div>
+    <div class="field"><%= f.label :button_url, "Enlace" %><%= f.text_field :button_url, list: "section-links" %></div>
+    <details class="span-2 block-visual" <%= "open" if new_record %>>
+      <summary>Imagen o ilustración</summary>
+      <div class="form-grid" style="margin-top:10px">
+        <%= image_field(f, :image, label: "Foto (si subís una, reemplaza a la ilustración)") %>
+        <%= render "admin/shared/illustration_picker", form: f %>
+      </div>
+    </details>
+  </div>
+</div>

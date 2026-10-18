@@ -1,0 +1,62 @@
+<%= form_with model: [:admin, record], data: { controller: "qr-preview", qr_preview_url_value: preview_admin_short_links_path, action: "change->qr-preview#refresh" } do |f| %>
+  <%= form_errors(record) %>
+  <div class="layout-aside" style="grid-template-columns:minmax(0,1fr) 340px">
+    <div>
+      <div class="card">
+        <div class="card-head"><div><h2>Enlace</h2><p>A dónde lleva y cómo se ve la dirección corta.</p></div></div>
+        <div class="card-body form-grid">
+          <div class="field span-2"><%= f.label :title, "Nombre (para reconocerlo en el panel)" %><%= f.text_field :title, required: true, placeholder: "Flyer feria de bodas 2026" %></div>
+          <div class="field span-2"><%= f.label :destination_url, "Destino" %>
+            <%= f.text_field :destination_url, required: true, placeholder: "https://… o /servicios#cotizador", list: "link-destinations" %>
+            <datalist id="link-destinations">
+              <option value="/servicios#cotizador">Cotizador</option><option value="/proyectos">Trabajos</option><option value="/galeria">Galería</option>
+              <% Project.kept.ordered.limit(30).each do |p| %><option value="/proyectos/<%= p.slug %>"><%= p.title %></option><% end %>
+              <% if settings.whatsapp_url %><option value="<%= settings.whatsapp_url %>">WhatsApp</option><% end %>
+              <% if settings.instagram_url.present? %><option value="<%= settings.instagram_url %>">Instagram</option><% end %>
+            </datalist>
+            <%= field_hint("Podés cambiarlo cuando quieras: el enlace corto y el QR impreso siguen funcionando.") %></div>
+          <div class="field span-2"><%= f.label :code, "Dirección corta" %>
+            <div class="prefix-input"><span><%= settings.public_base_url.sub(%r{\Ahttps?://}, "") %>/l/</span><%= f.text_field :code, placeholder: "se genera sola", data: { qr_preview_target: "code", action: "input->qr-preview#refresh" } %></div>
+            <%= field_hint("Minúsculas, números y guiones. Más corto = QR más simple y fácil de escanear.") %></div>
+          <details class="span-2 utm-box" <%= "open" if record.utm_source.present? || record.utm_campaign.present? %>>
+            <summary>Medir la campaña (UTM para Google Analytics)</summary>
+            <div class="form-grid" style="margin-top:12px">
+              <div class="field"><%= f.label :utm_source, "Fuente" %><%= f.text_field :utm_source, placeholder: "flyer, instagram, feria" %></div>
+              <div class="field"><%= f.label :utm_medium, "Medio" %><%= f.text_field :utm_medium, placeholder: "qr, impreso, story" %></div>
+              <div class="field span-2"><%= f.label :utm_campaign, "Campaña" %><%= f.text_field :utm_campaign, placeholder: "bodas-2026" %></div>
+            </div>
+          </details>
+          <div class="field"><%= f.label :expires_at, "Vence (opcional)" %><%= f.datetime_local_field :expires_at %><%= field_hint("Después de esta fecha muestra una página amable de «enlace no disponible».") %></div>
+          <div class="field" style="justify-content:flex-end"><%= switch_field(f, :active, "Activo", "Pausalo sin borrarlo.") %></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div><h2>Diseño del QR</h2><p>Los cambios se ven al instante a la derecha.</p></div></div>
+        <div class="card-body form-grid">
+          <div class="field span-2"><span class="label">Estilo</span>
+            <div class="network-picks">
+              <% ShortLink::STYLES.each do |key, label| %>
+                <label class="network-pick"><%= f.radio_button :qr_style, key, data: { action: "qr-preview#refresh" } %> <%= label %></label>
+              <% end %>
+            </div></div>
+          <div class="field"><%= switch_field(f, :qr_logo, "Logo de toma6 al centro", "Usa corrección de errores alta: se sigue leyendo.") %></div>
+          <div class="field"><%= f.label :qr_label, "Texto del marco (opcional)" %><%= f.text_field :qr_label, maxlength: 32, placeholder: "Escaneá y cotizá", data: { qr_preview_target: "label", action: "input->qr-preview#refresh" } %></div>
+        </div>
+        <div class="form-actions">
+          <%= link_to "Cancelar", record.persisted? ? admin_short_link_path(record) : admin_short_links_path, class: "btn btn-ghost" %>
+          <button type="submit" class="btn btn-primary"><%= icon(:check, size: 16) %> <%= record.persisted? ? "Guardar" : "Crear enlace y QR" %></button>
+        </div>
+      </div>
+    </div>
+    <aside>
+      <div class="card qr-preview-card">
+        <div class="card-head"><h2>Vista previa</h2></div>
+        <div class="card-body"><img src="" alt="Vista previa del QR" data-qr-preview-target="image"></div>
+        <div class="card-foot hint">Impreso, que mida al menos 2,5 cm de lado. Para tamaños más chicos usá el estilo Clásico sin logo.</div>
+      </div>
+      <%= render "admin/shared/record_meta", record: record, trash: false %>
+    </aside>
+  </div>
+<% end %>
+<% if record.persisted? %><div class="danger-zone"><%= trash_button(record, label: "Enviar a la papelera") %></div><% end %>

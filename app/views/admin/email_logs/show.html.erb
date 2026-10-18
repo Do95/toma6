@@ -1,0 +1,34 @@
+<% content_for :title, @log.display_name %>
+<% content_for :crumbs do %><%= link_to "Correos", admin_email_logs_path %> / <%= @log.display_name.truncate(50) %><% end %>
+<%= render "admin/shared/header", title: @log.display_name.truncate(70),
+           actions: (@log.retryable? && can?(:sales, :write) ? button_to(safe_join([icon(:refresh, size: 16), "Reintentar envío"]), retry_admin_email_log_path(@log), class: "btn btn-primary") : nil) %>
+<div class="layout-aside" style="grid-template-columns:minmax(0,1fr) 340px">
+  <div class="card">
+    <div class="card-head"><h2>Contenido</h2></div>
+    <iframe class="mail-frame mail-frame-lg" src="<%= body_admin_email_log_path(@log) %>" title="Contenido del correo"></iframe>
+  </div>
+  <aside>
+    <div class="card">
+      <div class="card-head"><h2>Detalle</h2></div>
+      <div class="card-body detail-list">
+        <div><span>Estado</span><%= status_badge({ "sent" => "published", "failed" => "failed", "retrying" => "partial", "skipped" => "draft" }.fetch(@log.status, "scheduled"), @log.status_label) %></div>
+        <div><span>Para</span><strong><%= @log.to.presence || "—" %></strong></div>
+        <div><span>Plantilla</span><% if @log.template %><%= link_to @log.template.name, (can?(:settings) ? edit_admin_email_template_path(@log.template) : "#") %><% else %><%= @log.mailer == "Sistema" ? "Sistema (contraseña)" : "—" %><% end %></div>
+        <div><span>Intentos</span><strong><%= @log.attempts %></strong></div>
+        <div><span>Creado</span><%= l(@log.created_at, format: :long) %></div>
+        <% if @log.sent_at %><div><span>Enviado</span><%= l(@log.sent_at, format: :long) %></div><% end %>
+        <% if @log.triggered_by %><div><span>Por</span><%= @log.triggered_by.name %></div><% end %>
+        <% if @log.record %>
+          <div><span>Relacionado</span><%= link_to @log.record.display_name, admin_path_for(@log.record) || "#" %></div>
+        <% end %>
+      </div>
+    </div>
+    <% if @log.error_message.present? %>
+      <div class="card">
+        <div class="card-head"><h2>Error</h2></div>
+        <div class="card-body"><pre class="error-box"><%= @log.error_message %></pre>
+          <p class="hint">Revisá los datos SMTP del servidor (.env) o la dirección del destinatario. El cliente no vio este error.</p></div>
+      </div>
+    <% end %>
+  </aside>
+</div>

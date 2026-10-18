@@ -1,0 +1,4 @@
+<div class="form-actions">
+  <%= link_to "Cancelar", local_assigns[:cancel] || :back, class: "btn btn-ghost" %>
+  <button type="submit" class="btn btn-primary"><%= icon(:check, size: 16) %> <%= local_assigns[:label] || (form.object.persisted? ? "Guardar cambios" : "Crear") %></button>
+</div>

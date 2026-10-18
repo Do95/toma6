@@ -1,0 +1,17 @@
+<% new_record = item.new_record? %>
+<tr class="item-row" data-nested-row data-new-record="<%= new_record %>">
+  <td>
+    <%= f.hidden_field :id unless new_record %>
+    <%= f.hidden_field :_destroy, value: "0" %>
+    <%= f.hidden_field :position, data: { position_field: true } %>
+    <div class="item-main">
+      <%= f.select :service_id, services.map { |s| [s.title, s.id] }, { include_blank: "Servicio del catálogo (opcional)…" }, data: { action: "quote-form#pickService" }, "aria-label": "Servicio" %>
+      <%= f.text_field :description, placeholder: "Descripción", data: { field: "description" }, "aria-label": "Descripción" %>
+      <%= f.text_area :details, placeholder: "Detalle (opcional): qué incluye, horas, entregables…", "aria-label": "Detalle" %>
+    </div>
+  </td>
+  <td class="num" style="width:90px" data-label="Cant."><%= f.number_field :quantity, step: "0.5", min: 0, data: { field: "quantity", action: "input->quote-form#recalc" }, "aria-label": "Cantidad" %></td>
+  <td class="num" style="width:130px" data-label="Precio"><%= f.number_field :unit_price, step: "0.01", min: 0, data: { field: "unit_price", action: "input->quote-form#recalc" }, "aria-label": "Precio unitario" %></td>
+  <td class="line-total" data-line-total data-label="Total"><%= money(item.quantity.to_d * item.unit_price.to_d) %></td>
+  <td style="width:40px"><button type="button" class="icon-btn btn-danger" data-action="nested-form#remove" title="Quitar ítem"><%= icon(:trash, size: 16) %></button></td>
+</tr>

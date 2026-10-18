@@ -1,0 +1,14 @@
+<div class="layout-aside">
+  <%= form_with model: [:admin, record], class: "card" do |f| %>
+    <div class="card-body">
+      <%= form_errors(record) %>
+      <div class="form-grid">
+        <div class="field span-2"><%= f.label :title %><%= f.text_field :title, required: true, placeholder: "Creatividad" %></div>
+        <div class="field span-2"><%= f.label :description %><%= f.text_area :description, rows: 3 %></div>
+        <div class="span-2"><%= switch_field(f, :published, "Publicado", "Se muestra en la sección «Quiénes somos».") %></div>
+      </div>
+    </div>
+    <%= render "admin/shared/form_actions", form: f, cancel: admin_about_values_path %>
+  <% end %>
+  <aside><%= render "admin/shared/record_meta", record: record %></aside>
+</div>

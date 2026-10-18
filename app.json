@@ -1,0 +1,62 @@
+{
+  "name": "toma6",
+  "description": "Sitio y panel de administración de toma6",
+  "stack": "heroku-24",
+  "buildpacks": [
+    {
+      "url": "heroku/ruby"
+    }
+  ],
+  "addons": [
+    {
+      "plan": "heroku-postgresql:essential-0"
+    }
+  ],
+  "env": {
+    "RAILS_ENV": {
+      "value": "production"
+    },
+    "SECRET_KEY_BASE": {
+      "generator": "secret"
+    },
+    "APP_HOST": {
+      "description": "Dominio público, por ejemplo www.toma6.com"
+    },
+    "APP_PROTOCOL": {
+      "value": "https"
+    },
+    "AR_ENCRYPTION_PRIMARY_KEY": {
+      "generator": "secret"
+    },
+    "AR_ENCRYPTION_DETERMINISTIC_KEY": {
+      "generator": "secret"
+    },
+    "AR_ENCRYPTION_KEY_DERIVATION_SALT": {
+      "generator": "secret"
+    },
+    "S3_BUCKET": {
+      "description": "Bucket donde se guardan las fotos (obligatorio en Heroku)",
+      "required": true
+    },
+    "S3_ACCESS_KEY_ID": {
+      "description": "Clave de acceso del bucket",
+      "required": true
+    },
+    "S3_SECRET_ACCESS_KEY": {
+      "description": "Clave secreta del bucket",
+      "required": true
+    },
+    "S3_REGION": {
+      "value": "us-east-1"
+    },
+    "ADMIN_EMAIL": {
+      "description": "Correo del primer administrador"
+    },
+    "ADMIN_PASSWORD": {
+      "description": "Contraseña del primer administrador (cambiala al entrar)"
+    }
+  },
+  "scripts": {
+    "postdeploy": "bin/rails db:seed"
+  }
+}

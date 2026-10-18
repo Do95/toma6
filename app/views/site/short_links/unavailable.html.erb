@@ -1,0 +1,13 @@
+<% content_for :title, page_title("Enlace no disponible") %>
+<% content_for :robots, "noindex" %>
+<section class="thanks">
+  <div class="thanks-card">
+    <div class="sx-quote-illus" style="width:160px"><%= illustration("claqueta") %></div>
+    <h1>Este enlace ya no está disponible</h1>
+    <p>Puede que haya vencido o que lo hayamos pausado. Igual podés ver nuestro trabajo o escribirnos.</p>
+    <div class="hero-cta">
+      <%= link_to "Ir al inicio", root_path, class: "btn primary" %>
+      <%= link_to "Cotizar un proyecto ›", services_path(anchor: "cotizador"), class: "link" %>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,4 @@
+<% content_for :title, "Editar #{@record.number}" %>
+<% content_for :crumbs do %><%= link_to "Cotizaciones", admin_quotes_path %> / <%= link_to @record.number, admin_quote_path(@record) %> / Editar<% end %>
+<%= render "admin/shared/header", title: "Editar #{@record.number}" %>
+<%= render "form", record: @record %>

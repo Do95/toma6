@@ -1,0 +1,4 @@
+<% content_for :title, new_label(resource_class) %>
+<% content_for :crumbs do %><%= link_to resource_class.model_name.human(count: 2), collection_path %> / <%= new_label(resource_class) %><% end %>
+<%= render "admin/shared/header", title: new_label(resource_class) %>
+<%= render "form", record: @record %>

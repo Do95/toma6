@@ -1,0 +1,24 @@
+<% if @all_media.any? %>
+  <section class="project-gallery" id="<%= section.anchor %>" aria-labelledby="t-<%= section.anchor %>" data-controller="filter" data-filter-empty-text-value="Este álbum todavía no tiene fotos.">
+    <div class="gallery-bar wrap">
+      <h2 id="t-<%= section.anchor %>"><%= section.title.presence || "Galería" %> <span class="count" data-filter-target="count"><%= @all_media.size %></span></h2>
+      <% if @albums.any? %>
+        <div class="filters album-tabs" role="tablist" aria-label="Álbumes del proyecto">
+          <button class="chip" type="button" role="tab" aria-pressed="true" data-action="filter#pick" data-filter-key-param="album" data-filter-value-param="">Todo</button>
+          <% if @loose.any? %>
+            <button class="chip" type="button" role="tab" aria-pressed="false" data-action="filter#pick" data-filter-key-param="album" data-filter-value-param="__general">General <small><%= @loose.size %></small></button>
+          <% end %>
+          <% @albums.each do |album| %>
+            <button class="chip" type="button" role="tab" aria-pressed="false" data-action="filter#pick" data-filter-key-param="album" data-filter-value-param="<%= album.slug %>"><%= album.title %> <small><%= album.visible_media.size %></small></button>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+    <% if section.lead.present? %><p class="album-note wrap"><%= section.lead %></p><% end %>
+    <% @albums.each do |album| %>
+      <% if album.description.present? %><p class="album-note wrap" data-filter-target="note" data-album="<%= album.slug %>" hidden><%= album.description %></p><% end %>
+    <% end %>
+    <div class="masonry"><% @all_media.each do |item| %><%= media_tile(item, albums: @tokens[item.id]) %><% end %></div>
+    <p class="g-empty" data-filter-target="empty" hidden></p>
+  </section>
+<% end %>

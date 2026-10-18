@@ -1,0 +1,34 @@
+<%# Fotos de una galería (álbum o general de un proyecto), ordenables. %>
+<% album = local_assigns[:album] %>
+<% if placements.any? %>
+  <div class="media-grid" data-controller="sortable" data-sortable-model-value="media_placements" data-sortable-url-value="<%= admin_sort_path %>" data-sortable-handle-value=".thumb">
+    <% placements.each do |placement| %>
+      <% item = placement.media_item %>
+      <% others = item.placements.size - 1 %>
+      <div class="media-card <%= 'is-cover' if album && album.cover_media_item_id == item.id %>" data-id="<%= placement.id %>">
+        <div class="thumb" title="Arrastrar para ordenar" style="cursor:grab">
+          <%= image_tag item.image_url(:thumb), alt: "", loading: "lazy" if item.image.present? %>
+          <% if item.video? %><span class="kind"><%= icon(:play, size: 10) %> Video</span><% end %>
+          <span class="flags">
+            <% if album && album.cover_media_item_id == item.id %><span title="Portada del álbum" class="flag-cover"><%= icon(:star, size: 13) %></span><% end %>
+            <% unless item.published? %><span title="Oculto"><%= icon(:eye, size: 13) %></span><% end %>
+          </span>
+          <% if others.positive? %><span class="shared-badge" title="También está en otras galerías">+<%= others %></span><% end %>
+        </div>
+        <div class="meta">
+          <%= link_to item.display_name, edit_admin_media_item_path(item, return_to: request.fullpath) %>
+          <small><%= item.category&.name || "Sin categoría" %><%= " · fuera de /galeria" unless item.show_in_gallery? %></small>
+        </div>
+        <div class="card-actions">
+          <% if album && item.photo? && album.cover_media_item_id != item.id %>
+            <%= button_to icon(:star, size: 14, title: "Usar como portada"), cover_admin_media_placement_path(placement), method: :patch, class: "icon-btn" %>
+          <% end %>
+          <%= button_to icon(:x, size: 14, title: "Quitar de esta galería"), admin_media_placement_path(placement), method: :delete, class: "icon-btn btn-danger",
+                        form: { data: { turbo_confirm: "¿Quitar «#{item.display_name}» de esta galería? La foto sigue en la biblioteca#{' y en sus otras galerías' if others.positive?}." } } %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <p class="muted" style="margin:0">Todavía no hay fotos. Subilas arriba o elegilas de la biblioteca.</p>
+<% end %>

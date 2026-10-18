@@ -1,0 +1,134 @@
+<% s = record %>
+<%= form_with model: [:admin, s], html: { multipart: true } do |f| %>
+  <%= hidden_field_tag :project_id, s.project_id if s.new_record? && s.project_id %>
+  <%= f.hidden_field :kind if s.new_record? %>
+  <div class="layout-aside">
+    <div>
+      <%= form_errors(s) %>
+      <div class="card">
+        <div class="card-head"><div><h2><%= icon(s.config[:icon] || :layout, size: 16) %> <%= s.kind_label %></h2><p><%= s.config[:description] %></p></div></div>
+        <div class="card-body form-grid">
+          <% if s.field?(:eyebrow) %><div class="field span-2"><%= f.label :eyebrow, s.field_label(:eyebrow) %><%= f.text_field :eyebrow, placeholder: "Por qué elegirnos" %><%= field_hint("Etiqueta corta arriba del título (opcional).") %></div><% end %>
+          <% if s.field?(:title) %><div class="field span-2"><%= f.label :title, s.field_label(:title) %><%= f.text_field :title %></div><% end %>
+          <% if s.field?(:lead) %><div class="field span-2"><%= f.label :lead, s.field_label(:lead) %><%= f.text_area :lead, rows: 2 %></div><% end %>
+          <% if s.field?(:body) %>
+            <div class="field span-2"><%= f.label :body, s.field_label(:body) %><%= f.text_area :body, rows: (s.kind == "ticker" ? 2 : 6) %>
+              <% unless %w[ticker manifesto].include?(s.kind) %><%= field_hint("**negrita**, ==resaltado rojo== y una línea vacía para separar párrafos.") %><% end %></div>
+          <% end %>
+          <% if s.field?(:items) %>
+            <div class="field span-2"><%= f.label :items, s.field_label(:items) %>
+              <%= f.text_area :items, rows: 5, class: "mono", placeholder: (s.kind == "stats" ? "150+ | Eventos cubiertos\n5 | Años de experiencia\n24 h | Para tu propuesta" : "Equipo propio | Cámaras 4K, luces y sonido\nEntrega rápida | Fotos en 10 días") %></div>
+          <% end %>
+          <% if s.field?(:note) %><div class="field span-2"><%= f.label :note, s.field_label(:note) %><%= f.text_area :note, rows: 2 %></div><% end %>
+          <% if s.field?(:album) %>
+            <div class="field span-2"><%= f.label :album_id, "Álbum" %><%= f.select :album_id, Album.kept.includes(:project).ordered.map { |a| [a.display_name, a.id] }, include_blank: "Elegí un álbum" %></div>
+          <% end %>
+          <% if s.field?(:image) %>
+            <%= image_field(f, :image, label: s.field_label(:image), version: :medium) %>
+            <% if s.kind == "text_image" %>
+              <div class="field"><span class="label">Lado de la imagen</span>
+                <div class="network-picks">
+                  <label class="network-pick"><%= f.radio_button :image_side, "left" %> Izquierda</label>
+                  <label class="network-pick"><%= f.radio_button :image_side, "right" %> Derecha</label>
+                </div></div>
+            <% end %>
+          <% end %>
+          <% if s.field?(:video) %>
+            <div class="field span-2"><%= f.label :video_link, "Enlace de YouTube o Vimeo" %><%= f.url_field :video_link, placeholder: "https://www.youtube.com/watch?v=…" %></div>
+            <div class="field span-2"><%= f.label :video, "…o subí un archivo de video (MP4)" %><%= f.file_field :video, accept: "video/mp4,video/webm,video/quicktime", class: "input" %>
+              <% if s.video.present? %><label class="check-inline"><%= f.check_box :remove_video %> Quitar el video actual</label><% end %></div>
+          <% end %>
+          <% if s.field?(:button) %>
+            <div class="field"><%= f.label :button_label, "Texto del botón" %><%= f.text_field :button_label, placeholder: "Cotizar proyecto" %></div>
+            <div class="field"><%= f.label :button_url, "Enlace del botón" %><%= f.text_field :button_url, placeholder: "/servicios#cotizador", list: "section-links" %></div>
+          <% end %>
+          <% if s.field?(:secondary) %>
+            <div class="field"><%= f.label :secondary_label, "Texto del enlace secundario" %><%= f.text_field :secondary_label, placeholder: "Ver trabajos" %></div>
+            <div class="field"><%= f.label :secondary_url, "Enlace secundario" %><%= f.text_field :secondary_url, placeholder: "/proyectos", list: "section-links" %></div>
+          <% end %>
+          <datalist id="section-links">
+            <option value="/servicios#cotizador">Cotizador</option><option value="/servicios">Servicios</option>
+            <option value="/proyectos">Trabajos</option><option value="/galeria">Galería</option><option value="/#contacto">Contacto</option>
+            <% if settings.whatsapp_url %><option value="<%= settings.whatsapp_url %>">WhatsApp</option><% end %>
+          </datalist>
+          <% if s.field?(:illustration) %>
+            <%= render "admin/shared/illustration_picker", form: f, label: s.field_label(:illustration) %>
+          <% end %>
+          <% if s.field?(:embed) %>
+            <div class="field span-2"><%= f.label :embed_code, "Código para insertar" %>
+              <%= f.text_area :embed_code, rows: 6, class: "mono", placeholder: '<iframe src="https://www.google.com/maps/embed?..." …></iframe>' %>
+              <%= field_hint("Pegá el código que te da Google Maps («Compartir → Insertar un mapa»), Calendly, Typeform, etc. Solo administradores pueden editarlo.") %></div>
+            <div class="field"><%= f.label :embed_height, "Alto mínimo (px)" %><%= f.number_field :embed_height, min: 100, max: 2000, step: 10 %></div>
+          <% end %>
+          <% if s.field?(:theme) %>
+            <div class="field span-2"><span class="label">Fondo</span>
+              <div class="theme-picks">
+                <% Section::THEMES.each do |key, label| %>
+                  <label class="theme-pick"><%= f.radio_button :theme, key %><span class="swatch swatch-<%= key %>"></span><%= label %></label>
+                <% end %>
+              </div></div>
+          <% end %>
+        </div>
+      </div>
+      <% if s.field?(:columns) %>
+        <div class="card" data-controller="nested-form" data-nested-form-remove-field-value="remove">
+          <div class="card-head"><div><h2>Columnas</h2><p>Cada columna lleva una ilustración de la marca o una foto, título, texto y enlace. Arrastralas para ordenarlas.</p></div></div>
+          <div class="card-body form-grid">
+            <div class="field span-2"><span class="label">Distribución</span>
+              <div class="layout-picks">
+                <% Section::LAYOUTS.each do |key, label| %>
+                  <label class="layout-pick"><%= f.radio_button :layout, key %><span class="layout-art layout-art-<%= key %>"><% key.split("-").then { |p| p.size == 1 ? Array.new(p.first.to_i, 1) : p.map(&:to_i) }.each do |w| %><i style="flex:<%= w %>"></i><% end %></span><small><%= label %></small></label>
+                <% end %>
+              </div></div>
+            <div class="field"><span class="label">Alineación</span>
+              <div class="network-picks">
+                <label class="network-pick"><%= f.radio_button :align, "left" %> Izquierda</label>
+                <label class="network-pick"><%= f.radio_button :align, "center" %> Centrada</label>
+              </div></div>
+            <div class="field"><span class="label">Estilo</span>
+              <div class="network-picks">
+                <% Section::BLOCK_STYLES.each do |key, label| %><label class="network-pick"><%= f.radio_button :block_style, key %> <%= label %></label><% end %>
+              </div></div>
+            <div class="span-2">
+              <div data-nested-form-target="list" data-controller="sortable">
+                <%= f.fields_for :blocks do |bf| %>
+                  <%= render "admin/sections/block_fields", f: bf, block: bf.object %>
+                <% end %>
+              </div>
+              <template data-nested-form-target="template">
+                <%= f.fields_for :blocks, SectionBlock.new(illustration: "estrella"), child_index: "NEW_RECORD" do |bf| %>
+                  <%= render "admin/sections/block_fields", f: bf, block: bf.object %>
+                <% end %>
+              </template>
+              <button type="button" class="btn btn-sm" style="margin-top:12px" data-action="nested-form#add"><%= icon(:plus, size: 16) %> Agregar columna</button>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <div class="sticky-actions">
+        <%= switch_field(f, :published, "Visible en el sitio") %>
+        <span class="spacer"></span>
+        <%= link_to "Cancelar", (s.project ? edit_admin_project_path(s.project, tab: "secciones") : admin_sections_path), class: "btn btn-ghost" %>
+        <button type="submit" class="btn btn-primary"><%= icon(:check, size: 16) %> <%= s.persisted? ? "Guardar sección" : "Agregar sección" %></button>
+      </div>
+    </div>
+    <aside>
+      <% if s.page == "home" %>
+        <div class="card">
+          <div class="card-head"><div><h2>Menú</h2><p>Para que aparezca en la barra de navegación.</p></div></div>
+          <div class="card-body form-grid">
+            <div class="span-2"><%= switch_field(f, :show_in_nav, "Mostrar en el menú") %></div>
+            <div class="field span-2"><%= f.label :nav_label, "Texto en el menú" %><%= f.text_field :nav_label, placeholder: s.title.to_s.delete_suffix(".").presence || s.kind_label %></div>
+          </div>
+        </div>
+      <% end %>
+      <div class="card">
+        <div class="card-head"><div><h2>Ancla</h2><p>El enlace directo a esta sección.</p></div></div>
+        <div class="card-body field"><%= f.text_field :anchor %><%= field_hint(s.persisted? ? "Enlace: #{s.page == 'home' ? '/' : "/proyectos/#{s.project&.slug}"}##{s.anchor}" : "Se genera sola a partir del título.") %></div>
+      </div>
+      <%= render "admin/shared/record_meta", record: s, trash: false %>
+    </aside>
+  </div>
+<% end %>
+<% if s.persisted? && !s.builtin? %><div class="danger-zone"><%= trash_button(s, label: "Eliminar sección") %></div><% end %>

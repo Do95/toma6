@@ -1,0 +1,22 @@
+<% content_for :title, "Agregar sección" %>
+<% content_for :crumbs do %>
+  <% if @project %><%= link_to "Proyectos", admin_projects_path %> / <%= link_to @project.title, edit_admin_project_path(@project, tab: "secciones") %><% else %><%= link_to "Secciones del inicio", admin_sections_path %><% end %> / Agregar
+<% end %>
+<%= render "admin/shared/header", title: "¿Qué querés agregar?", subtitle: "Elegí un tipo de bloque. Se agrega al final#{@project ? " de «#{@project.title}»" : " del inicio"} y después lo podés mover." %>
+<% missing = @project ? %w[project_story project_gallery] - Section.for_project(@project).kept.pluck(:kind) : Section.missing_home_builtins %>
+<% if missing.any? && can?(:content, :write) %>
+  <div class="warn-banner" style="justify-content:space-between">
+    <span><%= icon(:alert, size: 18) %> Faltan secciones fijas: <strong><%= missing.map { |k| Section::KINDS[k][:label] }.to_sentence %></strong>.</span>
+    <%= button_to "Restaurarlas", restore_defaults_admin_sections_path(project_id: @project&.id), class: "btn btn-sm" %>
+  </div>
+<% end %>
+<div class="kind-grid">
+  <% Section.addable_kinds(@project ? "project" : "home").each do |kind, cfg| %>
+    <% next if cfg[:admin_only] && !can?(:settings, :write) %>
+    <%= link_to new_admin_section_path(kind: kind, project_id: @project&.id), class: "kind-card #{'is-featured' if kind == 'custom'}" do %>
+      <span class="kind-art kind-art-<%= kind.dasherize %>" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <strong><%= icon(cfg[:icon], size: 16) %> <%= cfg[:label] %></strong>
+      <small><%= cfg[:description] %></small>
+    <% end %>
+  <% end %>
+</div>

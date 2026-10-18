@@ -1,0 +1,43 @@
+<% content_for :title, "Publicaciones" %>
+<%= render "admin/shared/header", title: "Publicaciones",
+           subtitle: "Conectado a #{[(@integration.page_name if @integration.facebook_ready?), ("@#{@integration.instagram_username}" if @integration.instagram_ready?)].compact.join(' y ')}.",
+           actions: (link_to(safe_join([icon(:plus, size: 16), "Nueva publicación"]), new_admin_social_post_path, class: "btn btn-primary") if can?(:social, :write)) %>
+<div class="toolbar chips">
+  <%= filter_chip "Todas", { status: nil }, params[:status].blank? %>
+  <% SocialPost::STATUSES.each do |key, label| %><%= filter_chip label, { status: key }, params[:status] == key %><% end %>
+</div>
+<div class="card">
+  <% if @records.any? %>
+    <ul class="sort-list">
+      <% @records.each do |post| %>
+        <li class="sort-item">
+          <% if (img = post.image_source_url(:thumb)) %><%= image_tag img, class: "sort-thumb", alt: "" %><% else %><span class="sort-thumb"><%= illustration("fotos") %></span><% end %>
+          <div class="sort-main">
+            <strong><%= post.body.truncate(90) %></strong>
+            <p>
+              <%= post.networks.join(" + ") %> ·
+              <% if post.published_at %>publicada <%= l(post.published_at, format: :short) %>
+              <% elsif post.scheduled_at %>programada para <%= l(post.scheduled_at, format: :short) %>
+              <% else %>creada por <%= post.creator&.name || "Sistema" %><% end %>
+            </p>
+            <% if post.error_message.present? %><p style="color:var(--red);white-space:normal"><%= post.error_message %></p><% end %>
+          </div>
+          <div class="sort-meta">
+            <%= status_badge(post.status, post.status_label) %>
+            <% if post.facebook_permalink.present? %><%= link_to icon(:facebook, size: 16, title: "Ver en Facebook"), post.facebook_permalink, class: "icon-btn", target: "_blank" %><% end %>
+            <% if post.instagram_permalink.present? %><%= link_to icon(:instagram, size: 16, title: "Ver en Instagram"), post.instagram_permalink, class: "icon-btn", target: "_blank" %><% end %>
+            <% if post.editable? && can?(:social, :write) %>
+              <%= button_to icon(:send, size: 16, title: "Publicar ahora"), publish_now_admin_social_post_path(post), class: "icon-btn", form: { data: { turbo_confirm: "¿Publicar ahora en #{post.networks.to_sentence}?" } } %>
+              <%= link_to icon(:edit, size: 16, title: "Editar"), edit_admin_social_post_path(post), class: "icon-btn" %>
+            <% end %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <%= render "admin/shared/empty", title: "Todavía no publicaste nada desde acá",
+               text: "Tip: desde cualquier proyecto o foto podés tocar «Publicar en redes» y el texto se arma solo.",
+               action: (link_to("Crear publicación", new_admin_social_post_path, class: "btn btn-primary") if can?(:social, :write)) %>
+  <% end %>
+</div>
+<%= pagination_nav %>

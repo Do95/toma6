@@ -1,0 +1,14 @@
+<%= link_to album_path(album.slug), class: "album-card", data: local_assigns[:filter] ? { filter_target: "item", project: album.project&.slug.to_s } : {} do %>
+  <div class="album-fan" aria-hidden="true">
+    <% previews = album.preview_urls(3) %>
+    <% if previews.empty? %><span class="media-placeholder" style="position:absolute;inset:8%;width:84%;height:84%;border:3px solid #fff;border-radius:8px"><%= illustration("fotos") %></span><% end %>
+    <% previews.reverse.each_with_index do |url, i| %>
+      <img src="<%= url %>" alt="" loading="lazy" class="fan-<%= previews.size - i %>">
+    <% end %>
+  </div>
+  <div class="album-card-text">
+    <% if album.project %><small><%= album.project.title %></small><% end %>
+    <h3><%= album.title %></h3>
+    <span><%= pluralize(album.visible_media.size, "elemento", plural: "elementos") %></span>
+  </div>
+<% end %>

@@ -1,0 +1,16 @@
+<section class="<%= section_classes(section) %>" id="<%= section.anchor %>">
+  <figure class="sx-wrap sx-quote-box">
+    <% if section.image.blank? && section.illustration_key %>
+      <div class="sx-quote-illus"><%= illustration(section.illustration_key) %></div>
+    <% else %>
+      <span class="sx-quote-mark" aria-hidden="true">“</span>
+    <% end %>
+    <blockquote><%= inline_text(section.body) %></blockquote>
+    <% if section.note.present? || section.image.present? %>
+      <figcaption>
+        <% if section.image.present? %><img src="<%= section.image.url(:thumb) %>" alt="" loading="lazy"><% end %>
+        <span><%= section.note %></span>
+      </figcaption>
+    <% end %>
+  </figure>
+</section>

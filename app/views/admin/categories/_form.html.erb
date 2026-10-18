@@ -1,0 +1,13 @@
+<div class="layout-aside">
+  <%= form_with model: [:admin, record], class: "card" do |f| %>
+    <div class="card-body">
+      <%= form_errors(record) %>
+      <div class="form-grid">
+        <div class="field"><%= f.label :name %><%= f.text_field :name, required: true, placeholder: "Eventos" %></div>
+        <div class="field"><%= f.label :slug, "Identificador" %><%= f.text_field :slug %><%= field_hint("Se completa solo. Es el filtro de la galería.") %></div>
+      </div>
+    </div>
+    <%= render "admin/shared/form_actions", form: f, cancel: admin_categories_path %>
+  <% end %>
+  <aside><%= render "admin/shared/record_meta", record: record %></aside>
+</div>

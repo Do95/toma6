@@ -1,0 +1,50 @@
+<% label = @gallery.is_a?(Album) ? @gallery.display_name : "#{@gallery.title} · General" %>
+<% back = @gallery.is_a?(Album) ? edit_admin_album_path(@gallery) : edit_admin_project_path(@gallery, tab: "galeria") %>
+<% content_for :title, "Agregar desde la biblioteca" %>
+<% content_for :crumbs do %><%= link_to label, back %> / Agregar desde la biblioteca<% end %>
+<%= render "admin/shared/header", title: "Agregar a «#{label}»",
+           subtitle: "Elegí fotos que ya están en la biblioteca. Se suman a esta galería sin moverlas de las otras.",
+           actions: link_to("Volver", back, class: "btn") %>
+
+<%= form_with url: library_admin_media_items_path, method: :get, class: "toolbar", data: { controller: "autosubmit", turbo_action: "replace" } do %>
+  <% if @gallery.is_a?(Album) %><input type="hidden" name="album_id" value="<%= @gallery.id %>"><% else %><input type="hidden" name="project_id" value="<%= @gallery.id %>"><% end %>
+  <label class="search field"><%= icon(:search, size: 16) %><input type="search" name="q" value="<%= params[:q] %>" placeholder="Buscar por título" class="input" data-action="input->autosubmit#submit"></label>
+  <select name="category_id" class="input" style="width:auto" data-action="autosubmit#submit">
+    <option value="">Todas las categorías</option>
+    <% @categories.each do |c| %><option value="<%= c.id %>" <%= "selected" if params[:category_id] == c.id.to_s %>><%= c.name %></option><% end %>
+  </select>
+  <select name="kind" class="input" style="width:auto" data-action="autosubmit#submit">
+    <option value="">Fotos y videos</option><option value="photo" <%= "selected" if params[:kind] == "photo" %>>Solo fotos</option><option value="video" <%= "selected" if params[:kind] == "video" %>>Solo videos</option>
+  </select>
+  <label class="check-inline"><input type="checkbox" name="only" value="unplaced" <%= "checked" if params[:only] == "unplaced" %> data-action="autosubmit#submit"> Solo las que no están en ninguna galería</label>
+<% end %>
+
+<%= form_with url: admin_media_placements_path, method: :post, data: { controller: "bulk-select" } do %>
+  <input type="hidden" name="gallery" value="<%= MediaPlacement.gallery_key(@gallery) %>">
+  <div class="bulk-bar" data-bulk-select-target="bar">
+    <strong><span data-bulk-select-target="count">0</span> elegidas</strong>
+    <div data-bulk-select-target="ids"></div>
+    <button class="btn btn-primary btn-sm" type="submit"><%= icon(:plus, size: 14) %> Agregar a la galería</button>
+    <button class="btn btn-ghost btn-sm" type="button" data-action="bulk-select#clear" style="color:#fff">Cancelar</button>
+  </div>
+  <p class="muted" style="margin:0 0 10px;font-size:13px">Tocá las fotos para elegirlas. Con <kbd>Shift</kbd> elegís un rango. <%= pagination.range_label %></p>
+  <div class="media-grid">
+    <% @records.each do |item| %>
+      <% already = @already.include?(item.id) %>
+      <label class="media-card pickable <%= 'is-already' if already %>">
+        <% if already %>
+          <span class="already-badge"><%= icon(:check, size: 12) %> Ya está</span>
+        <% else %>
+          <input type="checkbox" class="pick" value="<%= item.id %>" data-bulk-select-target="checkbox" data-action="bulk-select#toggle" aria-label="Elegir <%= item.display_name %>">
+        <% end %>
+        <span class="thumb" style="display:block">
+          <%= image_tag item.image_url(:thumb), alt: "", loading: "lazy" if item.image.present? %>
+          <% if item.video? %><span class="kind"><%= icon(:play, size: 10) %> Video</span><% end %>
+          <% if item.placements.size.positive? %><span class="shared-badge"><%= pluralize(item.placements.size, "galería", plural: "galerías") %></span><% end %>
+        </span>
+        <span class="meta"><strong><%= item.display_name %></strong><small><%= item.context_label || "Sin galería" %></small></span>
+      </label>
+    <% end %>
+  </div>
+<% end %>
+<%= pagination_nav %>

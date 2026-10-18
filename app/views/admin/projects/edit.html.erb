@@ -1,0 +1,72 @@
+<% content_for :title, @record.title %>
+<% content_for :crumbs do %><%= link_to "Proyectos", admin_projects_path %> / <%= @record.title.truncate(50) %><% end %>
+<%= render "admin/shared/header", title: @record.title, live: @record.published?,
+           actions: safe_join([
+             link_to(safe_join([icon(:eye, size: 16), "Ver en el sitio"]), project_path(@record.slug), class: "btn", target: "_blank"),
+             (link_to(safe_join([icon(:share, size: 16), "QR del proyecto"]), new_admin_short_link_path(url: "/proyectos/#{@record.slug}", title: "QR · #{@record.title}", utm_medium: "qr"), class: "btn") if can?(:content, :write)),
+             (link_to(safe_join([icon(:share, size: 16), "Publicar en redes"]), share_admin_project_path(@record), class: "btn") if social_unlocked? && can?(:social, :write))
+           ].compact) %>
+
+<div class="layout-aside">
+  <div data-controller="tabs" data-tabs-active-value="<%= params[:tab].presence || 'galeria' %>">
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" data-tabs-target="tab" data-tab="galeria" data-action="tabs#select">Galería</button>
+      <button class="tab" role="tab" data-tabs-target="tab" data-tab="albumes" data-action="tabs#select">Álbumes (<%= @albums.size %>)</button>
+      <button class="tab" role="tab" data-tabs-target="tab" data-tab="secciones" data-action="tabs#select">Secciones de la página</button>
+      <button class="tab" role="tab" data-tabs-target="tab" data-tab="datos" data-action="tabs#select">Datos del proyecto</button>
+      <span class="tab-ink" data-tabs-target="ink"></span>
+    </div>
+
+    <section class="tab-panel" data-tabs-target="panel" data-tab="galeria">
+      <%= render "admin/media_items/uploader", gallery: @record,
+                 title: "Subí fotos a la galería general del proyecto",
+                 text: "Son las fotos del proyecto que no están en un álbum en particular. Una misma foto puede estar acá y en cualquier álbum." %>
+      <div class="card" style="margin-top:18px">
+        <div class="card-head"><div><h2>Galería general</h2><p><%= pluralize(@general_placements.size, "elemento", plural: "elementos") %> · arrastrá para ordenar</p></div>
+          <div class="actions" style="display:flex;gap:8px">
+            <%= link_to safe_join([icon(:plus, size: 16), "Video"]), new_admin_media_item_path(kind: "video", project_id: @record.id, return_to: request.path), class: "btn btn-sm" %>
+          </div></div>
+        <div class="card-body">
+          <%= render "admin/media_items/placement_grid", placements: @general_placements %>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab-panel" data-tabs-target="panel" data-tab="albumes" hidden>
+      <div class="card">
+        <div class="card-head"><div><h2>Álbumes del proyecto</h2><p>Por ejemplo: Ceremonia, Fiesta, Detrás de cámara.</p></div>
+          <%= link_to safe_join([icon(:plus, size: 16), "Nuevo álbum"]), new_admin_album_path(project_id: @record.id), class: "btn btn-primary btn-sm" %></div>
+        <% if @albums.any? %>
+          <ul class="sort-list" data-controller="sortable" data-sortable-model-value="albums" data-sortable-url-value="<%= admin_sort_path %>">
+            <% @albums.each do |album| %>
+              <li class="sort-item" data-id="<%= album.id %>">
+                <span class="sort-handle"><%= icon(:grip, size: 18) %></span>
+                <% if (img = album.cover_url(:thumb)) %><%= image_tag img, class: "sort-thumb", alt: "" %><% else %><span class="sort-thumb"><%= illustration("fotos") %></span><% end %>
+                <div class="sort-main">
+                  <%= link_to edit_admin_album_path(album) do %><strong><%= album.title %></strong><% end %>
+                  <p><%= pluralize(album.media_items.size, "elemento", plural: "elementos") %><%= " · fuera de la galería general" unless album.show_in_gallery? %></p>
+                </div>
+                <div class="sort-meta"><%= published_badge(album) %><%= link_to icon(:edit, size: 16, title: "Editar"), edit_admin_album_path(album), class: "icon-btn" %></div>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <%= render "admin/shared/empty", title: "Este proyecto no tiene álbumes", text: "Los álbumes ordenan las fotos por momento. Aparecen como pestañas en la página del proyecto.",
+                     action: link_to("Crear álbum", new_admin_album_path(project_id: @record.id), class: "btn btn-primary") %>
+        <% end %>
+      </div>
+    </section>
+
+    <section class="tab-panel" data-tabs-target="panel" data-tab="secciones" hidden>
+      <div class="card">
+        <div class="card-head"><div><h2>Secciones de la página del proyecto</h2><p>Debajo de la portada del proyecto. Sumá textos, videos, testimonios, cifras o galerías y ordenalos.</p></div></div>
+        <%= render "admin/sections/list", sections: @record.page_sections, project: @record %>
+      </div>
+    </section>
+
+    <section class="tab-panel" data-tabs-target="panel" data-tab="datos" hidden>
+      <%= render "form", record: @record %>
+    </section>
+  </div>
+  <aside><%= render "admin/shared/record_meta", record: @record %></aside>
+</div>

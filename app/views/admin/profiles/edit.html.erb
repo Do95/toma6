@@ -1,0 +1,24 @@
+<% content_for :title, "Mi perfil" %>
+<%= render "admin/shared/header", title: "Mi perfil", subtitle: "Tu rol: #{@user.role_label}. #{User::ROLE_DESCRIPTIONS[@user.role]}" %>
+<%= form_with model: @user, url: admin_profile_path, method: :patch, html: { multipart: true } do |f| %>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-head"><h2>Datos</h2></div>
+      <div class="card-body form-grid">
+        <%= form_errors(@user) %>
+        <div class="field span-2"><%= f.label :name %><%= f.text_field :name, required: true %></div>
+        <div class="field span-2"><%= f.label :email %><%= f.email_field :email, required: true %></div>
+        <div class="span-2"><%= image_field(f, :avatar, label: "Foto") %></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><div><h2>Contraseña</h2><p>Completá solo si querés cambiarla.</p></div></div>
+      <div class="card-body form-grid">
+        <div class="field span-2"><%= f.label :password, "Contraseña nueva" %><%= f.password_field :password, autocomplete: "new-password" %></div>
+        <div class="field span-2"><%= f.label :password_confirmation, "Repetila" %><%= f.password_field :password_confirmation, autocomplete: "new-password" %></div>
+        <div class="field span-2"><%= f.label :current_password, "Contraseña actual" %><%= f.password_field :current_password, autocomplete: "current-password" %><%= field_hint("Necesaria para cambiar la contraseña o el correo.") %></div>
+      </div>
+    </div>
+  </div>
+  <div class="sticky-actions"><span class="spacer"></span><button type="submit" class="btn btn-primary"><%= icon(:check, size: 16) %> Guardar</button></div>
+<% end %>

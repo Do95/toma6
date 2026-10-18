@@ -1,0 +1,89 @@
+<% content_for :title, @record.title %>
+<% content_for :crumbs do %><%= link_to "Enlaces y QR", admin_short_links_path %> / <%= @record.title.truncate(50) %><% end %>
+<%= render "admin/shared/header", title: @record.title, live: @record.live?,
+           subtitle: "#{@record.status_label} · creado por #{@record.creator&.name || 'Sistema'} el #{l(@record.created_at.to_date, format: :long)}",
+           actions: safe_join([
+             link_to(safe_join([icon(:download, size: 16), "Visitas (CSV)"]), admin_short_link_path(@record, format: :csv), class: "btn", data: { turbo: false }),
+             (link_to(safe_join([icon(:edit, size: 16), "Editar"]), edit_admin_short_link_path(@record), class: "btn btn-dark") if can?(:content, :write))
+           ].compact) %>
+<div class="layout-aside" style="grid-template-columns:minmax(0,1fr) 360px">
+  <div>
+    <div class="stats">
+      <div class="stat is-red"><small>Visitas totales</small><strong><%= @record.clicks_count %></strong></div>
+      <div class="stat"><small>Desde el QR</small><strong><%= @record.qr_clicks_count %></strong></div>
+      <div class="stat"><small>Desde el enlace</small><strong><%= @record.link_clicks_count %></strong></div>
+      <div class="stat"><small>Visitantes únicos</small><strong><%= @stats[:unique] %></strong></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><div><h2>Últimos 30 días</h2><p><%= @stats[:week] %> visitas esta semana<%= " · última hace #{time_ago_in_words(@record.last_clicked_at)}" if @record.last_clicked_at %></p></div>
+        <div class="legend"><span class="lg-qr">QR</span><span class="lg-link">Enlace</span></div></div>
+      <div class="card-body">
+        <% if @record.clicks_count.zero? %>
+          <div class="empty" style="padding:30px 10px"><div class="slate" aria-hidden="true"></div><h3>Todavía no hay visitas</h3><p>Compartí el enlace o imprimí el QR. Las visitas aparecen acá al instante (las tuyas desde el panel no cuentan).</p></div>
+        <% else %>
+        <% max = [@days.map { |d| d[:qr] + d[:link] }.max.to_i, 1].max %>
+        <div class="day-bars">
+          <% @days.each_with_index do |d, i| %>
+            <div title="<%= l(d[:date], format: :short) %>: <%= d[:qr] %> por QR, <%= d[:link] %> por enlace">
+              <span class="b-link" style="height:<%= (d[:link] * 100.0 / max).round(1) %>%;animation-delay:<%= i * 15 %>ms"></span>
+              <span class="b-qr" style="height:<%= (d[:qr] * 100.0 / max).round(1) %>%;animation-delay:<%= i * 15 %>ms"></span>
+            </div>
+          <% end %>
+        </div>
+        <div class="day-axis"><span><%= l(@days.first[:date], format: :short) %></span><span>Hoy</span></div>
+        <% end %>
+      </div>
+    </div>
+    <div class="grid-3" style="margin-top:18px">
+      <% [["Dispositivos", @stats[:devices]], ["Sistema", @stats[:os]], ["De dónde vienen", @stats[:referrers].presence || (@record.clicks_count.positive? ? [["Directo o escaneo", @record.clicks_count]] : [])]].each do |title, rows| %>
+        <div class="card">
+          <div class="card-head"><h2><%= title %></h2></div>
+          <div class="card-body meter-list">
+            <% total = [rows.sum { |_, v| v }, 1].max %>
+            <% if rows.empty? || total.zero? %><p class="muted" style="margin:0">Sin datos todavía.</p><% end %>
+            <% rows.each do |label, value| %>
+              <div class="meter"><span><%= label %></span><strong><%= value %></strong><i style="--w:<%= (value * 100.0 / total).round %>%"></i></div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    <% if @recent.any? %>
+      <div class="card" style="margin-top:18px">
+        <div class="card-head"><div><h2>Últimas visitas</h2><p>No guardamos la IP de nadie: solo el tipo de dispositivo y de dónde vino.</p></div></div>
+        <ul class="feed">
+          <% @recent.each do |c| %>
+            <li><span class="badge <%= c.source == 'qr' ? 'badge-red' : 'badge-info' %>"><%= c.source == "qr" ? "QR" : "Enlace" %></span>
+              <div><%= [c.device, c.os, c.browser].compact.join(" · ") %><%= " · desde #{c.referrer_host}" if c.referrer_host %><time>hace <%= time_ago_in_words(c.created_at) %></time></div></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+  </div>
+  <aside>
+    <div class="card qr-card">
+      <div class="card-body"><img src="<%= qr_admin_short_link_path(@record) %>" alt="QR de <%= @record.title %>" class="qr-big"></div>
+      <div class="card-foot">
+        <p class="hint" style="margin:0 0 8px;text-align:center">Se genera en el momento: si cambiás el diseño, la descarga ya sale actualizada.</p>
+        <div class="qr-downloads">
+          <%= link_to safe_join([icon(:download, size: 14), "SVG"]), qr_admin_short_link_path(@record, download: 1), class: "btn btn-sm", title: "Vectorial: ideal para imprenta", data: { turbo: false } %>
+          <% [1024, 2048, 4096].each do |size| %>
+            <%= link_to safe_join([icon(:download, size: 14), "PNG #{size}"]), qr_admin_short_link_path(@record, format: :png, size: size, download: 1), class: "btn btn-sm", title: "#{size} × #{size} px", data: { turbo: false } %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-controller="copy">
+      <div class="card-head"><div><h2>Enlace corto</h2><p>Para compartir por WhatsApp, redes o correo.</p></div></div>
+      <div class="card-body" style="display:grid;gap:10px">
+        <div class="share-box">
+          <input type="text" class="input mono-input" readonly value="<%= @record.short_url %>" data-copy-target="source" aria-label="Enlace corto">
+          <button type="button" class="btn" data-copy-target="button" data-action="copy#copy"><%= icon(:copy, size: 16) %></button>
+        </div>
+        <p class="hint">Lleva a: <%= link_to @record.final_url.truncate(80), @record.final_url, target: "_blank", rel: "noopener" %></p>
+        <%= link_to safe_join([icon(:external, size: 14), "Probar el enlace"]), short_link_redirect_path(@record.code), class: "btn btn-sm", target: "_blank" %>
+      </div>
+    </div>
+    <%= render "admin/shared/record_meta", record: @record %>
+  </aside>
+</div>

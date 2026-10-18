@@ -1,0 +1,76 @@
+<% content_for :title, @record.number %>
+<% content_for :crumbs do %><%= link_to "Cotizaciones", admin_quotes_path %> / <%= @record.number %><% end %>
+<% share_url = public_quote_url(@record.token) %>
+<%= render "admin/shared/header", title: @record.number,
+           actions: safe_join([
+             link_to(safe_join([icon(:download, size: 16), "PDF"]), pdf_admin_quote_path(@record, download: 1), class: "btn", data: { turbo: false }),
+             (button_to(safe_join([icon(:copy, size: 16), "Duplicar"]), duplicate_admin_quote_path(@record), class: "btn") if can?(:sales, :write)),
+             (link_to(safe_join([icon(:edit, size: 16), "Editar"]), edit_admin_quote_path(@record), class: "btn btn-dark") if can?(:sales, :write))
+           ].compact) %>
+
+<div class="layout-aside">
+  <div>
+    <div class="quote-hero">
+      <div>
+        <%= status_badge(@record.expired? ? "expired" : @record.status, @record.expired? ? "Vencida" : @record.status_label) %>
+        <h2 style="margin-top:10px"><%= @record.client_name %></h2>
+        <p><%= [@record.title, @record.client_company].compact_blank.join(" · ") %></p>
+        <p>Emitida el <%= l(@record.issued_on, format: :long) %><% if @record.valid_until %> · válida hasta el <%= l(@record.valid_until, format: :long) %><% end %></p>
+      </div>
+      <div class="total"><small>Total</small><strong><%= @record.money(@record.total) %></strong></div>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <div class="card-head"><h2>Vista previa del PDF</h2><%= link_to safe_join([icon(:external, size: 14), "Abrir"]), pdf_admin_quote_path(@record), class: "btn btn-sm", target: "_blank", data: { turbo: false } %></div>
+      <div class="card-body"><iframe class="pdf-frame" src="<%= pdf_admin_quote_path(@record) %>#view=FitH" title="PDF de la cotización <%= @record.number %>"></iframe></div>
+    </div>
+  </div>
+
+  <aside>
+    <% if can?(:sales, :write) %>
+      <div class="card">
+        <div class="card-head"><div><h2>Enviar al cliente</h2><p>Con el PDF adjunto.</p></div></div>
+        <%= form_with url: deliver_admin_quote_path(@record), method: :post, class: "card-body", style: "display:grid;gap:10px" do %>
+          <div class="field"><label for="message">Mensaje (opcional)</label><textarea id="message" name="message" rows="3" placeholder="Hola <%= @record.client_name.split.first %>, te comparto la propuesta…"></textarea></div>
+          <button class="btn btn-primary" type="submit" <%= "disabled" if @record.client_email.blank? %>><%= icon(:send, size: 16) %> Enviar a <%= @record.client_email.presence || "…" %></button>
+          <% if @record.client_email.blank? %><p class="hint">Agregá el correo del cliente para poder enviarla.</p><% end %>
+          <% if @record.sent_at %><p class="hint">Última vez enviada: <%= l(@record.sent_at, format: :long) %></p><% end %>
+        <% end %>
+      </div>
+
+      <div class="card" data-controller="copy">
+        <div class="card-head"><div><h2>Enlace para el cliente</h2><p>Puede verla y aceptarla en línea.</p></div></div>
+        <div class="card-body share-box">
+          <input type="text" class="input" readonly value="<%= share_url %>" data-copy-target="source" aria-label="Enlace público">
+          <button type="button" class="btn" data-copy-target="button" data-action="copy#copy"><%= icon(:copy, size: 16) %></button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2>Cambiar estado</h2></div>
+        <div class="card-body status-steps">
+          <% Quote::STATUSES.except(@record.status).each do |key, label| %>
+            <%= button_to label, status_admin_quote_path(@record, status: key), method: :patch, class: "btn btn-sm" %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <% if @record.quote_request %>
+      <div class="card"><div class="card-body">Viene de la <%= link_to "solicitud de #{@record.quote_request.name}", admin_quote_request_path(@record.quote_request) %>.</div></div>
+    <% end %>
+
+    <%= render "admin/shared/record_meta", record: @record %>
+
+    <% if @logs.any? %>
+      <div class="card">
+        <div class="card-head"><h2>Movimientos</h2></div>
+        <ul class="feed">
+          <% @logs.each do |log| %>
+            <li><%= avatar_for(log.user, size: 22) %><div><strong><%= log.user_name %></strong> <%= log.action_label.downcase %><time><%= l(log.created_at, format: :short) %></time></div></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+  </aside>
+</div>

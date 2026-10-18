@@ -1,0 +1,3 @@
+<% content_for :crumbs do %><%= link_to "Actividad", admin_activity_logs_path %><% end %>
+<%= render "admin/shared/header", title: "Movimiento" %>
+<div class="card"><%= render "admin/activity_logs/log", log: @log %></div>

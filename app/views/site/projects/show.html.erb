@@ -1,0 +1,41 @@
+<% content_for :title, page_title(@project.title, "Trabajos") %>
+<% content_for :description, @project.summary.to_s.truncate(160) %>
+<% if (img = @project.hero_image_url(:large)) %><% content_for :og_image, absolute_url(img) %><% end %>
+
+<article class="project-page" data-controller="parallax">
+  <header class="project-hero">
+    <div class="project-hero-media">
+      <% if @project.video.present? %>
+        <video src="<%= @project.video.url %>" poster="<%= @project.hero_image_url(:large) %>" muted autoplay loop playsinline style="view-transition-name: project-<%= @project.id %>"></video>
+      <% elsif (img = @project.hero_image_url(:large)) %>
+        <img src="<%= img %>" alt="" style="view-transition-name: project-<%= @project.id %>">
+      <% else %>
+        <span class="media-placeholder" style="position:absolute;inset:0"><%= illustration("claqueta") %></span>
+      <% end %>
+    </div>
+    <div class="project-hero-copy">
+      <%= link_to "‹ Todos los trabajos", projects_path, class: "back" %>
+      <% if @project.category_label.present? %><span class="take"><%= @project.category_label %></span><% end %>
+      <h1><%= @project.title %></h1>
+      <% if @project.summary.present? %><p class="project-lead"><%= @project.summary %></p><% end %>
+    </div>
+  </header>
+
+  <% if @sections.empty? %>
+    <div class="project-empty"><%= illustration("camara") %><p>Estamos editando las fotos y la historia de este proyecto. Volvé pronto.</p></div>
+  <% end %>
+  <% @sections.each do |section| %>
+    <%= render "site/sections/#{section.kind}", section: section %>
+  <% end %>
+
+  <nav class="project-nav wrap" aria-label="Otros proyectos">
+    <% if @prev_project %>
+      <%= link_to project_path(@prev_project.slug), class: "pn pn-prev" do %><small>‹ Anterior</small><strong><%= @prev_project.title %></strong><% end %>
+    <% else %><span></span><% end %>
+    <% if @next_project %>
+      <%= link_to project_path(@next_project.slug), class: "pn pn-next" do %><small>Siguiente ›</small><strong><%= @next_project.title %></strong><% end %>
+    <% end %>
+  </nav>
+</article>
+
+<%= render "site/shared/contact" %>

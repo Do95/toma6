@@ -1,0 +1,6 @@
+<div class="empty">
+  <div class="empty-illus" aria-hidden="true"><%= illustration(local_assigns[:illustration] || "claqueta") %></div>
+  <h3><%= title %></h3>
+  <% if local_assigns[:text] %><p><%= text %></p><% end %>
+  <% if local_assigns[:action] %><div class="empty-actions"><%= action %></div><% end %>
+</div>

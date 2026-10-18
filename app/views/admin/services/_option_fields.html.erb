@@ -1,0 +1,19 @@
+<% new_record = option.new_record? %>
+<div class="nested-row option-row" data-nested-row data-new-record="<%= new_record %>" data-id="<%= option.id %>" data-controller="toggle">
+  <%= f.hidden_field :id unless new_record %>
+  <%= f.hidden_field :remove, value: "0" %>
+  <%= f.hidden_field :position, data: { position_field: true } %>
+  <span class="sort-handle" title="Arrastrar"><%= icon(:grip, size: 18) %></span>
+  <div class="field"><%= f.label :name, "Opción" %><%= f.text_field :name, placeholder: "Hora adicional" %></div>
+  <div class="field"><%= f.label :kind %><%= f.select :kind, ServiceOption::KINDS.invert, {}, data: { toggle_target: "source", action: "toggle#update" } %></div>
+  <div class="field"><%= f.label :price, "Precio (#{settings.currency_symbol})" %><%= f.number_field :price, step: "0.01", min: 0 %></div>
+  <div class="field"><label>Visible</label><%= switch_field(f, :published, "Sí") %></div>
+  <button type="button" class="icon-btn btn-danger" data-action="nested-form#remove" title="Quitar opción"><%= icon(:trash, size: 16) %></button>
+  <div class="option-extra">
+    <div class="field"><%= f.label :description, "Detalle (opcional)" %><%= f.text_field :description, placeholder: "Se muestra debajo del nombre" %></div>
+    <div class="field" data-toggle-target="item" data-show-when="choice" hidden><%= f.label :group_name %><%= f.text_field :group_name, placeholder: "Duración" %></div>
+    <div class="field" data-toggle-target="item" data-show-when="quantity" hidden><%= f.label :unit_label %><%= f.text_field :unit_label, placeholder: "por hora" %></div>
+    <div class="field" data-toggle-target="item" data-show-when="quantity" hidden><%= f.label :max_quantity %><%= f.number_field :max_quantity, min: 1 %></div>
+    <div class="field"><label>&nbsp;</label><label class="check-inline"><%= f.check_box :default_selected %> Marcada por defecto</label></div>
+  </div>
+</div>

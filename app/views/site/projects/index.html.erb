@@ -1,0 +1,40 @@
+<% content_for :title, page_title("Trabajos") %>
+<% heading = page_heading("work", "Trabajos", settings.work_intro) %>
+<% content_for :description, heading.last %>
+
+<div data-controller="filter" data-filter-empty-text-value="No hay proyectos en esta categoría.">
+  <%= render "site/shared/page_head", title: heading.first, intro: heading.last do %>
+    <% if @categories.size > 1 %>
+      <div class="filters" role="group" aria-label="Filtrar por tipo de proyecto">
+        <button class="chip" type="button" aria-pressed="true" data-action="filter#pick" data-filter-key-param="category" data-filter-value-param="">Todos</button>
+        <% @categories.each do |cat| %>
+          <button class="chip" type="button" aria-pressed="false" data-action="filter#pick" data-filter-key-param="category" data-filter-value-param="<%= cat.parameterize %>"><%= cat %></button>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <div class="projects-grid">
+    <% @projects.each_with_index do |project, i| %>
+      <%= link_to project_path(project.slug), class: "project-card pj#{(i % 5) + 1}", data: { filter_target: "item", category: project.category_label.to_s.parameterize } do %>
+        <div class="project-card-media">
+          <% if (img = project.hero_image_url(:medium)) %>
+            <img src="<%= img %>" alt="" loading="lazy" decoding="async" style="view-transition-name: project-<%= project.id %>">
+          <% else %>
+            <span class="media-placeholder"><%= illustration("camara") %></span>
+          <% end %>
+          <% if project.has_video? %><span class="vid-badge"><%= play_svg %>Video</span><% end %>
+          <span class="project-count"><%= pluralize(project.visible_media.size, "foto", plural: "fotos") %></span>
+        </div>
+        <div class="project-card-text">
+          <small><%= project.category_label %></small>
+          <h2><%= project.title %></h2>
+          <p><%= project.summary.to_s.truncate(140) %></p>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+  <p class="g-empty" data-filter-target="empty" hidden></p>
+</div>
+
+<%= render "site/shared/contact" %>

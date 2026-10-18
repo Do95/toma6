@@ -1,0 +1,25 @@
+<% content_for :title, "Actividad" %>
+<%= render "admin/shared/header", title: "Actividad", subtitle: "Quién creó, modificó, eliminó o restauró cada cosa, con el detalle de los cambios." %>
+<%= form_with url: admin_activity_logs_path, method: :get, class: "toolbar", data: { controller: "autosubmit", turbo_action: "replace" } do %>
+  <select name="user_id" class="input" style="width:auto" data-action="autosubmit#submit">
+    <option value="">Todas las personas</option>
+    <% @users.each do |u| %><option value="<%= u.id %>" <%= "selected" if params[:user_id] == u.id.to_s %>><%= u.name %></option><% end %>
+  </select>
+  <select name="log_action" class="input" style="width:auto" data-action="autosubmit#submit">
+    <option value="">Todas las acciones</option>
+    <% ActivityLog::ACTIONS.each do |k, v| %><option value="<%= k %>" <%= "selected" if params[:log_action] == k %>><%= v %></option><% end %>
+  </select>
+  <select name="subject_type" class="input" style="width:auto" data-action="autosubmit#submit">
+    <option value="">Todo el contenido</option>
+    <% @subject_types.each do |t| %><option value="<%= t %>" <%= "selected" if params[:subject_type] == t %>><%= t.safe_constantize&.model_name&.human(count: 2) || t %></option><% end %>
+  </select>
+  <% if params[:subject_id].present? %><%= link_to "Quitar filtro de registro ✕", admin_activity_logs_path, class: "chip-f is-on" %><% end %>
+<% end %>
+<div class="card">
+  <% if @logs.any? %>
+    <%= render partial: "admin/activity_logs/log", collection: @logs %>
+  <% else %>
+    <%= render "admin/shared/empty", title: "Sin movimientos con esos filtros" %>
+  <% end %>
+</div>
+<%= pagination_nav %>

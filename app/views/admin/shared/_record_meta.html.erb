@@ -1,0 +1,22 @@
+<%# Quién creó y modificó el registro, y acceso a su historial. %>
+<% if record.persisted? %>
+  <div class="card">
+    <div class="card-head"><h2>Historial</h2></div>
+    <div class="card-body" style="display:grid;gap:12px">
+      <% if record.respond_to?(:creator) %>
+        <div class="audit-line"><%= avatar_for(record.creator, size: 22) %> Creado por <strong><%= record.creator&.name || "Sistema" %></strong></div>
+        <small class="muted"><%= l(record.created_at, format: :long) %></small>
+      <% end %>
+      <% if record.respond_to?(:updater) && record.updated_at > record.created_at + 2.seconds %>
+        <div class="audit-line"><%= avatar_for(record.updater, size: 22) %> Modificado por <strong><%= record.updater&.name || "Sistema" %></strong></div>
+        <small class="muted"><%= l(record.updated_at, format: :long) %></small>
+      <% end %>
+      <% if can?(:activity) %>
+        <%= link_to "Ver todos los cambios", admin_activity_logs_path(type: record.class.base_class.name, subject_id: record.id), class: "btn btn-sm" %>
+      <% end %>
+    </div>
+    <% if local_assigns.fetch(:trash, true) && record.respond_to?(:soft_delete!) %>
+      <div class="card-foot"><%= trash_button(record, label: "Enviar a la papelera") %></div>
+    <% end %>
+  </div>
+<% end %>

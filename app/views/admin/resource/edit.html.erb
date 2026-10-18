@@ -1,0 +1,4 @@
+<% content_for :title, @record.display_name %>
+<% content_for :crumbs do %><%= link_to resource_class.model_name.human(count: 2), collection_path %> / <%= @record.display_name.truncate(50) %><% end %>
+<%= render "admin/shared/header", title: @record.display_name.truncate(70) %>
+<%= render "form", record: @record %>

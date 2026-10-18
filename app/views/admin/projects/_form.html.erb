@@ -1,0 +1,48 @@
+<%= form_with model: [:admin, record], html: { multipart: true } do |f| %>
+  <%= hidden_field_tag :tab, "datos" %>
+  <%= form_errors(record) %>
+  <div class="card">
+    <div class="card-head"><div><h2>Datos del proyecto</h2><p>Se muestran en la página del proyecto y en las tarjetas.</p></div></div>
+    <div class="card-body form-grid">
+      <div class="field"><%= f.label :title %><%= f.text_field :title, required: true, placeholder: "Boda en la ciudad" %></div>
+      <div class="field"><%= f.label :category_label %><%= f.text_field :category_label, placeholder: "Cobertura de evento", list: "project-categories" %>
+        <datalist id="project-categories"><% Project.kept.distinct.pluck(:category_label).compact_blank.each do |c| %><option value="<%= c %>"><% end %></datalist>
+      </div>
+      <div class="field"><%= f.label :client_name %><%= f.text_field :client_name %></div>
+      <div class="field"><%= f.label :event_date %><%= f.date_field :event_date %></div>
+      <div class="field span-2"><%= f.label :location %><%= f.text_field :location, placeholder: "San Salvador" %></div>
+      <div class="field span-2"><%= f.label :summary %><%= f.text_area :summary, rows: 2 %><%= field_hint("Una o dos frases. Aparece en la tarjeta y al compartir el enlace.") %></div>
+      <div class="field span-2"><%= f.label :body %><%= f.text_area :body, rows: 7 %><%= field_hint("Contá cómo fue el proyecto. **negrita**, ==resaltado== y línea vacía para nuevo párrafo.") %></div>
+      <div class="field span-2">
+        <span class="label">Servicios realizados</span>
+        <div class="chips">
+          <%= f.collection_check_boxes :service_ids, Service.kept.ordered, :id, :title do |b| %>
+            <label class="check-inline chip-f" style="height:34px"><%= b.check_box %> <%= b.text %></label>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><div><h2>Portada y video</h2><p>Si no subís portada se usa la primera foto de la galería.</p></div></div>
+    <div class="card-body form-grid">
+      <%= image_field(f, :cover, label: "Portada") %>
+      <div class="field">
+        <%= f.label :video, "Video corto (MP4, se reproduce en silencio)" %>
+        <%= f.file_field :video, accept: "video/mp4,video/webm,video/quicktime", class: "input" %>
+        <% if record.video.present? %><label class="check-inline"><%= f.check_box :remove_video %> Quitar video actual</label><% end %>
+        <%= field_hint("Ideal: 10–20 segundos, menos de 20 MB.") %>
+      </div>
+      <div class="field span-2"><%= f.label :video_link %><%= f.url_field :video_link, placeholder: "https://www.youtube.com/watch?v=…" %><%= field_hint("Para el video completo. Se inserta en la página del proyecto.") %></div>
+    </div>
+  </div>
+
+  <div class="sticky-actions">
+    <%= switch_field(f, :featured, "Destacado en el inicio") %>
+    <%= switch_field(f, :published, "Publicado") %>
+    <span class="spacer"></span>
+    <%= link_to "Cancelar", admin_projects_path, class: "btn btn-ghost" %>
+    <button type="submit" class="btn btn-primary"><%= icon(:check, size: 16) %> <%= record.persisted? ? "Guardar cambios" : "Crear proyecto" %></button>
+  </div>
+<% end %>

@@ -1,0 +1,18 @@
+<% if @teaser.present? %>
+  <section class="section gallery-teaser pr" id="<%= section.anchor %>">
+    <div class="wrap">
+      <div class="section-head"><h2><%= section.title %></h2><% if section.lead.present? %><p><%= section.lead %></p><% end %></div>
+      <div class="teaser-grid">
+        <% [0.05, -0.04, 0.08].each_with_index do |speed, col| %>
+          <div class="teaser-col" data-speed="<%= speed %>">
+            <% @teaser.each_with_index.select { |_, i| i % 3 == col }.each do |item, _| %><%= media_tile(item) %><% end %>
+          </div>
+        <% end %>
+      </div>
+      <div class="teaser-cta">
+        <%= link_to section.button_label.presence || "Ver fotos y videos", gallery_path, class: "btn primary" %>
+        <p><%= gallery_count_text(@gallery_count) %> en la galería</p>
+      </div>
+    </div>
+  </section>
+<% end %>

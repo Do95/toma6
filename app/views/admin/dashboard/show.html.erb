@@ -1,0 +1,80 @@
+<% content_for :title, "Inicio" %>
+<%= render "admin/shared/header", title: "Hola, #{current_user.name.split.first}",
+           subtitle: "#{l(Date.current, format: :long).capitalize}. Esto es lo que está pasando en #{settings.site_name}." %>
+
+<% if failed_emails_count.positive? %>
+  <%= link_to admin_email_logs_path(status: "failed"), class: "alert-banner" do %>
+    <%= icon(:alert, size: 20) %>
+    <span><strong><%= pluralize(failed_emails_count, "correo no se pudo enviar", plural: "correos no se pudieron enviar") %>.</strong> Las solicitudes están guardadas; revisá el error y reintentá.</span>
+    <span class="btn btn-sm">Ver correos</span>
+  <% end %>
+<% end %>
+
+<div class="stats">
+  <% if can?(:sales) %>
+    <%= link_to admin_quote_requests_path(status: "new"), class: "stat is-red" do %><small>Solicitudes nuevas</small><strong><%= pending_requests_count %></strong><% end %>
+    <%= link_to admin_quotes_path, class: "stat" do %><small>Cotizaciones abiertas</small><strong><%= money(@sales[:open_total], round: true) %></strong><% end %>
+    <%= link_to admin_quotes_path(status: "accepted"), class: "stat" do %><small>Aceptado este mes</small><strong><%= money(@sales[:accepted_month], round: true) %></strong><% end %>
+  <% end %>
+  <%= link_to admin_media_items_path, class: "stat" do %><small>Fotos y videos</small><strong><%= @counts[:media] %></strong><% end %>
+  <% unless can?(:sales) %>
+    <%= link_to admin_projects_path, class: "stat" do %><small>Proyectos</small><strong><%= @counts[:projects] %></strong><% end %>
+    <%= link_to admin_albums_path, class: "stat" do %><small>Álbumes</small><strong><%= @counts[:albums] %></strong><% end %>
+    <%= link_to admin_services_path, class: "stat" do %><small>Servicios</small><strong><%= @counts[:services] %></strong><% end %>
+  <% end %>
+</div>
+
+<div class="grid-2">
+  <% if can?(:sales) %>
+    <div class="card">
+      <div class="card-head"><div><h2>Solicitudes del cotizador</h2><p>Últimos 6 meses · <%= @sales[:requests_month] %> este mes</p></div></div>
+      <div class="card-body">
+        <% max = [@months.map(&:last).max.to_i, 1].max %>
+        <div class="bars">
+          <% @months.each_with_index do |(label, value), i| %>
+            <div><em><%= value %></em><span style="height:<%= [(value * 100.0 / max).round, 3].max %>%;animation-delay:<%= i * 60 %>ms"></span><small><%= label %></small></div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Últimas solicitudes</h2><%= link_to "Ver todas", admin_quote_requests_path, class: "btn btn-sm btn-ghost" %></div>
+      <% if @requests.any? %>
+        <ul class="feed">
+          <% @requests.each do |r| %>
+            <li style="justify-content:space-between">
+              <div><%= link_to r.name, admin_quote_request_path(r), style: "font-weight:600;text-decoration:none" %><time>hace <%= time_ago_in_words(r.created_at) %></time></div>
+              <div style="text-align:right"><strong><%= money(r.estimated_total, round: true) %></strong><br><%= status_badge(r.status, r.status_label) %></div>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <div class="card-body muted">Todavía no llegaron solicitudes.</div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if @activity %>
+    <div class="card">
+      <div class="card-head"><h2>Actividad reciente</h2><%= link_to "Ver todo", admin_activity_logs_path, class: "btn btn-sm btn-ghost" %></div>
+      <ul class="feed">
+        <% @activity.each do |log| %>
+          <li><%= avatar_for(log.user, size: 24) %><div><strong><%= log.user_name %></strong> <%= log.action_label.downcase %> <% if log.subject_label && log.action != "sign_in" %><%= subject_link(log) %><% end %><time>hace <%= time_ago_in_words(log.created_at) %></time></div></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="card">
+    <div class="card-head"><h2>Estado del sistema</h2></div>
+    <div class="card-body" style="display:grid;gap:10px">
+      <div class="integration-pill"><span class="dot <%= 'on' if @integration&.facebook_ready? %>"></span><span style="flex:1">Facebook</span><span class="muted"><%= @integration&.facebook_ready? ? @integration.page_name : "No conectado" %></span></div>
+      <div class="integration-pill"><span class="dot <%= 'on' if @integration&.instagram_ready? %>"></span><span style="flex:1">Instagram</span><span class="muted"><%= @integration&.instagram_ready? ? "@#{@integration.instagram_username}" : "No conectado" %></span></div>
+      <div class="integration-pill"><span class="dot <%= Rails.configuration.x.jobs_enabled ? 'on' : '' %>"></span><span style="flex:1">Tareas en segundo plano</span><span class="muted"><%= Rails.configuration.x.jobs_enabled ? "GoodJob activo" : "En pausa: sin purga automática ni posts programados" %></span></div>
+      <div class="integration-pill"><span class="dot on"></span><span style="flex:1">Papelera</span><span class="muted"><%= pluralize(@trash_count, "registro", plural: "registros") %><%= " · próximo borrado #{l((@next_purge + settings.trash_retention_days.days).to_date, format: :short)}" if @next_purge %></span></div>
+      <% if can?(:integrations, :write) && !@integration&.any_ready? %>
+        <%= link_to safe_join([icon(:unlock, size: 16), "Conectar redes"]), admin_integration_path, class: "btn btn-sm" %>
+      <% end %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,26 @@
+<% if @projects.present? %>
+  <section class="work" id="<%= section.anchor %>" aria-label="<%= section.title %>" data-controller="work-track">
+    <div class="work-sticky">
+      <div class="work-head">
+        <h2><%= section.title %></h2>
+        <p><%= section.lead %> <%= link_to "Ver todos ›", projects_path, class: "work-all" %></p>
+      </div>
+      <div class="track-x" data-work-track-target="track">
+        <% @projects.each_with_index do |project, i| %>
+          <%= link_to project_path(project.slug), class: "project pj#{(i % 5) + 1}" do %>
+            <% if project.video.present? %>
+              <video class="pj-img pj-video" muted loop playsinline preload="none" poster="<%= project.hero_image_url(:medium) %>" data-src="<%= project.video.url %>" data-work-track-target="video" aria-hidden="true" style="view-transition-name: project-<%= project.id %>"></video>
+              <span class="vid-badge"><%= play_svg %>Video</span>
+            <% elsif (img = project.hero_image_url(:medium)) %>
+              <img class="pj-img" src="<%= img %>" alt="<%= project.title %>" loading="lazy" decoding="async" style="view-transition-name: project-<%= project.id %>">
+            <% end %>
+            <small><%= project.category_label %></small>
+            <h3><%= project.title %></h3>
+            <p><%= project.summary.to_s.truncate(110) %></p>
+            <span class="pj-more" aria-hidden="true">Ver proyecto ›</span>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </section>
+<% end %>

@@ -1,0 +1,61 @@
+<%= form_with model: [:admin, record], html: { multipart: true } do |f| %>
+  <div class="layout-aside">
+    <div>
+      <%= form_errors(record) %>
+      <div class="card">
+        <div class="card-head"><div><h2>Tarjeta del sitio</h2><p>Lo que se ve en la sección de servicios.</p></div></div>
+        <div class="card-body form-grid">
+          <div class="field"><%= f.label :title %><%= f.text_field :title, required: true, placeholder: "Fotografía" %></div>
+          <div class="field"><%= f.label :tags %><%= f.text_field :tags, placeholder: "Eventos, Retrato, Producto" %><%= field_hint("Separadas por coma. Se muestran las tres primeras.") %></div>
+          <div class="field span-2"><%= f.label :summary %><%= f.text_area :summary, rows: 3 %></div>
+          <div class="field span-2"><%= f.label :visual_style %><%= f.select :visual_style, Service::VISUAL_STYLES.invert %><%= field_hint("Cada estilo es una animación distinta de la tarjeta. Si no subís fotos se usan las de muestra.") %></div>
+          <%= image_field(f, :image, label: "Foto principal") %>
+          <%= image_field(f, :image_secondary, label: "Foto 2 (fotos impresas / celulares)") %>
+          <%= image_field(f, :image_tertiary, label: "Foto 3 (fotos impresas / celulares)") %>
+        </div>
+      </div>
+
+      <div class="card" data-controller="nested-form" data-nested-form-remove-field-value="remove">
+        <div class="card-head">
+          <div><h2>Cotizador</h2><p>Precio base y opciones que la persona puede sumar.</p></div>
+        </div>
+        <div class="card-body form-grid">
+          <div class="span-2"><%= switch_field(f, :quotable, "Aparece en el cotizador", "Si lo apagás, la tarjeta se sigue mostrando pero no se puede cotizar en línea.") %></div>
+          <div class="field"><%= f.label :base_price, "Precio base (#{settings.currency_symbol})" %><%= f.number_field :base_price, step: "0.01", min: 0 %></div>
+          <div class="field"><%= f.label :price_prefix %><%= f.text_field :price_prefix, placeholder: "Desde" %></div>
+          <div class="field span-2"><%= f.label :price_unit %><%= f.text_field :price_unit, placeholder: "por evento · por sesión · por episodio" %></div>
+          <div class="span-2">
+            <p class="label" style="margin:6px 0 10px">Opciones</p>
+            <div data-nested-form-target="list" data-controller="sortable">
+              <%= f.fields_for :options do |of| %>
+                <%= render "admin/services/option_fields", f: of, option: of.object %>
+              <% end %>
+            </div>
+            <template data-nested-form-target="template">
+              <%= f.fields_for :options, ServiceOption.new(kind: "addon", published: true), child_index: "NEW_RECORD" do |of| %>
+                <%= render "admin/services/option_fields", f: of, option: of.object %>
+              <% end %>
+            </template>
+            <button type="button" class="btn btn-sm" style="margin-top:12px" data-action="nested-form#add"><%= icon(:plus, size: 16) %> Agregar opción</button>
+            <%= field_hint("Extra fijo: una casilla (ej. Dron +$120). Por cantidad: horas, fotos o reels extra. Opción de un grupo: la persona elige una (ej. Duración: 4 h / 8 h); usá el mismo nombre de grupo.") %>
+          </div>
+        </div>
+      </div>
+
+      <div class="sticky-actions">
+        <%= switch_field(f, :published, "Publicado") %>
+        <span class="spacer"></span>
+        <%= link_to "Cancelar", admin_services_path, class: "btn btn-ghost" %>
+        <button type="submit" class="btn btn-primary"><%= icon(:check, size: 16) %> <%= record.persisted? ? "Guardar cambios" : "Crear servicio" %></button>
+      </div>
+    </div>
+    <aside>
+      <div class="card">
+        <div class="card-head"><h2>URL</h2></div>
+        <div class="card-body"><div class="field"><%= f.text_field :slug %><%= field_hint("Se genera sola a partir del nombre.") %></div></div>
+      </div>
+      <%= render "admin/shared/record_meta", record: record, trash: false %>
+    </aside>
+  </div>
+<% end %>
+<% if record.persisted? %><div class="danger-zone"><%= trash_button(record, label: "Enviar servicio a la papelera") %></div><% end %>

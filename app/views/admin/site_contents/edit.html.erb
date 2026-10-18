@@ -1,0 +1,72 @@
+<% content_for :title, "Datos del sitio" %>
+<%= render "admin/shared/header", title: "Datos del sitio",
+           subtitle: "Identidad, contacto, redes, logos y SEO. Los textos de cada parte del inicio se editan en Secciones del inicio.",
+           actions: link_to(safe_join([icon(:eye, size: 16), "Ver el sitio"]), root_path, class: "btn", target: "_blank") %>
+
+<%= form_with model: @setting, url: admin_site_content_path, method: :patch, html: { multipart: true },
+              data: { controller: "tabs", tabs_active_value: @tab } do |f| %>
+  <%= hidden_field_tag :tab, @tab, data: { tabs_target: "field" } %>
+  <%= form_errors(@setting) %>
+  <div class="tabs" role="tablist">
+    <% [["general", "General"], ["contacto", "Contacto y redes"], ["marca", "Logos e imágenes"], ["cotizador", "Página del cotizador"], ["seo", "SEO"]].each do |key, label| %>
+      <button class="tab" role="tab" type="button" data-tabs-target="tab" data-tab="<%= key %>" data-action="tabs#select"><%= label %></button>
+    <% end %>
+    <span class="tab-ink" data-tabs-target="ink"></span>
+  </div>
+
+  <div class="info-banner"><%= icon(:layout, size: 18) %><span>¿Buscás los textos de la portada, Quiénes somos, servicios o contacto? Ahora están en <%= link_to "Secciones del inicio", admin_sections_path %>, donde además podés ordenarlas y agregar nuevas.</span></div>
+
+  <section class="tab-panel card" data-tabs-target="panel" data-tab="general">
+    <div class="card-body form-grid">
+      <div class="field"><%= f.label :site_name %><%= f.text_field :site_name %></div>
+      <div class="field"><%= f.label :legal_name, "Razón social (aparece en el ©)" %><%= f.text_field :legal_name %></div>
+      <div class="field span-2"><%= f.label :footer_text, "Texto del pie de página" %><%= f.text_field :footer_text %></div>
+    </div>
+  </section>
+
+  <section class="tab-panel card" data-tabs-target="panel" data-tab="cotizador" hidden>
+    <div class="card-body form-grid">
+      <div class="field span-2"><%= f.label :quote_title, "Título del cotizador" %><%= f.text_field :quote_title %></div>
+      <div class="field span-2"><%= f.label :quote_intro, "Texto del cotizador" %><%= f.text_area :quote_intro, rows: 2 %></div>
+      <p class="hint span-2">Precios, descuento por combo e impuestos se configuran en <%= can?(:settings) ? link_to("Ajustes", edit_admin_settings_path) : "Ajustes" %>.</p>
+    </div>
+  </section>
+
+  <section class="tab-panel card" data-tabs-target="panel" data-tab="contacto" hidden>
+    <div class="card-body form-grid">
+      <div class="field"><%= f.label :contact_email %><%= f.email_field :contact_email %></div>
+      <div class="field"><%= f.label :whatsapp_number, "WhatsApp" %><%= f.telephone_field :whatsapp_number, placeholder: "+503 7000 0000" %><%= field_hint("Con código de país. Se arma el enlace wa.me solo.") %></div>
+      <div class="field"><%= f.label :phone, "Teléfono" %><%= f.telephone_field :phone %></div>
+      <div class="field"><%= f.label :city, "Ciudad" %><%= f.text_field :city %></div>
+      <div class="field"><%= f.label :country, "País" %><%= f.text_field :country %></div>
+      <div class="field"><%= f.label :address, "Dirección (opcional)" %><%= f.text_field :address %></div>
+      <div class="field"><%= f.label :instagram_url, "Instagram" %><%= f.url_field :instagram_url, placeholder: "https://www.instagram.com/toma6sv/" %></div>
+      <div class="field"><%= f.label :facebook_url, "Facebook" %><%= f.url_field :facebook_url %></div>
+      <div class="field"><%= f.label :tiktok_url, "TikTok" %><%= f.url_field :tiktok_url %></div>
+      <div class="field"><%= f.label :youtube_url, "YouTube" %><%= f.url_field :youtube_url %></div>
+    </div>
+  </section>
+
+  <section class="tab-panel card" data-tabs-target="panel" data-tab="marca" hidden>
+    <div class="card-body form-grid">
+      <%= image_field(f, :logo, label: "Logo de la barra (blanco, fondo transparente)", hint: "PNG, ideal 400 px de ancho.", version: :small) %>
+      <%= image_field(f, :wordmark, label: "Logo grande de la portada", hint: "PNG transparente, ideal 1200 px de ancho.", version: :small) %>
+      <%= image_field(f, :og_image, label: "Imagen al compartir el enlace", hint: "1200 × 630 px. Es la que se ve en WhatsApp, Facebook, etc.", version: :thumb) %>
+    </div>
+  </section>
+
+  <section class="tab-panel card" data-tabs-target="panel" data-tab="seo" hidden>
+    <div class="card-body form-grid">
+      <div class="field span-2"><%= f.label :site_url, "Dominio del sitio" %><%= f.url_field :site_url, placeholder: "https://www.toma6.com" %><%= field_hint("Se usa en el sitemap, al compartir enlaces y para que Instagram pueda leer las fotos.") %></div>
+      <div class="field span-2"><%= f.label :seo_title, "Título en Google" %><%= f.text_field :seo_title, maxlength: 70 %></div>
+      <div class="field span-2"><%= f.label :seo_description, "Descripción en Google" %><%= f.text_area :seo_description, rows: 2, maxlength: 170 %></div>
+      <div class="field"><%= f.label :google_analytics_id, "Google Analytics (opcional)" %><%= f.text_field :google_analytics_id, placeholder: "G-XXXXXXXXXX" %></div>
+    </div>
+  </section>
+
+  <div class="sticky-actions">
+    <span class="audit-line"><%= avatar_for(@setting.updater, size: 18) %> Última edición: <%= @setting.updater&.name || "Sistema" %>, hace <%= time_ago_in_words(@setting.updated_at) %></span>
+    <span class="spacer"></span>
+    <% if can?(:content, :write) %><button type="submit" class="btn btn-primary"><%= icon(:check, size: 16) %> Guardar cambios</button><% end %>
+  </div>
+<% end %>

@@ -1,0 +1,11 @@
+<h1 class="auth-title">Recuperar contraseña</h1>
+<p class="auth-lead">Te enviamos un enlace para crear una nueva.</p>
+<%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post, class: "auth-form" }) do |f| %>
+  <%= render "devise/shared/error_messages", resource: resource %>
+  <div class="field">
+    <%= f.label :email, "Correo" %>
+    <%= f.email_field :email, autofocus: true, autocomplete: "email", required: true %>
+  </div>
+  <button type="submit" class="btn btn-primary btn-block">Enviar enlace</button>
+<% end %>
+<p class="auth-alt"><%= link_to "Volver a ingresar", new_session_path(resource_name) %></p>

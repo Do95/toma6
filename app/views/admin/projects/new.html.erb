@@ -1,0 +1,4 @@
+<% content_for :title, "Nuevo proyecto" %>
+<% content_for :crumbs do %><%= link_to "Proyectos", admin_projects_path %> / Nuevo<% end %>
+<%= render "admin/shared/header", title: "Nuevo proyecto", subtitle: "Después de crearlo vas a poder subir fotos y armar álbumes." %>
+<%= render "form", record: @record %>

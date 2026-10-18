@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Ingresar · <%= settings.site_name %></title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23B63830'/%3E%3Crect x='14' y='26' width='36' height='24' fill='none' stroke='%23fff' stroke-width='5'/%3E%3Crect x='24' y='35' width='16' height='6' fill='%23fff'/%3E%3Cpath d='M16 22l8-8M28 22l8-8M40 22l8-8' stroke='%23fff' stroke-width='5'/%3E%3C/svg%3E">
+  <%= csrf_meta_tags %>
+  <%= preload_link_tag "archivo-variable.woff2", as: "font", type: "font/woff2", crossorigin: "anonymous" %>
+  <%= stylesheet_link_tag "admin", "data-turbo-track": "reload" %>
+  <%= javascript_importmap_tags "application" %>
+</head>
+<body class="auth">
+  <div class="auth-stage">
+    <div class="auth-slate" aria-hidden="true"><span></span></div>
+    <div class="auth-card">
+      <%= image_tag(settings.logo.present? ? settings.logo.url : "site/logo-toma6.png", alt: settings.site_name, class: "auth-logo") %>
+      <% flash.each do |type, message| %>
+        <p class="auth-flash auth-flash-<%= type %>"><%= message %></p>
+      <% end %>
+      <%= yield %>
+    </div>
+    <p class="auth-foot"><%= link_to "‹ Volver al sitio", root_path %></p>
+  </div>
+</body>
+</html>

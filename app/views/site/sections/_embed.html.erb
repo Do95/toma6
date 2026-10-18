@@ -1,0 +1,9 @@
+<% if section.embed_code.present? %>
+  <section class="<%= section_classes(section) %>" id="<%= section.anchor %>">
+    <div class="sx-wrap">
+      <%= render "site/sections/head", section: section, lead: true %>
+      <%# Código cargado por un administrador (mapa, Calendly, formulario…) %>
+      <div class="sx-embed" style="min-height:<%= section.embed_height %>px"><%= raw section.embed_code %></div>
+    </div>
+  </section>
+<% end %>

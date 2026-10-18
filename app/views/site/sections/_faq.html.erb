@@ -1,0 +1,10 @@
+<% if @faqs.present? %>
+  <section class="section faq" id="<%= section.anchor %>" aria-labelledby="t-<%= section.anchor %>">
+    <div class="wrap">
+      <div class="section-head"><h2 id="t-<%= section.anchor %>"><%= section.title %></h2><% if section.lead.present? %><p><%= section.lead %></p><% end %></div>
+      <div class="faq-list">
+        <% @faqs.each do |faq| %><details><summary><%= faq.question %></summary><%= rich_text(faq.answer) %></details><% end %>
+      </div>
+    </div>
+  </section>
+<% end %>

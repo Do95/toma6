@@ -1,0 +1,23 @@
+<% blocks = section.blocks.to_a %>
+<section class="<%= section_classes(section, "align-#{section.align}", "blocks-#{section.block_style}") %>" id="<%= section.anchor %>">
+  <div class="sx-wrap">
+    <%= render "site/sections/head", section: section, lead: true %>
+    <% if blocks.any? %>
+      <div class="sx-columns layout-<%= section.layout %>">
+        <% blocks.each_with_index do |block, i| %>
+          <article class="sx-col" style="--i:<%= i %>">
+            <% if block.image.present? %>
+              <figure class="sx-col-media"><img src="<%= block.image.url(:medium) %>" alt="<%= block.title %>" loading="lazy" decoding="async"></figure>
+            <% elsif block.illustration_key %>
+              <div class="sx-col-illus"><%= illustration(block.illustration_key) %></div>
+            <% end %>
+            <% if block.eyebrow.present? %><span class="sx-eyebrow sm"><%= block.eyebrow %></span><% end %>
+            <% if block.title.present? %><h3><%= block.title %></h3><% end %>
+            <% if block.body.present? %><div class="sx-col-body"><%= rich_text(block.body) %></div><% end %>
+            <% if block.button_label.present? && block.button_url.present? %><%= link_to "#{block.button_label} ›", block.button_url, class: "link" %><% end %>
+          </article>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</section>

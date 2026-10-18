@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <% base = settings.public_base_url %>
+  <url><loc><%= base %>/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc><%= base %>/servicios</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc><%= base %>/proyectos</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc><%= base %>/galeria</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <% @projects.each do |p| %>
+  <url><loc><%= base %>/proyectos/<%= p.slug %></loc><lastmod><%= p.updated_at.to_date.iso8601 %></lastmod><priority>0.7</priority></url>
+  <% end %>
+  <% @albums.each do |a| %>
+  <url><loc><%= base %>/galeria/albumes/<%= a.slug %></loc><lastmod><%= a.updated_at.to_date.iso8601 %></lastmod><priority>0.5</priority></url>
+  <% end %>
+</urlset>

@@ -1,0 +1,17 @@
+<div class="layout-aside">
+  <%= form_with model: [:admin, record], class: "card" do |f| %>
+    <div class="card-body">
+      <%= form_errors(record) %>
+      <div class="form-grid">
+        <div class="field span-2"><%= f.label :question %><%= f.text_field :question, required: true, placeholder: "¿Cubren eventos fuera de San Salvador?" %></div>
+        <div class="field span-2">
+          <%= f.label :answer %><%= f.text_area :answer, rows: 5, required: true %>
+          <%= field_hint("Podés usar **negrita** y ==resaltado==. Dejá una línea vacía para separar párrafos.") %>
+        </div>
+        <div class="span-2"><%= switch_field(f, :published, "Publicada", "Se muestra en la sección de preguntas frecuentes.") %></div>
+      </div>
+    </div>
+    <%= render "admin/shared/form_actions", form: f, cancel: admin_faqs_path %>
+  <% end %>
+  <aside><%= render "admin/shared/record_meta", record: record %></aside>
+</div>

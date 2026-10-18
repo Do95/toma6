@@ -1,0 +1,15 @@
+<section class="<%= section_classes(section) %>" id="<%= section.anchor %>">
+  <div class="sx-wrap">
+    <%= render "site/sections/head", section: section, lead: true %>
+    <ul class="sx-features">
+      <% section.item_rows.each_with_index do |row, i| %>
+        <li style="--i:<%= i %>">
+          <div class="sx-feature-illus"><%= illustration(section.item_illustration(row, i)) %></div>
+          <span class="sx-num"><%= format("%02d", i + 1) %></span>
+          <strong><%= row[0] %></strong>
+          <% if row[1].present? %><p><%= row[1] %></p><% end %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+</section>

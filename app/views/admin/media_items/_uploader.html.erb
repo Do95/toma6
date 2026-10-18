@@ -1,0 +1,26 @@
+<% gallery = local_assigns[:gallery] %>
+<div class="uploader" data-controller="uploader" data-uploader-target="zone" data-uploader-url-value="<%= bulk_create_admin_media_items_path %>">
+  <span class="icon-big"><%= icon(:upload, size: 24) %></span>
+  <h3><%= local_assigns[:title] || "Arrastrá fotos acá" %></h3>
+  <p><%= local_assigns[:text] || "O elegilas desde tu computadora. JPG, PNG o WebP, hasta 25 MB cada una. Si una foto ya está en la biblioteca, no se duplica." %></p>
+  <input type="file" multiple accept="image/*" hidden data-uploader-target="input" data-action="uploader#chosen">
+  <% if gallery.is_a?(Album) %><input type="hidden" name="album_id" value="<%= gallery.id %>" data-upload-param><% end %>
+  <% if gallery.is_a?(Project) %><input type="hidden" name="project_id" value="<%= gallery.id %>" data-upload-param><% end %>
+  <div class="uploader-options">
+    <button type="button" class="btn btn-dark" data-action="uploader#pick"><%= icon(:upload, size: 16) %> Subir fotos</button>
+    <% if gallery %>
+      <%= link_to safe_join([icon(:image, size: 16), "Elegir de la biblioteca"]),
+                  library_admin_media_items_path(gallery.is_a?(Album) ? { album_id: gallery.id } : { project_id: gallery.id }), class: "btn" %>
+    <% end %>
+    <select name="category_id" class="input" data-upload-param aria-label="Categoría">
+      <option value="">Sin categoría</option>
+      <% Category.kept.ordered.each do |c| %><option value="<%= c.id %>"><%= c.name %></option><% end %>
+    </select>
+    <label class="check-inline"><input type="checkbox" name="show_in_gallery" value="1" checked data-upload-param> Mostrar en /galeria</label>
+  </div>
+  <div class="upload-queue" data-uploader-target="queue"></div>
+  <div data-uploader-target="summary" hidden style="margin-top:14px">
+    <strong data-count></strong>
+    <button type="button" class="btn btn-sm" data-action="uploader#reload" style="margin-left:8px"><%= icon(:refresh, size: 14) %> Ver en la grilla</button>
+  </div>
+</div>

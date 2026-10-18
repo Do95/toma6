@@ -1,0 +1,33 @@
+<% content_for :title, "Solicitudes" %>
+<%= render "admin/shared/header", title: "Solicitudes", subtitle: "Lo que la gente arma en el cotizador del sitio. Convertilas en cotización con un clic." %>
+<%= form_with url: admin_quote_requests_path, method: :get, class: "toolbar", data: { controller: "autosubmit", turbo_action: "replace" } do %>
+  <label class="search field"><%= icon(:search, size: 16) %><input type="search" name="q" value="<%= params[:q] %>" placeholder="Código, nombre o correo" class="input" data-action="input->autosubmit#submit"></label>
+  <input type="hidden" name="status" value="<%= params[:status] %>">
+<% end %>
+<div class="toolbar chips">
+  <%= filter_chip "Todas", { status: nil }, params[:status].blank? %>
+  <% QuoteRequest::STATUSES.each do |key, label| %><%= filter_chip label, { status: key }, params[:status] == key %><% end %>
+</div>
+<div class="card table-wrap">
+  <% if @records.any? %>
+    <table class="table">
+      <thead><tr><th>Código</th><th>Persona</th><th>Servicios</th><th>Evento</th><th>Estado</th><th class="num">Estimado</th><th>Recibida</th></tr></thead>
+      <tbody>
+        <% @records.each do |req| %>
+          <tr>
+            <td><%= link_to req.number, admin_quote_request_path(req), class: "row-title mono-num" %></td>
+            <td><%= link_to req.name, admin_quote_request_path(req), class: "row-title" %><span class="row-sub"><%= req.email %></span></td>
+            <td><%= req.selection_lines.map { |l| l["service"] }.uniq.join(", ").truncate(60) %></td>
+            <td><%= req.event_date ? l(req.event_date, format: :short) : "—" %></td>
+            <td><%= status_badge(req.status, req.status_label) %></td>
+            <td class="num"><strong><%= money(req.estimated_total) %></strong></td>
+            <td><span title="<%= l(req.created_at, format: :long) %>">hace <%= time_ago_in_words(req.created_at) %></span></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <%= render "admin/shared/empty", title: "No hay solicitudes", text: "Cuando alguien use el cotizador del sitio, va a aparecer acá y te llega un aviso por correo." %>
+  <% end %>
+</div>
+<%= pagination_nav %>

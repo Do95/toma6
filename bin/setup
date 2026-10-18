@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+require "fileutils"
+
+APP_ROOT = File.expand_path("..", __dir__)
+
+def system!(*args)
+  system(*args, exception: true)
+end
+
+FileUtils.chdir APP_ROOT do
+  puts "== Instalando gemas =="
+  system("bundle check") || system!("bundle install")
+
+  puts "\n== Preparando la base de datos =="
+  system! "bin/rails db:prepare"
+
+  puts "\n== Cargando contenido inicial (sitio actual de toma6) =="
+  system! "bin/rails db:seed"
+
+  puts "\n== Limpiando logs y temporales =="
+  system! "bin/rails log:clear tmp:clear"
+
+  puts "\nListo. Iniciá el servidor con: bin/dev"
+  puts "Panel: http://localhost:3000/admin"
+end

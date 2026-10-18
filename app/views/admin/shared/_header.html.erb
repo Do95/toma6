@@ -1,0 +1,7 @@
+<div class="page-header">
+  <div>
+    <h1><% if local_assigns[:live] %><span class="rec-dot" aria-hidden="true"></span><% end %><%= title %></h1>
+    <% if local_assigns[:subtitle].present? %><p class="sub"><%= subtitle %></p><% end %>
+  </div>
+  <% if local_assigns[:actions] %><div class="actions"><%= actions %></div><% end %>
+</div>

@@ -1,0 +1,46 @@
+<% content_for :title, page_title("Galería") %>
+<% heading = page_heading("gallery_teaser", "Galería", settings.gallery_intro) %>
+<% content_for :description, heading.last %>
+
+<div class="gallery-page" data-controller="filter" data-filter-empty-text-value="No hay nada con esos filtros.">
+  <%= render "site/shared/page_head", title: heading.first, intro: heading.last do %>
+    <p class="g-count"><span data-filter-target="count"><%= @media.size %></span> fotos y videos</p>
+    <div class="filters" role="group" aria-label="Filtrar galería">
+      <div class="type-toggle">
+        <button type="button" aria-pressed="true" data-action="filter#pick" data-filter-key-param="kind" data-filter-value-param="">Todo</button>
+        <button type="button" aria-pressed="false" data-action="filter#pick" data-filter-key-param="kind" data-filter-value-param="photo">Fotos</button>
+        <button type="button" aria-pressed="false" data-action="filter#pick" data-filter-key-param="kind" data-filter-value-param="video">Videos</button>
+      </div>
+      <button class="chip" type="button" aria-pressed="true" data-action="filter#pick" data-filter-key-param="category" data-filter-value-param="">Todas</button>
+      <% @categories.each do |cat| %>
+        <button class="chip" type="button" aria-pressed="false" data-action="filter#pick" data-filter-key-param="category" data-filter-value-param="<%= cat.slug %>"><%= cat.name %></button>
+      <% end %>
+      <% if @projects.any? %>
+        <label class="project-select">
+          <span class="sr-only">Proyecto</span>
+          <select data-action="filter#select" data-filter-key-param="project">
+            <option value="">Todos los proyectos</option>
+            <% @projects.each do |p| %><option value="<%= p.slug %>"><%= p.title %></option><% end %>
+          </select>
+        </label>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if @albums.any? %>
+    <section class="albums-strip" aria-labelledby="albumsTitle">
+      <div class="albums-head">
+        <h2 id="albumsTitle">Álbumes</h2>
+        <p>Cada proyecto tiene sus propios álbumes. Entrá para ver la historia completa.</p>
+      </div>
+      <div class="albums-row">
+        <%= render partial: "site/gallery/album_card", collection: @albums, as: :album, locals: { filter: true } %>
+      </div>
+    </section>
+  <% end %>
+
+  <div class="masonry">
+    <% @media.each do |item| %><%= media_tile(item) %><% end %>
+  </div>
+  <p class="g-empty" data-filter-target="empty" hidden></p>
+</div>

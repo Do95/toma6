@@ -1,0 +1,50 @@
+<%# Lista ordenable de secciones de una página (inicio o proyecto). %>
+<% project = local_assigns[:project] %>
+<% can_write = can?(:content, :write) %>
+<% if sections.empty? %>
+  <%= render "admin/shared/empty", illustration: "claqueta",
+             title: project ? "Esta página no tiene secciones" : "El inicio no tiene secciones",
+             text: project ? "Agregá la historia y la galería del proyecto, o cualquier bloque nuevo." : "Volvé a poner las secciones fijas (portada, servicios, trabajos…) o empezá con un bloque nuevo.",
+             action: (safe_join([
+               button_to(safe_join([icon(:refresh, size: 16), "Restaurar secciones fijas"]), restore_defaults_admin_sections_path(project_id: project&.id), class: "btn"),
+               link_to(safe_join([icon(:plus, size: 16), "Agregar sección"]), new_admin_section_path(project_id: project&.id), class: "btn btn-primary")
+             ]) if can_write) %>
+<% else %>
+<% if sections.none?(&:published?) %>
+  <div class="warn-banner"><%= icon(:alert, size: 18) %> Todas las secciones están ocultas: <%= project ? "la página del proyecto" : "el inicio" %> se ve vacía en el sitio.</div>
+<% end %>
+<ul class="sort-list section-list" <% if can_write %>data-controller="sortable" data-sortable-model-value="sections" data-sortable-url-value="<%= admin_sort_path %>"<% end %>>
+  <% sections.each do |section| %>
+    <li class="sort-item section-row <%= 'is-hidden' unless section.published? %>" data-id="<%= section.id %>">
+      <% if can_write %><span class="sort-handle" title="Arrastrar para ordenar"><%= icon(:grip, size: 18) %></span><% end %>
+      <span class="kind-chip <%= 'is-builtin' if section.builtin? %>"><%= icon(section.config[:icon] || :layout, size: 16) %></span>
+      <div class="sort-main">
+        <%= link_to edit_admin_section_path(section) do %><strong><%= section.title.presence || section.kind_label %></strong><% end %>
+        <p>
+          <%= section.kind_label %><%= " · fija" if section.builtin? %>
+          <% if section.show_in_nav? %> · <span class="badge badge-info">En el menú: <%= section.nav_text %></span><% end %>
+          <% if section.kind == "gallery" && section.album %> · álbum «<%= section.album.title %>»<% end %>
+        </p>
+      </div>
+      <div class="sort-meta">
+        <% if can_write %>
+          <%= button_to toggle_admin_section_path(section), method: :patch, class: "eye-toggle #{'is-off' unless section.published?}",
+                        title: section.published? ? "Ocultar" : "Mostrar" do %>
+            <%= icon(section.published? ? :eye : :lock, size: 16) %><span><%= section.published? ? "Visible" : "Oculta" %></span>
+          <% end %>
+          <% unless section.builtin? %>
+            <%= button_to icon(:copy, size: 16, title: "Duplicar"), duplicate_admin_section_path(section), class: "icon-btn" %>
+          <% end %>
+          <%= link_to icon(:edit, size: 16, title: "Editar"), edit_admin_section_path(section), class: "icon-btn" %>
+        <% end %>
+      </div>
+    </li>
+  <% end %>
+</ul>
+<% end %>
+<% if can_write && sections.any? %>
+  <div class="card-foot" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+    <span class="hint">Arrastrá para cambiar el orden. Las secciones fijas se pueden ocultar pero no eliminar.</span>
+    <%= link_to safe_join([icon(:plus, size: 16), "Agregar sección"]), new_admin_section_path(project_id: project&.id), class: "btn btn-primary" %>
+  </div>
+<% end %>

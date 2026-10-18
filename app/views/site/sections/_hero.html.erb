@@ -1,0 +1,19 @@
+<section class="hero pr" id="<%= section.anchor %>" data-controller="hero">
+  <div class="glow layer" data-speed="0.15" aria-hidden="true"></div>
+  <div class="lens layer" data-speed="0.45" aria-hidden="true"><%= render "site/iris" %></div>
+  <div class="hero-copy" data-hero-target="copy">
+    <p class="rec"><span class="dot" aria-hidden="true"></span>REC <span data-hero-target="timecode">00:00:00:00</span></p>
+    <h1 class="wordmark">
+      <span class="sr-only"><%= settings.site_name %>: <%= settings.seo_description %></span>
+      <% logo = section.image.present? ? section.image.url : (settings.wordmark.present? ? settings.wordmark.url : image_path("site/imagen-03.png")) %>
+      <img src="<%= logo %>" alt="Logo de <%= settings.site_name %>" width="1200" height="660" fetchpriority="high" decoding="async">
+    </h1>
+    <% if section.title.present? %><p class="hero-claim"><span class="mark"><%= section.title %></span></p><% end %>
+    <% if section.lead.present? %><p class="hero-sub"><%= section.lead %></p><% end %>
+    <div class="hero-cta">
+      <%= section_button(section.button_label, section.button_url) %>
+      <% if section.secondary_label.present? && section.secondary_url.present? %><%= link_to "#{section.secondary_label} ›", section.secondary_url, class: "link" %><% end %>
+    </div>
+  </div>
+  <div class="scroll-hint" aria-hidden="true"></div>
+</section>

@@ -1,0 +1,11 @@
+<%# "Aparece en": casillas con todas las galerías donde puede estar la foto. %>
+<% current = record.persisted? ? record.placements.map { |p| MediaPlacement.gallery_key(p.gallery) } : Array(local_assigns[:preselected]) %>
+<input type="hidden" name="galleries_submitted" value="1">
+<div class="gallery-checks" data-controller="filter-list">
+  <input type="search" class="input" placeholder="Buscar galería…" data-action="input->filter-list#filter" aria-label="Buscar galería">
+  <div class="gallery-check-list">
+    <% MediaPlacement.gallery_options.each do |label, key| %>
+      <label class="check-inline gallery-check" data-filter-list-target="item"><input type="checkbox" name="gallery_keys[]" value="<%= key %>" <%= "checked" if current.include?(key) %>> <%= label %></label>
+    <% end %>
+  </div>
+</div>

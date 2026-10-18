@@ -1,0 +1,14 @@
+<section class="<%= section_classes(section, "img-#{section.image_side}") %>" id="<%= section.anchor %>">
+  <div class="sx-wrap sx-split pr">
+    <div class="sx-split-text">
+      <%= render "site/sections/head", section: section %>
+      <div class="sx-body"><%= rich_text(section.body) %></div>
+      <% if section.button_label.present? %><div class="sx-actions"><%= section_button(section.button_label, section.button_url) %></div><% end %>
+    </div>
+    <% if section.image.present? %>
+      <figure class="sx-split-media"><img src="<%= section.image.url(:large) %>" alt="<%= section.title %>" loading="lazy" decoding="async" data-speed="0.05"></figure>
+    <% elsif section.illustration_key %>
+      <div class="sx-split-illus"><%= illustration(section.illustration_key) %></div>
+    <% end %>
+  </div>
+</section>

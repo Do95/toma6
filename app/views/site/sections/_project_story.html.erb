@@ -1,0 +1,17 @@
+<div class="project-body wrap" id="<%= section.anchor %>">
+  <dl class="project-facts">
+    <% if @project.client_name.present? %><div><dt>Cliente</dt><dd><%= @project.client_name %></dd></div><% end %>
+    <% if @project.event_date %><div><dt>Fecha</dt><dd><%= l(@project.event_date, format: :long) %></dd></div><% end %>
+    <% if @project.location.present? %><div><dt>Lugar</dt><dd><%= @project.location %></dd></div><% end %>
+    <% if @project.services.any? %>
+      <div><dt>Qué hicimos</dt><dd><%= safe_join(@project.services.map { |s| content_tag(:span, s.title, class: "fact-tag") }) %></dd></div>
+    <% end %>
+  </dl>
+  <div class="project-story">
+    <% if section.title.present? %><h2 class="story-title"><%= section.title %></h2><% end %>
+    <%= rich_text(@project.body) %>
+    <% if (embed = @project.embed_url) %>
+      <div class="embed"><iframe src="<%= embed %>" title="Video de <%= @project.title %>" loading="lazy" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>
+    <% end %>
+  </div>
+</div>

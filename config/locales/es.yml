@@ -1,0 +1,184 @@
+es:
+  date:
+    formats:
+      short: "%d %b"
+      long: "%-d de %B de %Y"
+      compact: "%d/%m/%Y"
+  time:
+    formats:
+      short: "%d %b, %H:%M"
+      long: "%-d de %B de %Y, %H:%M"
+      compact: "%d/%m/%Y %H:%M"
+  devise:
+    failure:
+      account_disabled: "Tu cuenta está desactivada. Pedile a un administrador que la habilite."
+  activerecord:
+    models:
+      user: { one: "Usuario", other: "Usuarios" }
+      service: { one: "Servicio", other: "Servicios" }
+      service_option: { one: "Opción de servicio", other: "Opciones de servicio" }
+      project: { one: "Proyecto", other: "Proyectos" }
+      album: { one: "Álbum", other: "Álbumes" }
+      media_item: { one: "Medio", other: "Medios" }
+      category: { one: "Categoría", other: "Categorías" }
+      faq: { one: "Pregunta frecuente", other: "Preguntas frecuentes" }
+      process_step: { one: "Paso del proceso", other: "Pasos del proceso" }
+      about_value: { one: "Valor", other: "Valores" }
+      quote_request: { one: "Solicitud", other: "Solicitudes" }
+      quote: { one: "Cotización", other: "Cotizaciones" }
+      quote_item: { one: "Ítem", other: "Ítems" }
+      social_post: { one: "Publicación", other: "Publicaciones" }
+      integration: { one: "Integración", other: "Integraciones" }
+      site_setting: { one: "Contenido del sitio", other: "Contenido del sitio" }
+      activity_log: { one: "Actividad", other: "Actividad" }
+      section: { one: "Sección", other: "Secciones" }
+      email_template: { one: "Plantilla de correo", other: "Plantillas de correo" }
+      email_log: { one: "Correo", other: "Correos" }
+      short_link: { one: "Enlace corto", other: "Enlaces cortos" }
+    attributes:
+      user:
+        name: "Nombre"
+        email: "Correo"
+        role: "Rol"
+        password: "Contraseña"
+        password_confirmation: "Confirmación de contraseña"
+        current_password: "Contraseña actual"
+        active: "Cuenta activa"
+        avatar: "Foto"
+      service:
+        title: "Nombre del servicio"
+        slug: "URL"
+        summary: "Resumen"
+        description: "Descripción"
+        tags: "Etiquetas"
+        visual_style: "Estilo de la tarjeta"
+        image: "Foto principal"
+        image_secondary: "Foto 2"
+        image_tertiary: "Foto 3"
+        quotable: "Aparece en el cotizador"
+        base_price: "Precio base"
+        price_prefix: "Texto antes del precio"
+        price_unit: "Unidad"
+        published: "Publicado"
+      service_option:
+        name: "Nombre"
+        kind: "Tipo"
+        group_name: "Grupo"
+        price: "Precio"
+        unit_label: "Unidad"
+        min_quantity: "Mínimo"
+        max_quantity: "Máximo"
+      project:
+        title: "Título"
+        category_label: "Tipo de proyecto"
+        client_name: "Cliente"
+        location: "Lugar"
+        event_date: "Fecha"
+        summary: "Resumen"
+        body: "Historia del proyecto"
+        cover: "Portada"
+        video: "Video"
+        video_link: "Enlace de YouTube o Vimeo"
+        featured: "Destacado en el inicio"
+        published: "Publicado"
+      album:
+        title: "Título"
+        description: "Descripción"
+        project: "Proyecto"
+        cover: "Portada"
+        show_in_gallery: "Mostrar en la galería general"
+        published: "Publicado"
+      media_item:
+        kind: "Tipo"
+        image: "Imagen"
+        video: "Archivo de video"
+        title: "Título"
+        description: "Descripción"
+        category: "Categoría"
+        duration: "Duración"
+        show_in_gallery: "Mostrar en la galería general"
+        featured: "Destacado en el inicio"
+        published: "Publicado"
+      category:
+        name: "Nombre"
+      faq:
+        question: "Pregunta"
+        answer: "Respuesta"
+      process_step:
+        title: "Título"
+        description: "Descripción"
+      about_value:
+        title: "Valor"
+        description: "Descripción"
+      quote_request:
+        name: "Nombre"
+        email: "Correo"
+        phone: "Teléfono"
+        company: "Empresa"
+        event_date: "Fecha del evento"
+        location: "Lugar"
+        message: "Mensaje"
+      quote:
+        title: "Título"
+        client_name: "Cliente"
+        client_company: "Empresa"
+        client_email: "Correo del cliente"
+        client_phone: "Teléfono"
+        client_tax_id: "NIT / DUI"
+        event_date: "Fecha del evento"
+        event_location: "Lugar"
+        issued_on: "Fecha de emisión"
+        valid_until: "Válida hasta"
+        discount_value: "Descuento"
+        tax_rate: "Impuesto"
+        notes: "Notas"
+        terms: "Condiciones"
+        payment_info: "Forma de pago"
+      quote_item:
+        description: "Descripción"
+        quantity: "Cantidad"
+        unit_price: "Precio unitario"
+      social_post:
+        body: "Texto"
+        link: "Enlace"
+        image: "Imagen"
+        scheduled_at: "Fecha de publicación"
+        to_facebook: "Facebook"
+        to_instagram: "Instagram"
+      site_setting:
+        site_name: "Nombre del sitio"
+        tax_rate: "Impuesto"
+        bundle_discount_percent: "Descuento por combinar"
+        trash_retention_days: "Días en la papelera"
+        quote_validity_days: "Validez de las cotizaciones"
+        contact_email: "Correo de contacto"
+        notification_email: "Correo de avisos"
+      integration:
+        graph_version: "Versión de la API"
+      section:
+        kind: "Tipo"
+        eyebrow: "Antetítulo"
+        title: "Título"
+        lead: "Bajada"
+        body: "Texto"
+        note: "Nota"
+        items: "Elementos"
+        image: "Imagen"
+        video: "Video"
+        video_link: "Enlace de video"
+        button_url: "Enlace del botón"
+        secondary_url: "Enlace secundario"
+        theme: "Fondo"
+        anchor: "Ancla"
+        project: "Proyecto"
+      short_link:
+        title: "Nombre"
+        code: "Dirección corta"
+        destination_url: "Destino"
+        expires_at: "Vencimiento"
+        qr_label: "Texto del marco"
+        qr_style: "Estilo del QR"
+      email_template:
+        subject: "Asunto"
+        body: "Texto"
+        recipients: "Destinatarios"

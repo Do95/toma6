@@ -1,0 +1,5 @@
+<% content_for :title, "Editar publicación" %>
+<% content_for :crumbs do %><%= link_to "Publicaciones", admin_social_posts_path %> / Editar<% end %>
+<%= render "admin/shared/header", title: "Editar publicación" %>
+<%= render "form", record: @record %>
+<div class="danger-zone"><%= trash_button(@record, label: "Eliminar publicación") %></div>

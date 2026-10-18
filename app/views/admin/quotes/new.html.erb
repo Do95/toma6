@@ -1,0 +1,4 @@
+<% content_for :title, "Nueva cotización" %>
+<% content_for :crumbs do %><%= link_to "Cotizaciones", admin_quotes_path %> / Nueva<% end %>
+<%= render "admin/shared/header", title: "Nueva cotización", subtitle: "El número se asigna solo al guardar: será #{Quote.next_number}, salvo que alguien guarde otra antes." %>
+<%= render "form", record: @record %>

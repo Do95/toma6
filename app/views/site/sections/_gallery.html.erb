@@ -1,0 +1,12 @@
+<% media = section.album&.visible? ? section.album.visible_media : [] %>
+<% if media.any? %>
+  <section class="<%= section_classes(section) %>" id="<%= section.anchor %>">
+    <div class="sx-wrap">
+      <%= render "site/sections/head", section: section, lead: true %>
+    </div>
+    <div class="masonry sx-masonry"><% media.first(24).each do |item| %><%= media_tile(item) %><% end %></div>
+    <div class="sx-wrap sx-actions">
+      <%= link_to section.button_label.presence || "Ver el álbum completo", album_path(section.album.slug), class: "btn primary" %>
+    </div>
+  </section>
+<% end %>

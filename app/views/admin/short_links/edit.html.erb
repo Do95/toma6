@@ -1,0 +1,4 @@
+<% content_for :title, "Editar #{@record.title}" %>
+<% content_for :crumbs do %><%= link_to "Enlaces y QR", admin_short_links_path %> / <%= link_to @record.title.truncate(40), admin_short_link_path(@record) %> / Editar<% end %>
+<%= render "admin/shared/header", title: "Editar enlace" %>
+<%= render "form", record: @record %>

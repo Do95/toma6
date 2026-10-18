@@ -1,0 +1,7 @@
+<% if section.eyebrow.present? || section.title.present? || (local_assigns[:lead] && section.lead.present?) %>
+  <div class="sx-head">
+    <% if section.eyebrow.present? %><span class="sx-eyebrow"><%= section.eyebrow %></span><% end %>
+    <% if section.title.present? %><h2><%= section.title %></h2><% end %>
+    <% if local_assigns[:lead] && section.lead.present? %><p class="sx-lead"><%= inline_text(section.lead) %></p><% end %>
+  </div>
+<% end %>

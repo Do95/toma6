@@ -1,0 +1,6 @@
+<% content_for :title, "Nueva sección" %>
+<% content_for :crumbs do %>
+  <% if @record.project %><%= link_to "Proyectos", admin_projects_path %> / <%= link_to @record.project.title, edit_admin_project_path(@record.project, tab: "secciones") %><% else %><%= link_to "Secciones del inicio", admin_sections_path %><% end %> / Nueva
+<% end %>
+<%= render "admin/shared/header", title: "Nueva sección: #{@record.kind_label.downcase}" %>
+<%= render "form", record: @record %>
