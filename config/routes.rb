@@ -32,7 +32,10 @@ Rails.application.routes.draw do
     resource :settings, only: %i[edit update], path: "ajustes"
     resource :profile, only: %i[edit update], path: "perfil"
 
-    resources :services, path: "servicios"
+    resources :services, path: "servicios" do
+      member { patch :toggle }
+    end
+    resources :plans, path: "planes", except: :show
     resources :projects, path: "proyectos" do
       member { get :share }
     end

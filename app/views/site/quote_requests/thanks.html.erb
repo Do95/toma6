@@ -7,14 +7,21 @@
     <% if @quote_request %>
       <p class="thanks-number">Solicitud N.º <strong><%= @quote_request.number %></strong></p>
       <p>Gracias, <%= @quote_request.name.split.first %>. Te escribimos a <strong><%= @quote_request.email %></strong> con una propuesta cerrada.</p>
+      <% prices = settings.estimator_shows_prices? %>
+      <% plan_line = @quote_request.plan_line %>
       <div class="thanks-summary">
         <ul>
           <% @quote_request.selection_lines.each do |line| %>
-            <li><span><%= line["label"] %><% if line["quantity"].to_i > 1 %> × <%= line["quantity"] %><% end %></span><span><%= money(line["total"]) %></span></li>
+            <li><span><%= line["label"] %><% if line["quantity"].to_i > 1 %> × <%= line["quantity"] %><% end %></span><% if prices || line.equal?(plan_line) %><span><%= line["total"].to_d.positive? ? money(line["total"]) : "Incluido" %></span><% end %></li>
           <% end %>
         </ul>
-        <% if @quote_request.discount.positive? %><p class="thanks-discount">Combo de servicios: −<%= money(@quote_request.discount) %></p><% end %>
-        <p class="thanks-total">Total estimado <strong><%= money(@quote_request.estimated_total) %></strong></p>
+        <% if prices %>
+          <% if @quote_request.discount.positive? %><p class="thanks-discount">Combo de servicios: −<%= money(@quote_request.discount) %></p><% end %>
+          <p class="thanks-total">Total estimado <strong><%= money(@quote_request.estimated_total) %></strong></p>
+        <% elsif plan_line %>
+          <p class="thanks-total"><%= @quote_request.priced_extras? ? "Desde" : "Total" %> <strong><%= money(plan_line["total"]) %></strong></p>
+          <% if @quote_request.priced_extras? %><p class="thanks-discount">El precio de lo que sumaste al plan va en tu propuesta.</p><% end %>
+        <% end %>
       </div>
     <% else %>
       <p>Te respondemos rápido con una propuesta.</p>

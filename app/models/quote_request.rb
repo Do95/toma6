@@ -10,6 +10,7 @@ class QuoteRequest < ApplicationRecord
   }.freeze
 
   has_one :quote, -> { kept }, inverse_of: :quote_request
+  belongs_to :plan, optional: true
 
   validates :name, presence: true, length: { maximum: 120 }
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
@@ -28,6 +29,12 @@ class QuoteRequest < ApplicationRecord
 
   def selection_lines = Array(selections)
 
+  # Línea del plan elegido (es la única sin servicio)
+  def plan_line = selection_lines.find { |l| l["service_id"].blank? }
+
+  # ¿Sumó servicios o extras con costo además del plan?
+  def priced_extras? = selection_lines.any? { |l| l["service_id"].present? && l["total"].to_d.positive? }
+
   private
 
   def assign_number
@@ -36,6 +43,6 @@ class QuoteRequest < ApplicationRecord
   end
 
   def has_selections
-    errors.add(:base, "Elegí al menos un servicio para cotizar.") if selection_lines.empty?
+    errors.add(:base, "Elegí un plan o al menos un servicio para cotizar.") if selection_lines.empty?
   end
 end

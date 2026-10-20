@@ -188,6 +188,24 @@ if Service.none?
   end
 end
 
+puts "→ Planes con precio cerrado (ejemplo: ajustalos en Panel → Planes)"
+if Plan.none?
+  svc = Service.all.index_by(&:title)
+  [
+    { title: "Sesión esencial", price: 220, price_unit: "por sesión", summary: "Fotos profesionales para tu marca, perfil o evento chico.",
+      features: "2 horas de sesión\n40 fotos editadas\nEntrega en 5 días hábiles", services: ["Fotografía"] },
+    { title: "Evento completo", price: 990, price_unit: "por evento", badge: "Más elegido", highlighted: true,
+      summary: "Foto y video para bodas, quinceaños y eventos corporativos.",
+      features: "8 horas de cobertura\nFotógrafo y camarógrafo\n300 fotos editadas\nVideo resumen de 3 minutos",
+      services: ["Fotografía", "Producción audiovisual", "Edición y postproducción"] },
+    { title: "Redes del mes", price: 390, price_unit: "por mes", summary: "Una jornada de grabación y contenido listo para todo el mes.",
+      features: "8 reels editados\nGuiones y copys\nVersiones para Instagram y TikTok", services: ["Contenido para redes"] }
+  ].each_with_index do |data, i|
+    names = data.delete(:services)
+    Plan.create!(data.merge(position: i + 1, services: names.filter_map { |n| svc[n] }))
+  end
+end
+
 puts "→ Proyectos, álbumes y galería"
 if Project.none?
   svc = Service.all.index_by(&:title)

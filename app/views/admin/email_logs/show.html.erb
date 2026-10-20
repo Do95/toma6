@@ -2,7 +2,7 @@
 <% content_for :crumbs do %><%= link_to "Correos", admin_email_logs_path %> / <%= @log.display_name.truncate(50) %><% end %>
 <%= render "admin/shared/header", title: @log.display_name.truncate(70),
            actions: (@log.retryable? && can?(:sales, :write) ? button_to(safe_join([icon(:refresh, size: 16), "Reintentar envío"]), retry_admin_email_log_path(@log), class: "btn btn-primary") : nil) %>
-<div class="layout-aside" style="grid-template-columns:minmax(0,1fr) 340px">
+<div class="layout-aside" style="--aside:340px">
   <div class="card">
     <div class="card-head"><h2>Contenido</h2></div>
     <iframe class="mail-frame mail-frame-lg" src="<%= body_admin_email_log_path(@log) %>" title="Contenido del correo"></iframe>

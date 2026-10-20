@@ -2,8 +2,17 @@ class QuoteRequestMailer < ApplicationMailer
   # Confirmación automática a quien pidió la cotización
   def confirm_client
     @quote_request = params[:quote_request]
-    compose("quote_request_client", to: @quote_request.email, vars: request_vars,
-                                    details: { kind: :request, record: @quote_request },
+    prices = settings.estimator_shows_prices?
+    vars = request_vars
+    unless prices
+      plan = @quote_request.plan_line
+      vars[:total_estimado] = if plan.nil? then "a confirmar en la propuesta"
+                              elsif @quote_request.priced_extras? then "desde #{fmt_money(plan['total'])}"
+                              else fmt_money(plan["total"])
+                              end
+    end
+    compose("quote_request_client", to: @quote_request.email, vars: vars,
+                                    details: { kind: :request, record: @quote_request, prices: prices },
                                     button_url: site_url("/proyectos"), reply_to: settings.contact_email)
   end
 

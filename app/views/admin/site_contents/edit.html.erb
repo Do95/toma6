@@ -49,8 +49,8 @@
 
   <section class="tab-panel card" data-tabs-target="panel" data-tab="marca" hidden>
     <div class="card-body form-grid">
-      <%= image_field(f, :logo, label: "Logo de la barra (blanco, fondo transparente)", hint: "PNG, ideal 400 px de ancho.", version: :small) %>
-      <%= image_field(f, :wordmark, label: "Logo grande de la portada", hint: "PNG transparente, ideal 1200 px de ancho.", version: :small) %>
+      <%= image_field(f, :logo, label: "Logo de la barra (blanco, fondo transparente)", hint: "PNG, ideal 400 px de ancho.", version: :small, logo: true) %>
+      <%= image_field(f, :wordmark, label: "Logo grande de la portada", hint: "PNG transparente, ideal 1200 px de ancho.", version: :small, logo: true) %>
       <%= image_field(f, :og_image, label: "Imagen al compartir el enlace", hint: "1200 × 630 px. Es la que se ve en WhatsApp, Facebook, etc.", version: :thumb) %>
     </div>
   </section>

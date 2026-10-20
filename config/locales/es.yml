@@ -17,6 +17,7 @@ es:
       user: { one: "Usuario", other: "Usuarios" }
       service: { one: "Servicio", other: "Servicios" }
       service_option: { one: "Opción de servicio", other: "Opciones de servicio" }
+      plan: { one: "Plan", other: "Planes" }
       project: { one: "Proyecto", other: "Proyectos" }
       album: { one: "Álbum", other: "Álbumes" }
       media_item: { one: "Medio", other: "Medios" }
@@ -60,6 +61,16 @@ es:
         price_prefix: "Texto antes del precio"
         price_unit: "Unidad"
         published: "Publicado"
+      plan:
+        title: "Nombre del plan"
+        summary: "Resumen"
+        features: "Qué incluye"
+        price: "Precio"
+        price_unit: "Unidad"
+        badge: "Etiqueta"
+        highlighted: "Destacado"
+        published: "Publicado"
+        services: "Servicios que cubre"
       service_option:
         name: "Nombre"
         kind: "Tipo"
@@ -111,6 +122,7 @@ es:
         title: "Valor"
         description: "Descripción"
       quote_request:
+        plan: "Plan"
         name: "Nombre"
         email: "Correo"
         phone: "Teléfono"

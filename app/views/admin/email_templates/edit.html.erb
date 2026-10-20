@@ -6,7 +6,7 @@
              button_to(safe_join([icon(:send, size: 16), "Enviarme una prueba"]), test_admin_email_template_path(@template), class: "btn"),
              button_to("Restaurar texto original", restore_admin_email_template_path(@template), class: "btn btn-ghost", form: { data: { turbo_confirm: "¿Volver al texto original de esta plantilla?" } })
            ]) %>
-<div class="layout-aside" style="grid-template-columns:minmax(0,1fr) 420px" data-controller="var-insert">
+<div class="layout-aside" style="--aside:420px" data-controller="var-insert">
   <%= form_with model: @template, url: admin_email_template_path(@template), method: :patch, class: "card" do |f| %>
     <div class="card-body form-grid">
       <%= form_errors(@template) %>

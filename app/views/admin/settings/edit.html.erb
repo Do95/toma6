@@ -16,6 +16,9 @@
     <div class="card">
       <div class="card-head"><div><h2>Cotizador web</h2></div></div>
       <div class="card-body form-grid">
+        <div class="span-2"><%= switch_field(f, :estimator_shows_prices, "Mostrar el precio de los servicios en el cotizador web",
+                                             "Si lo apagás, los planes siguen mostrando su precio, pero los servicios y extras no (ni en el sitio ni en el correo del cliente). Vos recibís la solicitud con el estimado completo.") %>
+          <p class="hint" style="margin:8px 0 0 52px">Si cambiás esto, revisá que el <%= link_to "título y texto del cotizador", edit_admin_site_content_path(tab: "cotizador") %> no hablen de precios.</p></div>
         <div class="field"><%= f.label :bundle_discount_percent, "Descuento por combinar (%)" %><%= f.number_field :bundle_discount_percent, step: "0.5", min: 0 %><%= field_hint("0 = sin descuento.") %></div>
         <div class="field"><%= f.label :bundle_min_services, "A partir de cuántos servicios" %><%= f.number_field :bundle_min_services, min: 2 %></div>
         <div class="field span-2"><%= f.label :estimator_disclaimer, "Aclaración debajo del total" %><%= f.text_area :estimator_disclaimer, rows: 2 %></div>
@@ -45,7 +48,7 @@
       <div class="field span-2"><%= f.label :quote_default_notes, "Notas" %><%= f.text_area :quote_default_notes, rows: 2 %></div>
       <div class="field span-2"><%= f.label :quote_default_terms, "Condiciones" %><%= f.text_area :quote_default_terms, rows: 4 %></div>
       <div class="field span-2"><%= f.label :quote_payment_info, "Forma de pago" %><%= f.text_area :quote_payment_info, rows: 3 %></div>
-      <%= image_field(f, :pdf_logo, label: "Logo del PDF (blanco, va sobre la banda oscura)", hint: "PNG transparente. Si no subís uno se usa el logo de la barra o el de toma6.", version: :small) %>
+      <%= image_field(f, :pdf_logo, label: "Logo del PDF (blanco, va sobre la banda oscura)", hint: "PNG transparente. Si no subís uno se usa el logo de la barra o el de toma6.", version: :small, logo: true) %>
     </div>
   </div>
 

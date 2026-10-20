@@ -1,0 +1,32 @@
+<% content_for :title, "Planes" %>
+<%= render "admin/shared/header", title: "Planes",
+           subtitle: "Paquetes con precio cerrado que aparecen arriba del cotizador. Junto a ellos siempre está «A tu medida», y a cualquier plan se le pueden sumar servicios y extras. Arrastrá para cambiar el orden.",
+           actions: (link_to(safe_join([icon(:plus, size: 16), "Nuevo plan"]), new_admin_plan_path, class: "btn btn-primary") if can?(:content, :write)) %>
+<div class="card">
+  <% if @records.any? %>
+    <ul class="sort-list" <% if can?(:content, :write) %>data-controller="sortable" data-sortable-model-value="plans" data-sortable-url-value="<%= admin_sort_path %>"<% end %>>
+      <% @records.each do |plan| %>
+        <li class="sort-item" data-id="<%= plan.id %>">
+          <span class="sort-handle"><%= icon(:grip, size: 18) %></span>
+          <div class="sort-main">
+            <%= link_to edit_admin_plan_path(plan) do %><strong><%= plan.title %></strong><% end %>
+            <p>
+              <%= money(plan.price, round: true) %><%= " #{plan.price_unit}" if plan.price_unit.present? %>
+              <% if plan.services.any? %> · cubre <%= plan.services.map(&:title).to_sentence %><% end %>
+            </p>
+          </div>
+          <div class="sort-meta">
+            <% if plan.badge.present? %><span class="badge badge-info"><%= plan.badge %></span><% end %>
+            <%= published_badge(plan) %>
+            <%= audit_line(plan) %>
+            <%= link_to icon(:edit, size: 16, title: "Editar"), edit_admin_plan_path(plan), class: "icon-btn" %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <%= render "admin/shared/empty", title: "Todavía no hay planes",
+               text: "Mientras no haya planes publicados, el cotizador funciona como siempre: la persona elige los servicios.",
+               action: (link_to("Crear el primero", new_admin_plan_path, class: "btn btn-primary") if can?(:content, :write)) %>
+  <% end %>
+</div>

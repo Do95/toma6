@@ -8,6 +8,14 @@ module Admin
       @record.options.build(kind: "addon")
     end
 
+    # Mostrar / ocultar desde la lista, sin entrar a editar
+    def toggle
+      authorize!(:content, :write)
+      @record.update!(published: !@record.published?)
+      notice = @record.published? ? "«#{@record.title}» se ve en el sitio y en el cotizador." : "«#{@record.title}» quedó oculto: no aparece en el sitio ni en el cotizador."
+      redirect_back fallback_location: admin_services_path, notice: notice, status: :see_other
+    end
+
     private
 
     def collection = super.includes(:options)

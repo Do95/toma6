@@ -21,7 +21,7 @@
     <details class="span-2 block-visual" <%= "open" if new_record %>>
       <summary>Imagen o ilustración</summary>
       <div class="form-grid" style="margin-top:10px">
-        <%= image_field(f, :image, label: "Foto (si subís una, reemplaza a la ilustración)") %>
+        <%= image_field(f, :image, label: "Foto (si subís una, reemplaza a la ilustración)", hint: "Ideal 1100 px o más.") %>
         <%= render "admin/shared/illustration_picker", form: f %>
       </div>
     </details>

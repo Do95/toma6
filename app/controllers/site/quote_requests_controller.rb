@@ -5,9 +5,9 @@ module Site
       return redirect_to(quote_request_thanks_path) if params[:website].present?
 
       selections = parse_selections(params[:selections])
-      estimate = QuoteEstimator.new(selections)
+      estimate = QuoteEstimator.new(selections, plan_id: params[:plan_id])
       @quote_request = QuoteRequest.new(request_params.merge(
-        selections: estimate.snapshot, subtotal: estimate.subtotal, discount: estimate.discount,
+        plan: estimate.plan, selections: estimate.snapshot, subtotal: estimate.subtotal, discount: estimate.discount,
         estimated_total: estimate.total, ip_address: request.remote_ip, user_agent: request.user_agent.to_s.first(250)
       ))
 
@@ -18,6 +18,7 @@ module Site
       else
         @services = Service.visible.ordered.includes(:options)
         @quotable = @services.select(&:quotable?)
+        @plans = Plan.visible.ordered.includes(:services)
         render "site/services/index", status: :unprocessable_entity
       end
     end

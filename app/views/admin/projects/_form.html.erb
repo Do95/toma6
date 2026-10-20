@@ -27,7 +27,7 @@
   <div class="card">
     <div class="card-head"><div><h2>Portada y video</h2><p>Si no subís portada se usa la primera foto de la galería.</p></div></div>
     <div class="card-body form-grid">
-      <%= image_field(f, :cover, label: "Portada") %>
+      <%= image_field(f, :cover, label: "Portada", hint: "Horizontal, ideal 2000 px de ancho. Se ve a pantalla completa en la página del proyecto.") %>
       <div class="field">
         <%= f.label :video, "Video corto (MP4, se reproduce en silencio)" %>
         <%= f.file_field :video, accept: "video/mp4,video/webm,video/quicktime", class: "input" %>

@@ -2,7 +2,7 @@ module Admin
   # Guarda el orden después de arrastrar elementos en una lista.
   class SortingsController < BaseController
     MODELS = {
-      "sections" => Section, "services" => Service, "service_options" => ServiceOption, "projects" => Project, "albums" => Album,
+      "sections" => Section, "services" => Service, "service_options" => ServiceOption, "plans" => Plan, "projects" => Project, "albums" => Album,
       "media_items" => MediaItem, "media_placements" => MediaPlacement, "categories" => Category, "faqs" => Faq, "process_steps" => ProcessStep,
       "about_values" => AboutValue
     }.freeze

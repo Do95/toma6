@@ -2,17 +2,24 @@
 <%= @body_html %>
 <% if @details && @details[:kind] == :request %>
   <% r = @details[:record] %>
+  <% prices = @details.fetch(:prices, true) %>
+  <% plan_line = r.plan_line %>
   <table class="lines">
     <% r.selection_lines.each do |line| %>
       <tr>
         <td><% if line["label"] == line["service"] %><strong><%= line["label"] %></strong><% else %>+ <%= line["label"] %><% end %><%= " × #{line['quantity']}" if line["quantity"].to_i > 1 %></td>
-        <td class="r"><%= money(line["total"]) %></td>
+        <td class="r"><%= (line["total"].to_d.positive? ? money(line["total"]) : "Incluido") if prices || line.equal?(plan_line) %></td>
       </tr>
     <% end %>
-    <% if r.discount.to_d.positive? %><tr><td>Combo de servicios</td><td class="r">−<%= money(r.discount) %></td></tr><% end %>
+    <% if prices && r.discount.to_d.positive? %><tr><td>Combo de servicios</td><td class="r">−<%= money(r.discount) %></td></tr><% end %>
   </table>
-  <div class="total">Total estimado: <%= money(r.estimated_total) %></div>
-  <p class="muted"><%= settings.estimator_disclaimer %></p>
+  <% if prices %>
+    <div class="total">Total estimado: <%= money(r.estimated_total) %></div>
+    <p class="muted"><%= settings.estimator_disclaimer %></p>
+  <% elsif plan_line %>
+    <div class="total"><%= r.priced_extras? ? "Desde" : "Total" %>: <%= money(plan_line["total"]) %></div>
+    <% if r.priced_extras? %><p class="muted">El precio de lo que sumaste al plan va en la propuesta.</p><% end %>
+  <% end %>
 <% elsif @details && @details[:kind] == :quote %>
   <% q = @details[:record] %>
   <table class="lines">

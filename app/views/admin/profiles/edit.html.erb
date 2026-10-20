@@ -8,7 +8,7 @@
         <%= form_errors(@user) %>
         <div class="field span-2"><%= f.label :name %><%= f.text_field :name, required: true %></div>
         <div class="field span-2"><%= f.label :email %><%= f.email_field :email, required: true %></div>
-        <div class="span-2"><%= image_field(f, :avatar, label: "Foto") %></div>
+        <div class="span-2"><%= image_field(f, :avatar, label: "Foto", hint: "Cuadrada, mínimo 256 px.") %></div>
       </div>
     </div>
     <div class="card">

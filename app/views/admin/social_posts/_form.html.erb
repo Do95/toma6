@@ -1,6 +1,6 @@
 <%= form_with model: [:admin, record], html: { multipart: true }, data: { controller: "social-preview toggle" } do |f| %>
   <%= form_errors(record) %>
-  <div class="layout-aside" style="grid-template-columns:minmax(0,1fr) 360px">
+  <div class="layout-aside" style="--aside:360px">
     <div>
       <div class="card">
         <div class="card-body form-grid">

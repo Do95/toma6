@@ -14,7 +14,7 @@
               <% end %>
             </div>
           </div>
-          <%= image_field(f, :image, label: "Imagen", hint: "En videos, es la portada que se ve antes de reproducir.", version: :medium) %>
+          <%= image_field(f, :image, label: "Imagen", hint: "Ideal 2000 px o más del lado más largo (se ve en grande en el visor). En videos, es la portada que se ve antes de reproducir.") %>
           <div class="field" data-toggle-target="item" data-show-when="video">
             <%= f.label :video %>
             <%= f.file_field :video, accept: "video/mp4,video/webm,video/quicktime", class: "input" %>
@@ -41,7 +41,12 @@
     </div>
     <aside>
       <% if record.persisted? && record.image.present? %>
-        <div class="card"><img src="<%= record.image_url(:medium) %>" alt="" class="aside-preview"></div>
+        <div class="card">
+          <img src="<%= record.image_url(:medium) %>" alt="" class="aside-preview">
+          <% if record.width.to_i.positive? %>
+            <p class="hint image-size <%= 'is-low' if [record.width, record.height].max < 1600 %>"><%= record.width %> × <%= record.height %> px<%= " · baja resolución para el visor del sitio (ideal 2000 px)" if [record.width, record.height].max < 1600 %></p>
+          <% end %>
+        </div>
       <% end %>
       <% if record.persisted? && social_unlocked? && can?(:social, :write) && record.photo? %>
         <%= link_to safe_join([icon(:share, size: 16), "Publicar en redes"]), share_admin_media_item_path(record), class: "btn btn-block" %>

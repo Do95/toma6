@@ -6,11 +6,13 @@
 
 <section class="section services services-page" data-controller="parallax">
   <div class="wrap">
-    <%= render partial: "site/shared/service_card", collection: @services, as: :service, locals: { show_price: true } %>
+    <%= render partial: "site/shared/service_card", collection: @services, as: :service, locals: { show_price: settings.estimator_shows_prices? } %>
   </div>
 </section>
 
 <% if @quotable.any? %>
+<% prices = settings.estimator_shows_prices? %>
+<% empty_text = prices ? "Elegí un plan o al menos un servicio para ver el precio." : "Elegí un plan o al menos un servicio." %>
 <% config = {
      currency: settings.currency_symbol,
      bundlePercent: settings.bundle_discount_percent.to_f,
@@ -18,22 +20,59 @@
      taxName: settings.tax_name,
      taxRate: settings.tax_rate.to_f,
      showTax: settings.estimator_shows_tax,
-     services: @quotable.map(&:estimator_payload)
+     showPrices: prices,
+     emptyText: empty_text,
+     services: @quotable.map { |svc| svc.estimator_payload(masked: !prices) },
+     plans: @plans.map(&:estimator_payload)
    } %>
+<% step = 0 %>
 <section class="estimator" id="cotizador" aria-labelledby="estTitle"
          data-controller="estimator" data-estimator-config-value="<%= config.to_json %>">
   <div class="estimator-inner">
     <div class="estimator-head">
       <h2 id="estTitle"><%= settings.quote_title.presence || "Armá tu cotización" %></h2>
       <p><%= settings.quote_intro %></p>
-      <% if settings.bundle_discount? %>
+      <% if prices && settings.bundle_discount? %>
         <p class="bundle-note"><span class="mark mark-sm"><%= settings.bundle_discount_percent.to_d.to_s("F").sub(/\.0\z/, "") %>% off</span> al combinar <%= settings.bundle_min_services %> o más servicios.</p>
       <% end %>
     </div>
 
     <%= form_with model: @quote_request, url: quote_requests_path, class: "estimator-grid", data: { action: "submit->estimator#beforeSubmit" } do |f| %>
+      <% if @plans.any? %>
+        <% picked = params[:plan_id].to_s %>
+        <div class="est-plans-wrap">
+          <p class="est-step"><span><%= step += 1 %></span> Elegí un plan</p>
+          <p class="est-plans-hint" aria-hidden="true">Deslizá para ver los <%= @plans.size + 1 %> planes →</p>
+          <div class="est-plans" role="radiogroup" aria-label="Planes">
+            <% @plans.each do |plan| %>
+              <label class="est-plan <%= 'is-featured' if plan.highlighted? %>">
+                <input type="radio" name="plan_id" value="<%= plan.id %>" data-action="estimator#pickPlan" <%= "checked" if picked == plan.id.to_s %>>
+                <span class="est-plan-card">
+                  <% if plan.badge.present? %><span class="est-plan-badge"><%= plan.badge %></span><% end %>
+                  <strong class="est-plan-title"><%= plan.title %></strong>
+                  <span class="est-plan-price"><%= money(plan.price, round: true) %><% if plan.price_unit.present? %><small><%= plan.price_unit %></small><% end %></span>
+                  <% if plan.summary.present? %><span class="est-plan-summary"><%= plan.summary %></span><% end %>
+                  <% if plan.feature_list.any? %>
+                    <ul class="est-plan-features"><% plan.feature_list.each do |item| %><li><%= item %></li><% end %></ul>
+                  <% end %>
+                  <span class="est-plan-pick" aria-hidden="true"></span>
+                </span>
+              </label>
+            <% end %>
+            <label class="est-plan is-custom">
+              <input type="radio" name="plan_id" value="" data-action="estimator#pickPlan" <%= "checked" if picked.blank? %>>
+              <span class="est-plan-card">
+                <strong class="est-plan-title">A tu medida</strong>
+                <span class="est-plan-price est-plan-price-sm">Armalo vos</span>
+                <span class="est-plan-summary">Elegí solo los servicios y extras que necesitás.<%= " El precio se arma en vivo." if prices %></span>
+                <span class="est-plan-pick" aria-hidden="true"></span>
+              </span>
+            </label>
+          </div>
+        </div>
+      <% end %>
       <div class="est-services">
-        <p class="est-step"><span>1</span> Elegí los servicios</p>
+        <p class="est-step"><span><%= step += 1 %></span> <span class="est-step-text" data-estimator-target="servicesStep" data-custom="Elegí los servicios" data-plan="Sumá servicios o extras (opcional)">Elegí los servicios</span></p>
         <% @quotable.each do |service| %>
           <div class="est-service" data-estimator-target="service" data-service-id="<%= service.id %>">
             <label class="est-service-head">
@@ -41,12 +80,15 @@
               <span class="est-check" aria-hidden="true"></span>
               <span class="est-service-title">
                 <strong><%= service.title %></strong>
+                <em class="est-included" hidden>Incluido en tu plan · sumá extras</em>
                 <small><%= service.summary.to_s.truncate(110) %></small>
               </span>
-              <span class="est-service-price">
-                <% if service.base_price.positive? %><small><%= service.price_prefix %></small><%= money(service.base_price, round: true) %><% else %><small>Precio según opciones</small><% end %>
-                <% if service.price_unit.present? %><small><%= service.price_unit %></small><% end %>
-              </span>
+              <% if prices %>
+                <span class="est-service-price">
+                  <% if service.base_price.positive? %><small><%= service.price_prefix %></small><%= money(service.base_price, round: true) %><% else %><small>Precio según opciones</small><% end %>
+                  <% if service.price_unit.present? %><small><%= service.price_unit %></small><% end %>
+                </span>
+              <% end %>
             </label>
             <% opts = service.visible_options %>
             <% if opts.any? %>
@@ -60,7 +102,7 @@
                         <% group.each do |opt| %>
                           <label class="est-choice">
                             <input type="radio" name="choice-<%= service.id %>-<%= group.first.group_name.parameterize %>" value="<%= opt.id %>" data-option-id="<%= opt.id %>" data-action="estimator#recalc" <%= "checked" if opt == default %>>
-                            <span><strong><%= opt.name %></strong><em><%= opt.price.positive? ? "+#{money(opt.price, round: true)}" : "Incluido" %></em></span>
+                            <span><strong><%= opt.name %></strong><% if prices %><em><%= opt.price.positive? ? "+#{money(opt.price, round: true)}" : "Incluido" %></em><% end %></span>
                           </label>
                         <% end %>
                       </div>
@@ -69,7 +111,7 @@
                     <% group.each do |opt| %>
                       <% if opt.kind == "quantity" %>
                         <div class="est-qty" data-controller="stepper" data-stepper-min-value="<%= opt.min_quantity %>" data-stepper-max-value="<%= opt.max_quantity %>">
-                          <span class="est-opt-text"><strong><%= opt.name %></strong><% if opt.description.present? %><small><%= opt.description %></small><% end %><em><%= money(opt.price, round: true) %> <%= opt.unit_label.presence || "c/u" %></em></span>
+                          <span class="est-opt-text"><strong><%= opt.name %></strong><% if opt.description.present? %><small><%= opt.description %></small><% end %><% if prices %><em><%= money(opt.price, round: true) %> <%= opt.unit_label.presence || "c/u" %></em><% elsif opt.unit_label.present? %><em><%= opt.unit_label %></em><% end %></span>
                           <span class="stepper">
                             <button type="button" data-action="stepper#down" aria-label="Menos <%= opt.name %>">−</button>
                             <input type="number" inputmode="numeric" min="<%= opt.min_quantity %>" max="<%= opt.max_quantity %>" value="<%= opt.default_selected ? [opt.min_quantity, 1].max : opt.min_quantity %>" data-option-id="<%= opt.id %>" data-stepper-target="input" data-action="input->estimator#recalc change->estimator#recalc" aria-label="Cantidad de <%= opt.name %>">
@@ -81,7 +123,7 @@
                           <input type="checkbox" value="<%= opt.id %>" data-option-id="<%= opt.id %>" data-action="estimator#recalc" <%= "checked" if opt.default_selected %>>
                           <span class="est-check sm" aria-hidden="true"></span>
                           <span class="est-opt-text"><strong><%= opt.name %></strong><% if opt.description.present? %><small><%= opt.description %></small><% end %></span>
-                          <em>+<%= money(opt.price, round: true) %></em>
+                          <% if prices %><em>+<%= money(opt.price, round: true) %></em><% end %>
                         </label>
                       <% end %>
                     <% end %>
@@ -95,8 +137,9 @@
 
       <aside class="est-summary" data-estimator-target="summary" aria-live="polite">
         <div class="est-summary-card">
-          <p class="est-step"><span>2</span> Tu estimado</p>
-          <ul class="est-lines" data-estimator-target="lines"><li class="est-empty">Elegí al menos un servicio para ver el precio.</li></ul>
+          <p class="est-step"><span><%= step += 1 %></span> <%= prices ? "Tu estimado" : "Tu pedido" %></p>
+          <ul class="est-lines" data-estimator-target="lines"><li class="est-empty"><%= empty_text %></li></ul>
+          <% if prices %>
           <dl class="est-totals">
             <div><dt>Subtotal</dt><dd data-estimator-target="subtotal"><%= money(0) %></dd></div>
             <div class="est-discount" data-estimator-target="discountRow" hidden><dt>Combo de servicios</dt><dd data-estimator-target="discount"></dd></div>
@@ -104,10 +147,18 @@
           </dl>
           <div class="est-total"><span>Total estimado</span><strong data-estimator-target="total"><%= money(0) %></strong></div>
           <p class="est-disclaimer"><%= settings.estimator_disclaimer.presence || "Es un precio estimado. Te enviamos una propuesta cerrada después de conocer tu proyecto." %></p>
+          <% else %>
+          <%# Sin precios de servicios: el plan sí muestra su precio («Desde» si sumó extras con costo) %>
+          <div class="est-total" data-estimator-target="planTotal" hidden><span data-estimator-target="totalLabel">Total</span><strong data-estimator-target="total"></strong></div>
+          <p class="est-disclaimer" data-estimator-target="note"
+             data-custom="Con lo que elegiste armamos tu propuesta con precios y te la enviamos."
+             data-extras="El precio de lo que sumaste al plan te lo enviamos en la propuesta."
+             data-plan="<%= settings.estimator_disclaimer.presence || "Te enviamos una propuesta cerrada después de conocer tu proyecto." %>">Con lo que elegiste armamos tu propuesta con precios y te la enviamos.</p>
+          <% end %>
         </div>
 
         <div class="est-form">
-          <p class="est-step"><span>3</span> Tus datos</p>
+          <p class="est-step"><span><%= step += 1 %></span> Tus datos</p>
           <%= form_errors(@quote_request) if @quote_request.errors.any? %>
           <div class="est-fields">
             <label class="fld"><span>Nombre *</span><%= f.text_field :name, required: true, autocomplete: "name" %></label>
@@ -121,12 +172,13 @@
           </div>
           <%= hidden_field_tag :selections, params[:selections].presence || "[]", data: { estimator_target: "payload" } %>
           <button class="btn primary est-submit" type="submit" data-estimator-target="submit" disabled>Enviar solicitud</button>
+          <p class="est-need" data-estimator-target="need">Elegí un plan o al menos un servicio para enviar.</p>
           <p class="est-privacy">Usamos tus datos solo para responder esta solicitud.</p>
         </div>
       </aside>
 
       <div class="est-bar" data-estimator-target="bar">
-        <span>Total estimado <strong data-estimator-target="barTotal"><%= money(0) %></strong></span>
+        <span><span data-estimator-target="barLabel"><%= prices ? "Total estimado" : "Tu pedido" %></span> <strong data-estimator-target="barTotal"><%= prices ? money(0) : "" %></strong></span>
         <a class="btn primary" href="#cotizador-resumen" data-action="estimator#jumpToSummary">Continuar</a>
       </div>
     <% end %>

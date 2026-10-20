@@ -22,7 +22,7 @@ class QuoteBuilder
       quote.items.build(
         service_id: line["service_id"],
         description: line["label"],
-        details: (line["label"] == line["service"] ? nil : line["service"]),
+        details: line["note"].presence || (line["label"] == line["service"] ? nil : line["service"]),
         quantity: line["quantity"] || 1,
         unit_price: line["unit_price"] || 0,
         position: i

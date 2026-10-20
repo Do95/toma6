@@ -6,7 +6,7 @@ module SoftDeletable
 
   # Orden de purga: primero los hijos, después los padres.
   MODELS = %w[SectionBlock Section MediaItem Album Project ServiceOption Service Category Faq ProcessStep AboutValue
-              SocialPost ShortLink Quote QuoteRequest User].freeze
+              Plan SocialPost ShortLink Quote QuoteRequest User].freeze
 
   included do
     belongs_to :deleter, class_name: "User", foreign_key: :deleted_by_id, optional: true

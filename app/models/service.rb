@@ -22,6 +22,7 @@ class Service < ApplicationRecord
   has_many :options, -> { kept.ordered }, class_name: "ServiceOption", inverse_of: :service, dependent: :destroy
   has_many :all_options, class_name: "ServiceOption", dependent: :destroy
   has_and_belongs_to_many :projects
+  has_and_belongs_to_many :plans
 
   soft_delete_cascade :all_options
 
@@ -40,13 +41,15 @@ class Service < ApplicationRecord
   def visible_options = options.select(&:published?)
 
   # Datos que usa el cotizador público (se recalcula en el servidor al enviar).
-  def estimator_payload
+  # masked: sin precios en la página; solo 1 (tiene costo) o 0 (incluido), para no
+  # dejar los montos en el código fuente cuando el cotizador no los muestra.
+  def estimator_payload(masked: false)
     {
       id: id,
       title: title,
-      base_price: base_price.to_f,
+      base_price: masked ? (base_price.positive? ? 1 : 0) : base_price.to_f,
       price_unit: price_unit,
-      options: visible_options.map(&:estimator_payload)
+      options: visible_options.map { |o| o.estimator_payload(masked: masked) }
     }
   end
 end

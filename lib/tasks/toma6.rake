@@ -63,6 +63,44 @@ namespace :uploads do
     puts "Archivo de prueba borrado."
   end
 
+  # Las fotos de muestra (db/seeds/media) se guardan como "<token>-imagen-12.jpg": por ese nombre se
+  # reconocen y se vuelven a subir desde la carpeta de semillas. Las fotos que subieron desde el panel
+  # no se tocan. Sirve para reponer archivos perdidos o para cambiar las de muestra por versiones más
+  # grandes (reemplazá el archivo en db/seeds/media/img con el mismo nombre y corré la tarea).
+  desc "Vuelve a subir las fotos de muestra sin borrar datos: bin/rails uploads:replace_defaults [DRY_RUN=1] [MISSING=1]"
+  task replace_defaults: :environment do
+    mounts = { MediaItem => %i[image video], Project => %i[cover video], Album => %i[cover], Service => %i[image image_secondary image_tertiary],
+               Section => %i[image video], SectionBlock => %i[image], SiteSetting => %i[og_image] }
+    sources = Dir.glob(Rails.root.join("db/seeds/media/{,img/,videos/}*.{jpg,jpeg,png,webp,mp4}"))
+                 .reject { |f| File.basename(f).start_with?("logo-") } # los logos se suben desde Datos del sitio
+                 .index_by { |f| File.basename(f, ".*") }
+    names = sources.keys.map { |n| Regexp.escape(n) }.join("|")
+    seed_name = /\A\h{8}-(#{names})\.\w+\z/
+    dry = ENV["DRY_RUN"] == "1"
+    only_missing = ENV["MISSING"] == "1"
+    replaced = skipped = 0
+
+    mounts.each do |model, columns|
+      columns.each do |column|
+        model.where("#{column} ~ ?", "^[0-9a-f]{8}-(#{names})\\.").find_each do |record|
+          base = record.public_send(:"#{column}_identifier").to_s[seed_name, 1]
+          source = sources[base]
+          next puts("  ✗ #{model.name} ##{record.id} #{column}: falta db/seeds/media/…/#{base}.*") unless source
+          if only_missing && record.public_send(column).file&.exists?
+            skipped += 1
+            next
+          end
+          puts "  #{dry ? '·' : '✓'} #{model.name} ##{record.id} #{column} ← #{Pathname(source).relative_path_from(Rails.root)}"
+          next if dry
+          File.open(source) { |io| record.public_send(:"#{column}=", io) }
+          record.save!(validate: false) # solo cambia el archivo: no lo frena un dato viejo de otro campo
+          replaced += 1
+        end
+      end
+    end
+    puts dry ? "Simulación: no se cambió nada." : "✓ Fotos reemplazadas: #{replaced}#{" · ya estaban: #{skipped}" if only_missing}"
+  end
+
   desc "Copia al bucket todas las fotos que hoy están en public/uploads (mismas rutas: no se rompe ningún enlace)"
   task to_s3: :environment do
     abort "Primero configurá S3 (S3_BUCKET y las claves)." unless UploadsStorage.s3?

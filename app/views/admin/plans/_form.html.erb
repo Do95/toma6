@@ -1,0 +1,46 @@
+<div class="layout-aside">
+  <%= form_with model: [:admin, record], class: "card" do |f| %>
+    <div class="card-body">
+      <%= form_errors(record) %>
+      <div class="form-grid">
+        <div class="field"><%= f.label :title %><%= f.text_field :title, required: true, placeholder: "Boda completa" %></div>
+        <div class="field">
+          <%= f.label :badge %><%= f.text_field :badge, placeholder: "Más elegido" %>
+          <%= field_hint("Opcional. Aparece arriba de la tarjeta.") %>
+        </div>
+        <div class="field"><%= f.label :price, "Precio (#{settings.currency_symbol})" %><%= f.number_field :price, step: "0.01", min: 0, required: true %></div>
+        <div class="field"><%= f.label :price_unit %><%= f.text_field :price_unit, placeholder: "por evento" %></div>
+        <div class="field span-2"><%= f.label :summary %><%= f.text_area :summary, rows: 2, placeholder: "Todo lo que necesitás para el gran día, en foto y video." %></div>
+        <div class="field span-2">
+          <%= f.label :features %><%= f.text_area :features, rows: 6, placeholder: "8 horas de cobertura\n2 cámaras de video\n400 fotos editadas\nVideo resumen de 3 minutos" %>
+          <%= field_hint("Un punto por línea. Se muestran con ✓ en la tarjeta del plan.") %>
+        </div>
+        <div class="field span-2">
+          <span class="label">Servicios que cubre</span>
+          <div class="chips">
+            <%= f.collection_check_boxes :service_ids, Service.kept.quotable.ordered, :id, :title do |b| %>
+              <label class="check-inline chip-f" style="height:34px"><%= b.check_box %> <%= b.text %></label>
+            <% end %>
+          </div>
+          <%= field_hint("En el cotizador, estos servicios no suman su precio base: la persona solo paga los extras que les agregue (más horas, cámara adicional…). Los demás servicios se pueden sumar con su precio normal.") %>
+        </div>
+        <div class="span-2"><%= switch_field(f, :highlighted, "Destacado", "Resalta la tarjeta con el borde rojo.") %></div>
+        <div class="span-2"><%= switch_field(f, :published, "Publicado", "Se muestra en el cotizador.") %></div>
+      </div>
+    </div>
+    <%= render "admin/shared/form_actions", form: f, cancel: admin_plans_path %>
+  <% end %>
+  <aside>
+    <div class="card">
+      <div class="card-head"><div><h2>Cómo se cotiza</h2></div></div>
+      <div class="card-body">
+        <ul class="steps-list">
+          <li>La persona elige un plan o <strong>A tu medida</strong>.</li>
+          <li>A cualquier plan le puede <strong>sumar servicios y extras</strong>; el total se actualiza en vivo.</li>
+          <li>El descuento por combo (<em>Ajustes</em>) se aplica solo a los servicios sumados fuera del plan.</li>
+        </ul>
+      </div>
+    </div>
+    <%= render "admin/shared/record_meta", record: record %>
+  </aside>
+</div>

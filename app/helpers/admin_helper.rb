@@ -94,14 +94,17 @@ module AdminHelper
     end
   end
 
-  def image_field(form, attribute, label:, hint: nil, version: :thumb)
+  # logo: true muestra la vista previa entera (sin recortar) sobre fondo oscuro.
+  def image_field(form, attribute, label:, hint: nil, version: :thumb, logo: false)
     uploader = form.object.public_send(attribute)
+    # Algunos uploaders (el avatar) no tienen miniaturas: se usa el archivo tal cual
+    src = (uploader.versions.key?(version) ? uploader.url(version) : uploader.url) if uploader.present?
     content_tag(:div, class: "field image-field", data: { controller: "image-preview" }) do
       safe_join([
         form.label(attribute, label),
         content_tag(:label, class: "dropzone-mini") do
           safe_join([
-            tag.img(src: (uploader.url(version) if uploader.present?), class: ["preview", ("is-empty" if uploader.blank?)].compact.join(" "),
+            tag.img(src: src, class: ["preview", ("is-logo" if logo), ("is-empty" if uploader.blank?)].compact.join(" "),
                     alt: "", data: { image_preview_target: "preview" }),
             content_tag(:span, safe_join([icon(:upload, size: 16), uploader.present? ? "Reemplazar" : "Elegir imagen"]), class: "dz-cta"),
             form.file_field(attribute, accept: "image/*", class: "sr-only", data: { action: "image-preview#show" })
@@ -176,7 +179,7 @@ end
 module AdminHelper
   NEW_LABELS = {
     "Faq" => "Nueva pregunta", "ProcessStep" => "Nuevo paso", "AboutValue" => "Nuevo valor",
-    "Category" => "Nueva categoría", "Service" => "Nuevo servicio", "Project" => "Nuevo proyecto",
+    "Category" => "Nueva categoría", "Service" => "Nuevo servicio", "Plan" => "Nuevo plan", "Project" => "Nuevo proyecto",
     "Album" => "Nuevo álbum", "MediaItem" => "Nuevo medio", "User" => "Nuevo usuario",
     "Quote" => "Nueva cotización", "SocialPost" => "Nueva publicación"
   }.freeze

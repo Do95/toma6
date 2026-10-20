@@ -24,7 +24,7 @@
             <div class="field span-2"><%= f.label :album_id, "Álbum" %><%= f.select :album_id, Album.kept.includes(:project).ordered.map { |a| [a.display_name, a.id] }, include_blank: "Elegí un álbum" %></div>
           <% end %>
           <% if s.field?(:image) %>
-            <%= image_field(f, :image, label: s.field_label(:image), version: :medium) %>
+            <%= image_field(f, :image, label: s.field_label(:image), hint: "Ideal 2000 px de ancho.") %>
             <% if s.kind == "text_image" %>
               <div class="field"><span class="label">Lado de la imagen</span>
                 <div class="network-picks">

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_18_120001) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_19_000002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -354,6 +354,34 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_18_120001) do
     t.check_constraint "(album_id IS NOT NULL) <> (project_id IS NOT NULL)", name: "placement_one_gallery"
   end
 
+  create_table "plans", force: :cascade do |t|
+    t.string "title", null: false
+    t.text "summary"
+    t.text "features"
+    t.decimal "price", precision: 10, scale: 2, default: "0.0", null: false
+    t.string "price_unit"
+    t.string "badge"
+    t.boolean "highlighted", default: false, null: false
+    t.integer "position", default: 0, null: false
+    t.boolean "published", default: true, null: false
+    t.datetime "deleted_at"
+    t.bigint "created_by_id"
+    t.bigint "updated_by_id"
+    t.bigint "deleted_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_plans_on_created_by_id"
+    t.index ["deleted_at"], name: "index_plans_on_deleted_at"
+    t.index ["deleted_by_id"], name: "index_plans_on_deleted_by_id"
+    t.index ["updated_by_id"], name: "index_plans_on_updated_by_id"
+  end
+
+  create_table "plans_services", id: false, force: :cascade do |t|
+    t.bigint "plan_id", null: false
+    t.bigint "service_id", null: false
+    t.index ["plan_id", "service_id"], name: "index_plans_services_on_plan_id_and_service_id", unique: true
+  end
+
   create_table "process_steps", force: :cascade do |t|
     t.string "title", null: false
     t.text "description"
@@ -444,10 +472,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_18_120001) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "number"
+    t.bigint "plan_id"
     t.index ["created_by_id"], name: "index_quote_requests_on_created_by_id"
     t.index ["deleted_at"], name: "index_quote_requests_on_deleted_at"
     t.index ["deleted_by_id"], name: "index_quote_requests_on_deleted_by_id"
     t.index ["number"], name: "index_quote_requests_on_number", unique: true
+    t.index ["plan_id"], name: "index_quote_requests_on_plan_id"
     t.index ["status"], name: "index_quote_requests_on_status"
     t.index ["updated_by_id"], name: "index_quote_requests_on_updated_by_id"
   end
@@ -733,6 +763,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_18_120001) do
     t.integer "quote_number_digits", default: 4, null: false
     t.integer "quote_number_start", default: 1, null: false
     t.string "request_prefix", default: "SOL", null: false
+    t.boolean "estimator_shows_prices", default: true, null: false
   end
 
   create_table "social_posts", force: :cascade do |t|

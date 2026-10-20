@@ -6,7 +6,7 @@
              link_to(safe_join([icon(:download, size: 16), "Visitas (CSV)"]), admin_short_link_path(@record, format: :csv), class: "btn", data: { turbo: false }),
              (link_to(safe_join([icon(:edit, size: 16), "Editar"]), edit_admin_short_link_path(@record), class: "btn btn-dark") if can?(:content, :write))
            ].compact) %>
-<div class="layout-aside" style="grid-template-columns:minmax(0,1fr) 360px">
+<div class="layout-aside" style="--aside:360px">
   <div>
     <div class="stats">
       <div class="stat is-red"><small>Visitas totales</small><strong><%= @record.clicks_count %></strong></div>

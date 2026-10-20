@@ -5,7 +5,7 @@
       <div class="field"><%= f.label :title %><%= f.text_field :title, required: true, placeholder: "Ceremonia" %></div>
       <div class="field"><%= f.label :project_id %><%= f.collection_select :project_id, Project.kept.ordered, :id, :title, include_blank: "Sin proyecto (álbum suelto de la galería)" %></div>
       <div class="field span-2"><%= f.label :description %><%= f.text_area :description, rows: 2 %></div>
-      <%= image_field(f, :cover, label: "Portada (opcional)", hint: "Si no elegís una, se usa la primera foto.") %>
+      <%= image_field(f, :cover, label: "Portada (opcional)", hint: "Si no elegís una, se usa la primera foto. Ideal 1100 px o más.") %>
       <div class="field" style="gap:12px">
         <%= switch_field(f, :show_in_gallery, "Mostrar en la galería general", "Sus fotos y su tarjeta aparecen en /galeria.") %>
         <%= switch_field(f, :published, "Publicado") %>

@@ -33,14 +33,14 @@ class ServiceOption < ApplicationRecord
 
   def display_name = "#{name} (#{service&.title})"
 
-  def estimator_payload
+  def estimator_payload(masked: false)
     {
       id: id,
       name: name,
       description: description,
       kind: kind,
       group: group_name,
-      price: price.to_f,
+      price: masked ? (price.positive? ? 1 : 0) : price.to_f,
       unit: unit_label,
       min: min_quantity,
       max: max_quantity,

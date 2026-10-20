@@ -1,6 +1,6 @@
 <%= form_with model: [:admin, record], data: { controller: "qr-preview", qr_preview_url_value: preview_admin_short_links_path, action: "change->qr-preview#refresh" } do |f| %>
   <%= form_errors(record) %>
-  <div class="layout-aside" style="grid-template-columns:minmax(0,1fr) 340px">
+  <div class="layout-aside" style="--aside:340px">
     <div>
       <div class="card">
         <div class="card-head"><div><h2>Enlace</h2><p>A dónde lleva y cómo se ve la dirección corta.</p></div></div>
