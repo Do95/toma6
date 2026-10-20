@@ -19,7 +19,7 @@
 
     <section class="tab-panel" data-tabs-target="panel" data-tab="galeria">
       <%= render "admin/media_items/uploader", gallery: @record,
-                 title: "Subí fotos a la galería general del proyecto",
+                 title: "Subí fotos y videos a la galería general del proyecto",
                  text: "Son las fotos del proyecto que no están en un álbum en particular. Una misma foto puede estar acá y en cualquier álbum." %>
       <div class="card" style="margin-top:18px">
         <div class="card-head"><div><h2>Galería general</h2><p><%= pluralize(@general_placements.size, "elemento", plural: "elementos") %> · arrastrá para ordenar</p></div>

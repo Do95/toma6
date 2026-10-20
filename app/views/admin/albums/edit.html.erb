@@ -7,7 +7,7 @@
            actions: link_to(safe_join([icon(:eye, size: 16), "Ver en el sitio"]), album_path(@record.slug), class: "btn", target: "_blank") %>
 <div class="layout-aside">
   <div>
-    <%= render "admin/media_items/uploader", gallery: @record, title: "Subí fotos a «#{@record.title}»" %>
+    <%= render "admin/media_items/uploader", gallery: @record, title: "Subí fotos y videos a «#{@record.title}»" %>
     <div class="card" style="margin-top:18px">
       <div class="card-head"><div><h2>Fotos y videos</h2><p><%= pluralize(@placements.size, "elemento", plural: "elementos") %> · arrastrá para ordenar · ★ elige la portada · ✕ quita del álbum (no borra la foto)</p></div>
         <div class="actions" style="display:flex;gap:8px">

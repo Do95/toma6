@@ -10,6 +10,7 @@
   <title><%= [content_for(:title), "Panel", settings.site_name].compact_blank.join(" · ") %></title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23B63830'/%3E%3Crect x='14' y='26' width='36' height='24' fill='none' stroke='%23fff' stroke-width='5'/%3E%3Crect x='24' y='35' width='16' height='6' fill='%23fff'/%3E%3Cpath d='M16 22l8-8M28 22l8-8M40 22l8-8' stroke='%23fff' stroke-width='5'/%3E%3C/svg%3E">
   <%= csrf_meta_tags %>
+  <% if DirectUpload.enabled? %><meta name="direct-upload-url" content="<%= admin_direct_upload_path %>"><% end %>
   <%= preload_link_tag "archivo-variable.woff2", as: "font", type: "font/woff2", crossorigin: "anonymous" %>
   <%= stylesheet_link_tag "admin", "data-turbo-track": "reload" %>
   <%= javascript_importmap_tags "application" %>

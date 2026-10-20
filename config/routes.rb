@@ -65,6 +65,7 @@ Rails.application.routes.draw do
       end
       collection { post :restore_defaults, path: "restaurar" }
     end
+    resource :direct_upload, path: "subidas/firmar", only: :create
     resources :media_placements, path: "ubicaciones", only: %i[create destroy] do
       member { patch :cover }
     end

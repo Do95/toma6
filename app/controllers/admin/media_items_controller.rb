@@ -42,6 +42,7 @@ module Admin
       created = []
       reused = []
       errors = []
+      bulk_video(created, errors) if params[:video_key].present? || params[:video].present?
       Array(params[:files]).compact_blank.each do |file|
         if (existing = MediaItem.find_duplicate(file))
           MediaPlacement.attach!(existing, @gallery) if @gallery
@@ -173,9 +174,24 @@ module Admin
       attrs
     end
 
+    # Un video del recuadro de subida: llega ya en S3 (video_key) o, sin S3, como archivo.
+    # La portada la genera el navegador con un cuadro del video.
+    def bulk_video(created, errors)
+      name = params[:video_name].presence || params[:video]&.original_filename || "Video"
+      item = MediaItem.new(bulk_attributes.merge(kind: "video", image: params[:poster], duration: params[:duration].presence,
+                                                 title: File.basename(name.to_s, ".*").tr("-_", "  ").squish.capitalize))
+      if params[:video_key].present? then item.video_direct_key = params[:video_key] else item.video = params[:video] end
+      if item.save
+        MediaPlacement.attach!(item, @gallery) if @gallery
+        created << item
+      else
+        errors << "#{name}: #{item.errors.full_messages.to_sentence}"
+      end
+    end
+
     def upload_notice(created, reused)
       parts = []
-      parts << "#{created} #{created == 1 ? 'foto subida' : 'fotos subidas'}" if created.positive?
+      parts << "#{created} #{created == 1 ? 'archivo subido' : 'archivos subidos'}" if created.positive?
       parts << "#{reused} ya #{reused == 1 ? 'estaba' : 'estaban'} en la biblioteca y se #{reused == 1 ? 'agregó' : 'agregaron'} sin duplicar" if reused.positive?
       parts.join(" · ") + "."
     end
@@ -196,7 +212,7 @@ module Admin
 
     def record_params
       params.require(:media_item).permit(
-        :kind, :title, :description, :image, :remove_image, :video, :remove_video, :duration,
+        :kind, :title, :description, :image, :remove_image, :video, :video_direct_key, :remove_video, :duration,
         :category_id, :show_in_gallery, :featured, :published
       )
     end

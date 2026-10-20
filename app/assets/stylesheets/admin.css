@@ -731,3 +731,16 @@ span.sort-thumb .illus{width:80%}
 .link-top-actions{display:inline-flex;align-items:center;gap:4px;flex:none}
 .actions-cell form.button_to,.sort-meta form.button_to{display:inline-flex}
 .icon-btn.btn-danger:hover{color:var(--red);background:var(--red-soft)}
+
+/* ---------- Subida directa a S3 (videos) ---------- */
+.upload-status{margin-top:8px;padding:10px 12px;border-radius:8px;background:var(--surface-2);border:1px solid var(--line-2);font-size:13px;color:var(--ink-2)}
+.upload-status p{margin:0}
+.upload-status .bar{height:6px;margin-bottom:8px;border-radius:3px;background:#e4e1dd;overflow:hidden}
+.upload-status .bar span{display:block;height:100%;width:0;background:var(--red);transition:width .2s}
+.upload-status.is-ok{background:var(--ok-soft);border-color:#bfe0cb;color:var(--ok)}
+.upload-status.is-ok .bar span{background:var(--ok)}
+.upload-status.is-warn{background:var(--warn-soft);border-color:#ecd3a5;color:#5e3d07}
+.upload-status.is-error{background:var(--red-soft);border-color:#efc2bd;color:#8a2a24}
+.upload-item .upload-label{position:absolute;left:6px;right:6px;bottom:16px;z-index:1;font-size:11px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.8);text-align:center}
+.upload-item.is-video{background:#1b1b1b}
+.upload-item.is-video::before{content:"▶";position:absolute;top:6px;left:6px;z-index:1;padding:1px 6px;border-radius:4px;background:rgba(20,20,20,.8);color:#fff;font-size:10px}

@@ -159,8 +159,30 @@ bin/rails uploads:to_s3     # copia todo lo de public/uploads al bucket, con las
 
 `uploads:to_s3` se puede correr más de una vez: lo que ya está en el bucket no se vuelve a subir.
 
-> Los videos se suben a través del servidor. En Heroku cada request tiene un límite de 30 s,
-> así que los videos muy pesados conviene subirlos comprimidos (o como enlace de YouTube/Vimeo).
+### 5. Subida directa de videos (CORS)
+
+Los videos (hasta 400 MB) suben **directo del navegador a S3**: no pasan por el servidor, así que
+no chocan con el límite de 30 s ni con la memoria del dyno de Heroku. El panel pide una URL firmada
+(válida 15 minutos), sube a `uploads/direct/…` y, al guardar, el servidor lo copia dentro de S3 a su
+carpeta definitiva. La portada es un cuadro del video (si no elegís una) y la duración se completa sola.
+Las fotos se achican en el navegador a 2800 px antes de subir.
+
+Para que el navegador pueda subir, el bucket necesita **CORS** (S3 → bucket → *Permissions* → *CORS*):
+
+```json
+[{
+  "AllowedOrigins": ["https://www.toma6.com", "https://toma6.com", "http://localhost:3000"],
+  "AllowedMethods": ["PUT"],
+  "AllowedHeaders": ["Content-Type", "x-amz-acl"],
+  "ExposeHeaders": ["ETag"],
+  "MaxAgeSeconds": 3600
+}]
+```
+
+Recomendado: una regla de ciclo de vida (*Management → Lifecycle rules*) que borre lo que quede en
+`uploads/direct/` después de 1 día (subidas que alguien empezó y no guardó).
+
+Sin S3 (desarrollo con `public/uploads`) la subida directa no se activa y todo sube como siempre.
 
 ## Heroku
 

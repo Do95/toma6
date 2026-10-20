@@ -1,4 +1,4 @@
-<%= form_with model: [:admin, record], html: { multipart: true }, data: { controller: "toggle" } do |f| %>
+<%= form_with model: [:admin, record], html: { multipart: true }, data: { controller: "toggle video-upload" } do |f| %>
   <%= hidden_field_tag :return_to, params[:return_to] if params[:return_to].present? %>
   <% if @gallery %><%= hidden_field_tag(@gallery.is_a?(Album) ? :album_id : :project_id, @gallery.id) %><% end %>
   <div class="layout-aside">
@@ -14,12 +14,16 @@
               <% end %>
             </div>
           </div>
-          <%= image_field(f, :image, label: "Imagen", hint: "Ideal 2000 px o más del lado más largo (se ve en grande en el visor). En videos, es la portada que se ve antes de reproducir.") %>
+          <%= image_field(f, :image, label: "Imagen", hint: "Ideal 2000 px o más del lado más largo (se ve en grande en el visor). En videos es la portada: si no elegís una, se usa un cuadro del video.") %>
           <div class="field" data-toggle-target="item" data-show-when="video">
             <%= f.label :video %>
-            <%= f.file_field :video, accept: "video/mp4,video/webm,video/quicktime", class: "input" %>
+            <%= f.file_field :video, accept: "video/mp4,video/webm,video/quicktime,video/x-m4v,.mov,.m4v", class: "input",
+                             data: { video_upload_target: "file", action: "change->video-upload#chosen" } %>
+            <%= f.hidden_field :video_direct_key, data: { video_upload_target: "key" } %>
+            <div class="upload-status" data-video-upload-target="status" hidden><div class="bar" hidden><span></span></div><p></p></div>
             <% if record.video.present? %><p class="hint">Actual: <%= link_to File.basename(record.video.path.to_s), record.video.url, target: "_blank" %></p><% end %>
-            <%= f.label :duration %><%= f.text_field :duration, placeholder: "0:30" %>
+            <p class="hint">MP4, MOV o WebM de hasta 400 MB. Si no elegís una imagen, la portada es un cuadro del video.</p>
+            <%= f.label :duration %><%= f.text_field :duration, placeholder: "0:30", data: { video_upload_target: "duration" } %>
           </div>
           <div class="field span-2"><%= f.label :title %><%= f.text_field :title %></div>
           <div class="field span-2"><%= f.label :description %><%= f.text_area :description, rows: 2 %></div>

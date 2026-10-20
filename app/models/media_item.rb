@@ -14,9 +14,14 @@ class MediaItem < ApplicationRecord
   has_many :placements, class_name: "MediaPlacement", dependent: :destroy, inverse_of: :media_item
   has_many :albums, through: :placements
 
+  # Video subido directo a S3 desde el navegador (ver DirectUpload): llega la clave, no el archivo
+  attr_accessor :video_direct_key
+
   validates :kind, inclusion: { in: KINDS.keys }
   validates :image, presence: { message: "es obligatoria (en videos es la portada)" }
-  validates :video, presence: true, if: -> { kind == "video" }
+  validates :video, presence: true, if: -> { kind == "video" && video_direct_key.blank? }
+  validate :direct_video_uploaded, if: -> { video_direct_key.present? }
+  after_save :attach_direct_video, if: -> { video_direct_key.present? }
 
   before_validation :default_title
 
@@ -84,6 +89,16 @@ class MediaItem < ApplicationRecord
   end
 
   private
+
+  def direct_video_uploaded
+    problem = DirectUpload.problem_with(video_direct_key, "video")
+    errors.add(:video, problem) if problem
+  end
+
+  def attach_direct_video
+    DirectUpload.attach!(self, :video, video_direct_key)
+    self.video_direct_key = nil
+  end
 
   def default_title
     return if title.present? || image.blank?

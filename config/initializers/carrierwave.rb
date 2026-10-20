@@ -72,6 +72,12 @@ end
 
 UploadsStorage.check!
 
+# ImageMagick (miniaturas) usa disco en lugar de RAM cuando una foto es enorme: en un dyno de
+# 512 MB, una foto de dron procesándose junto a otras subidas provocaba R14/R15.
+# Los procesos de ImageMagick heredan estas variables; se pueden ajustar desde el entorno.
+ENV["MAGICK_MEMORY_LIMIT"] ||= "256MiB"
+ENV["MAGICK_MAP_LIMIT"] ||= "512MiB"
+
 CarrierWave.configure do |config|
   config.cache_dir = Rails.root.join("tmp/uploads").to_s
   config.cache_storage = :file # el procesamiento (miniaturas) se hace en el servidor
