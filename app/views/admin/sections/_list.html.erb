@@ -35,6 +35,7 @@
           <% unless section.builtin? %>
             <%= button_to icon(:copy, size: 16, title: "Duplicar"), duplicate_admin_section_path(section), class: "icon-btn" %>
           <% end %>
+          <%= row_actions(section, toggle: false) %>
           <%= link_to icon(:edit, size: 16, title: "Editar"), edit_admin_section_path(section), class: "icon-btn" %>
         <% end %>
       </div>

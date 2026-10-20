@@ -21,4 +21,6 @@
     <div class="masonry"><% @all_media.each do |item| %><%= media_tile(item, albums: @tokens[item.id]) %><% end %></div>
     <p class="g-empty" data-filter-target="empty" hidden></p>
   </section>
+<% else %>
+  <%= render "site/sections/empty_section", section: section, heading: "Galería", title: "Las fotos de este proyecto están en camino", text: "Estamos terminando de editarlas. Mientras tanto, mirá otros trabajos.", illustration: "fotos", action: link_to("Ver todos los trabajos", projects_path, class: "btn primary") %>
 <% end %>

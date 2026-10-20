@@ -33,6 +33,7 @@
             <td class="actions-cell">
               <%= link_to icon(:download, size: 16, title: "Descargar PDF"), pdf_admin_quote_path(quote, download: 1), class: "icon-btn", data: { turbo: false } %>
               <%= link_to icon(:eye, size: 16, title: "Ver"), admin_quote_path(quote), class: "icon-btn" %>
+              <%= row_actions(quote) %>
             </td>
           </tr>
         <% end %>

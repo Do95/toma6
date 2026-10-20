@@ -44,7 +44,16 @@ module Admin
 
     def destroy
       @record.soft_delete!
-      redirect_to collection_path, notice: trash_notice(@record), status: :see_other
+      redirect_to safe_return_to || collection_path, notice: trash_notice(@record), status: :see_other
+    end
+
+    # Acción rápida de las listas: mostrar / ocultar en el sitio sin entrar a editar
+    def toggle
+      return head(:not_found) unless @record.respond_to?(:published?)
+      @record.update!(published: !@record.published?)
+      name = @record.display_name.truncate(50)
+      notice = @record.published? ? "«#{name}» ahora se ve en el sitio." : "«#{name}» quedó oculto: ya no se ve en el sitio."
+      redirect_to safe_return_to || collection_path, notice: notice, status: :see_other
     end
 
     private
@@ -65,6 +74,12 @@ module Admin
     end
 
     def new_record_defaults = {}
+
+    # Volver a la lista desde donde se usó la acción rápida (con sus filtros y página)
+    def safe_return_to
+      path = params[:return_to].to_s
+      path if path.start_with?("/admin") && !path.start_with?("//")
+    end
     def record_params = raise(NotImplementedError)
     def param_key = resource_class.model_name.param_key
 

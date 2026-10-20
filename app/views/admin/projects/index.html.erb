@@ -11,7 +11,7 @@
   <% if @records.any? %>
     <ul class="sort-list" <% if can?(:content, :write) && params[:q].blank? %>data-controller="sortable" data-sortable-model-value="projects" data-sortable-url-value="<%= admin_sort_path %>"<% end %>>
       <% @records.each do |project| %>
-        <li class="sort-item" data-id="<%= project.id %>">
+        <li class="sort-item <%= row_class(project) %>" data-id="<%= project.id %>">
           <span class="sort-handle"><%= icon(:grip, size: 18) %></span>
           <% if (img = project.hero_image_url(:thumb)) %><%= image_tag img, class: "sort-thumb", alt: "" %><% else %><span class="sort-thumb"><%= illustration("fotos") %></span><% end %>
           <div class="sort-main">
@@ -20,9 +20,9 @@
           </div>
           <div class="sort-meta">
             <% if project.featured? %><span class="badge badge-info">Destacado</span><% end %>
-            <%= published_badge(project) %>
             <%= audit_line(project) %>
-            <%= link_to icon(:eye, size: 16, title: "Ver en el sitio"), project_path(project.slug), class: "icon-btn", target: "_blank" %>
+            <%= row_actions(project) %>
+            <%= link_to icon(:external, size: 16, title: "Ver en el sitio"), project_path(project.slug), class: "icon-btn", target: "_blank" %>
             <%= link_to icon(:edit, size: 16, title: "Editar"), edit_admin_project_path(project), class: "icon-btn" %>
           </div>
         </li>

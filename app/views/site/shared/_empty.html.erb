@@ -1,0 +1,11 @@
+<%# Estado vacío del sitio: ilustración de la marca, un mensaje y una salida.
+    Locals: title, text (opcional), illustration (clave de Illustrations), action (link, opcional; por defecto «Escribinos»), compact. %>
+<% action = local_assigns.key?(:action) ? local_assigns[:action] : link_to("Escribinos", site_contact_url, class: "btn primary", **site_contact_link_options) %>
+<div class="empty-state <%= 'is-compact' if local_assigns[:compact] %>">
+  <div class="empty-state-illus" aria-hidden="true"><%= illustration(local_assigns[:illustration] || "camara") %></div>
+  <div class="empty-state-text">
+    <h2><%= title %></h2>
+    <% if local_assigns[:text].present? %><p><%= text %></p><% end %>
+    <% if action %><div class="empty-state-actions"><%= action %></div><% end %>
+  </div>
+</div>

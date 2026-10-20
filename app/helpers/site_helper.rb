@@ -66,6 +66,13 @@ module SiteHelper
     '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.5v9l7.5-4.5z" fill="currentColor"/></svg>'.html_safe
   end
 
+  # A dónde lleva «Escribinos» en los estados vacíos: WhatsApp, si no el correo, si no el contacto del inicio.
+  def site_contact_url
+    settings.whatsapp_url || (settings.contact_email.present? ? "mailto:#{settings.contact_email}" : root_path(anchor: "contacto"))
+  end
+
+  def site_contact_link_options = settings.whatsapp_url ? { target: "_blank", rel: "noopener" } : {}
+
   def service_image(service, attr, fallback)
     uploader = service.public_send(attr)
     uploader.present? ? uploader.url(:medium) : image_path("site/#{fallback}")

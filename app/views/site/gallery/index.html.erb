@@ -3,7 +3,9 @@
 <% content_for :description, heading.last %>
 
 <div class="gallery-page" data-controller="filter" data-filter-empty-text-value="No hay nada con esos filtros.">
+  <% empty = @media.empty? && @albums.empty? %>
   <%= render "site/shared/page_head", title: heading.first, intro: heading.last do %>
+    <% unless empty %>
     <p class="g-count"><span data-filter-target="count"><%= @media.size %></span> fotos y videos</p>
     <div class="filters" role="group" aria-label="Filtrar galería">
       <div class="type-toggle">
@@ -25,6 +27,11 @@
         </label>
       <% end %>
     </div>
+    <% end %>
+  <% end %>
+
+  <% if empty %>
+    <div class="wrap-empty"><%= render "site/shared/empty", title: "La galería se está llenando", text: "Pronto vas a ver acá fotos y videos de nuestros rodajes.", illustration: "fotos" %></div>
   <% end %>
 
   <% if @albums.any? %>

@@ -72,6 +72,39 @@ module AdminHelper
     content_tag(:div, safe_join([soft, hard].compact), class: "delete-actions")
   end
 
+  # Acciones rápidas de cada fila de una lista: mostrar/ocultar en el sitio y enviar a la
+  # papelera (con modal). Después de usarlas se vuelve a la misma lista, con sus filtros.
+  # Quien no puede editar ve solo el estado. compact: solo íconos (tarjetas de la biblioteca).
+  def row_actions(record, toggle: true, delete: true, compact: false)
+    resource = record.class.permission_resource
+    back = request.fullpath
+    parts = []
+    if toggle && record.respond_to?(:published?)
+      parts << if can?(resource, :write)
+                 hidden = record.is_a?(Faq) || record.is_a?(Section) ? "Oculta" : "Oculto"
+                 label = record.published? ? "Ocultar del sitio" : "Mostrar en el sitio"
+                 button_to polymorphic_path([:toggle, :admin, record]), method: :patch, params: { return_to: back },
+                           class: compact ? "icon-btn #{'is-off' unless record.published?}" : "eye-toggle #{'is-off' unless record.published?}", title: label do
+                   compact ? icon(record.published? ? :eye : :lock, size: 16, title: label) : safe_join([icon(record.published? ? :eye : :lock, size: 16), content_tag(:span, record.published? ? "Visible" : hidden)])
+                 end
+               else
+                 published_badge(record)
+               end
+    end
+    if delete && can?(resource, :delete)
+      name = record.display_name.truncate(40)
+      parts << button_to(polymorphic_path([:admin, record]), method: :delete, params: { return_to: back },
+                         class: "icon-btn btn-danger", title: "Enviar a la papelera",
+                         form: { data: { turbo_confirm: "«#{name}» va a la papelera. Podés restaurarlo durante #{settings.trash_retention_days} días.",
+                                         confirm_title: "¿Enviar a la papelera?", confirm_button: "Enviar a la papelera", confirm_variant: "danger" } }) do
+        icon(:trash, size: 16, title: "Enviar a la papelera")
+      end
+    end
+    safe_join(parts)
+  end
+
+  def row_class(record) = ("is-hidden" if record.respond_to?(:published?) && !record.published?)
+
   def hard_delete_return(record)
     case record
     when Section then record.project ? edit_admin_project_path(record.project, tab: "secciones") : admin_sections_path

@@ -723,3 +723,11 @@ span.sort-thumb .illus{width:80%}
 .empty .empty-illus .illus{width:100%}
 .empty-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
 .warn-banner{display:flex;gap:10px;align-items:center;padding:12px 16px;margin-bottom:16px;border-radius:10px;background:var(--warn-soft);color:#5e3d07;font-size:14px}
+
+/* ---------- Acciones rápidas de las listas (mostrar/ocultar y papelera) ---------- */
+.media-card .meta-actions{display:flex;justify-content:flex-end;gap:2px;margin:4px -4px -4px 0}
+.media-card .meta-actions .icon-btn{width:32px;height:32px}
+.icon-btn.is-off{color:var(--warn)}
+.link-top-actions{display:inline-flex;align-items:center;gap:4px;flex:none}
+.actions-cell form.button_to,.sort-meta form.button_to{display:inline-flex}
+.icon-btn.btn-danger:hover{color:var(--red);background:var(--red-soft)}

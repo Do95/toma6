@@ -6,7 +6,7 @@
   <% if @records.any? %>
     <ul class="sort-list" <% if can?(:content, :write) %>data-controller="sortable" data-sortable-model-value="services" data-sortable-url-value="<%= admin_sort_path %>"<% end %>>
       <% @records.each_with_index do |service, i| %>
-        <li class="sort-item <%= 'is-hidden' unless service.published? %>" data-id="<%= service.id %>">
+        <li class="sort-item <%= row_class(service) %>" data-id="<%= service.id %>">
           <span class="sort-handle"><%= icon(:grip, size: 18) %></span>
           <% if service.image.present? %><%= image_tag service.image.url(:thumb), class: "sort-thumb", alt: "" %><% else %><span class="sort-thumb"><%= illustration("fotos") %></span><% end %>
           <div class="sort-main">
@@ -16,14 +16,7 @@
             </p>
           </div>
           <div class="sort-meta">
-            <% if can?(:content, :write) %>
-              <%= button_to toggle_admin_service_path(service), method: :patch, class: "eye-toggle #{'is-off' unless service.published?}",
-                            title: service.published? ? "Ocultar del sitio" : "Mostrar en el sitio" do %>
-                <%= icon(service.published? ? :eye : :lock, size: 16) %><span><%= service.published? ? "Visible" : "Oculto" %></span>
-              <% end %>
-            <% else %>
-              <%= published_badge(service) %>
-            <% end %>
+            <%= row_actions(service) %>
             <%= audit_line(service) %>
             <%= link_to icon(:edit, size: 16, title: "Editar"), edit_admin_service_path(service), class: "icon-btn" %>
           </div>

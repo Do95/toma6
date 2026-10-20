@@ -15,4 +15,6 @@
       </div>
     </div>
   </section>
+<% else %>
+  <%= render "site/sections/empty_section", section: section, title: "La galería se está llenando", text: "Pronto vas a ver acá fotos y videos de nuestros rodajes.", illustration: "fotos" %>
 <% end %>

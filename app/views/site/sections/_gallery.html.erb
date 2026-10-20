@@ -9,4 +9,6 @@
       <%= link_to section.button_label.presence || "Ver el álbum completo", album_path(section.album.slug), class: "btn primary" %>
     </div>
   </section>
+<% else %>
+  <%= render "site/sections/empty_section", section: section, title: "Este álbum todavía no tiene fotos", text: "Estamos terminando de editarlas.", illustration: "rollo", action: link_to("Ver la galería", gallery_path, class: "btn primary") %>
 <% end %>

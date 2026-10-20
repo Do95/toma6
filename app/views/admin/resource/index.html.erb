@@ -7,7 +7,7 @@
   <% if @records.any? %>
     <ul class="sort-list" <% if sortable? && can?(resource_class.permission_resource, :write) %>data-controller="sortable" data-sortable-model-value="<%= resource_class.model_name.plural %>" data-sortable-url-value="<%= admin_sort_path %>"<% end %>>
       <% @records.each do |record| %>
-        <li class="sort-item" data-id="<%= record.id %>">
+        <li class="sort-item <%= row_class(record) %>" data-id="<%= record.id %>">
           <% if sortable? %><span class="sort-handle" title="Arrastrar para ordenar"><%= icon(:grip, size: 18) %></span><% end %>
           <div class="sort-main">
             <%= link_to edit_polymorphic_path([:admin, record]) do %><strong><%= record.display_name %></strong><% end %>
@@ -16,8 +16,8 @@
             <% if record.respond_to?(:media_count) %><p><%= pluralize(record.media_count.to_i, "medio", plural: "medios") %></p><% end %>
           </div>
           <div class="sort-meta">
-            <% if record.respond_to?(:published?) %><%= published_badge(record) %><% end %>
             <%= audit_line(record) %>
+            <%= row_actions(record) %>
             <%= link_to icon(:edit, size: 16, title: "Editar"), edit_polymorphic_path([:admin, record]), class: "icon-btn" %>
           </div>
         </li>

@@ -72,6 +72,7 @@
           <div class="meta">
             <%= link_to item.display_name, edit_admin_media_item_path(item, return_to: request.fullpath) %>
             <small title="<%= item.galleries.map { |g| g.is_a?(Album) ? g.display_name : "#{g.title} · General" }.join(' · ') %>"><%= item.context_label || "Solo en la biblioteca" %></small>
+            <div class="meta-actions"><%= row_actions(item, compact: true) %></div>
           </div>
         </div>
       <% end %>

@@ -32,7 +32,10 @@
         <div class="link-body">
           <div class="link-top">
             <%= link_to link.title, admin_short_link_path(link), class: "link-title" %>
-            <%= status_badge(link.live? ? "published" : (link.expired? ? "expired" : "draft"), link.status_label) %>
+            <span class="link-top-actions">
+              <%= status_badge(link.live? ? "published" : (link.expired? ? "expired" : "draft"), link.status_label) %>
+              <%= row_actions(link) %>
+            </span>
           </div>
           <div class="share-box" data-controller="copy">
             <input type="text" class="input mono-input" readonly value="<%= link.short_url %>" data-copy-target="source" aria-label="Enlace corto">

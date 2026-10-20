@@ -11,7 +11,7 @@
 <div class="card table-wrap">
   <% if @records.any? %>
     <table class="table">
-      <thead><tr><th>Código</th><th>Persona</th><th>Servicios</th><th>Evento</th><th>Estado</th><th class="num">Estimado</th><th>Recibida</th></tr></thead>
+      <thead><tr><th>Código</th><th>Persona</th><th>Servicios</th><th>Evento</th><th>Estado</th><th class="num">Estimado</th><th>Recibida</th><th><span class="sr-only">Acciones</span></th></tr></thead>
       <tbody>
         <% @records.each do |req| %>
           <tr>
@@ -22,6 +22,7 @@
             <td><%= status_badge(req.status, req.status_label) %></td>
             <td class="num"><strong><%= money(req.estimated_total) %></strong></td>
             <td><span title="<%= l(req.created_at, format: :long) %>">hace <%= time_ago_in_words(req.created_at) %></span></td>
+            <td class="actions-cell"><%= row_actions(req) %></td>
           </tr>
         <% end %>
       </tbody>

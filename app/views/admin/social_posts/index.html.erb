@@ -30,6 +30,7 @@
               <%= button_to icon(:send, size: 16, title: "Publicar ahora"), publish_now_admin_social_post_path(post), class: "icon-btn", form: { data: { turbo_confirm: "¿Publicar ahora en #{post.networks.to_sentence}?" } } %>
               <%= link_to icon(:edit, size: 16, title: "Editar"), edit_admin_social_post_path(post), class: "icon-btn" %>
             <% end %>
+            <%= row_actions(post) %>
           </div>
         </li>
       <% end %>

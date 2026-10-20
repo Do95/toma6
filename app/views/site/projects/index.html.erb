@@ -14,6 +14,9 @@
     <% end %>
   <% end %>
 
+  <% if @projects.empty? %>
+    <div class="wrap-empty"><%= render "site/shared/empty", title: "Muy pronto, nuestros trabajos", text: "Estamos sumando los proyectos más recientes. Mientras tanto, contanos el tuyo.", illustration: "claqueta" %></div>
+  <% end %>
   <div class="projects-grid">
     <% @projects.each_with_index do |project, i| %>
       <%= link_to project_path(project.slug), class: "project-card pj#{(i % 5) + 1}", data: { filter_target: "item", category: project.category_label.to_s.parameterize } do %>

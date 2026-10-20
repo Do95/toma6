@@ -7,9 +7,14 @@
     <p class="g-count"><%= pluralize(@media.size, "elemento", plural: "elementos") %><% if @album.project %> · <%= link_to "Ver el proyecto", project_path(@album.project.slug) %><% end %></p>
   <% end %>
 
-  <div class="masonry">
-    <% @media.each do |item| %><%= media_tile(item) %><% end %>
-  </div>
+  <% if @media.empty? %>
+    <div class="wrap-empty"><%= render "site/shared/empty", title: "Este álbum todavía no tiene fotos", text: "Estamos terminando de editarlas. Mientras tanto, mirá el resto de la galería.", illustration: "rollo",
+                                       action: link_to("Ver la galería", gallery_path, class: "btn primary") %></div>
+  <% else %>
+    <div class="masonry">
+      <% @media.each do |item| %><%= media_tile(item) %><% end %>
+    </div>
+  <% end %>
 
   <% if @siblings.any? %>
     <section class="albums-strip" aria-labelledby="moreAlbums">

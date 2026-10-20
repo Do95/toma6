@@ -35,18 +35,28 @@ Rails.application.routes.draw do
     resources :services, path: "servicios" do
       member { patch :toggle }
     end
-    resources :plans, path: "planes", except: :show
-    resources :projects, path: "proyectos" do
-      member { get :share }
+    resources :plans, path: "planes", except: :show do
+      member { patch :toggle }
     end
-    resources :albums, path: "albumes"
+    resources :projects, path: "proyectos" do
+      member do
+        get :share
+        patch :toggle
+      end
+    end
+    resources :albums, path: "albumes" do
+      member { patch :toggle }
+    end
     resources :media_items, path: "medios" do
       collection do
         post :bulk_create
         patch :bulk_update
         get :library, path: "biblioteca"
       end
-      member { get :share }
+      member do
+        get :share
+        patch :toggle
+      end
     end
     resources :sections, path: "secciones" do
       member do
@@ -59,9 +69,15 @@ Rails.application.routes.draw do
       member { patch :cover }
     end
     resources :categories, path: "categorias", except: :show
-    resources :process_steps, path: "proceso", except: :show
-    resources :faqs, path: "preguntas", except: :show
-    resources :about_values, path: "valores", except: :show
+    resources :process_steps, path: "proceso", except: :show do
+      member { patch :toggle }
+    end
+    resources :faqs, path: "preguntas", except: :show do
+      member { patch :toggle }
+    end
+    resources :about_values, path: "valores", except: :show do
+      member { patch :toggle }
+    end
 
     resources :quote_requests, path: "solicitudes", only: %i[index show update destroy] do
       member { post :convert }

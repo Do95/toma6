@@ -1,7 +1,11 @@
 <section class="section services" id="<%= section.anchor %>">
   <div class="wrap">
     <div class="section-head"><h2><%= section.title %></h2><% if section.lead.present? %><p><%= section.lead %></p><% end %></div>
-    <%= render partial: "site/shared/service_card", collection: @services, as: :service %>
+    <% if @services.blank? %>
+      <%= render "site/shared/empty", compact: true, title: "Estamos preparando nuestros servicios", text: "Escribinos y contanos qué necesitás.", illustration: "camara" %>
+    <% else %>
+      <%= render partial: "site/shared/service_card", collection: @services, as: :service %>
+    <% end %>
   </div>
   <% if section.button_label.present? %>
     <p class="services-more"><%= link_to section.button_label, section.button_url.presence || services_path(anchor: "cotizador"), class: "link" %></p>

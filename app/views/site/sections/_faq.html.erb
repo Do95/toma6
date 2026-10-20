@@ -7,4 +7,6 @@
       </div>
     </div>
   </section>
+<% else %>
+  <%= render "site/sections/empty_section", section: section, title: "¿Tenés alguna pregunta?", text: "Escribinos y te respondemos rápido.", illustration: "mensaje" %>
 <% end %>

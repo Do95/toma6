@@ -1,0 +1,8 @@
+<%# Sección publicada pero sin registros: mantiene el título (y el ancla del menú) y muestra un estado vacío. %>
+<section class="section section-empty" id="<%= section.anchor %>">
+  <div class="wrap">
+    <div class="section-head"><h2><%= section.title.presence || local_assigns[:heading] || title %></h2><% if section.lead.present? %><p><%= section.lead %></p><% end %></div>
+    <%= render "site/shared/empty", compact: true, title: title, text: local_assigns[:text], illustration: local_assigns[:illustration],
+                                    **(local_assigns.key?(:action) ? { action: action } : {}) %>
+  </div>
+</section>

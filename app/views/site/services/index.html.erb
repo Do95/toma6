@@ -6,11 +6,14 @@
 
 <section class="section services services-page" data-controller="parallax">
   <div class="wrap">
+    <% if @services.empty? && @plans.empty? %>
+      <%= render "site/shared/empty", title: "Estamos preparando nuestros servicios", text: "Mientras tanto, escribinos y contanos qué necesitás: te respondemos con una propuesta.", illustration: "camara" %>
+    <% end %>
     <%= render partial: "site/shared/service_card", collection: @services, as: :service, locals: { show_price: settings.estimator_shows_prices? } %>
   </div>
 </section>
 
-<% if @quotable.any? %>
+<% if @quotable.any? || @plans.any? %>
 <% prices = settings.estimator_shows_prices? %>
 <% empty_text = prices ? "Elegí un plan o al menos un servicio para ver el precio." : "Elegí un plan o al menos un servicio." %>
 <% config = {
@@ -71,6 +74,7 @@
           </div>
         </div>
       <% end %>
+      <% if @quotable.any? %>
       <div class="est-services">
         <p class="est-step"><span><%= step += 1 %></span> <span class="est-step-text" data-estimator-target="servicesStep" data-custom="Elegí los servicios" data-plan="Sumá servicios o extras (opcional)">Elegí los servicios</span></p>
         <% @quotable.each do |service| %>
@@ -134,6 +138,7 @@
           </div>
         <% end %>
       </div>
+      <% end %>
 
       <aside class="est-summary" data-estimator-target="summary" aria-live="polite">
         <div class="est-summary-card">

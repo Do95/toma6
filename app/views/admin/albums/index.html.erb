@@ -13,7 +13,7 @@
   <% if @records.any? %>
     <ul class="sort-list" data-controller="sortable" data-sortable-model-value="albums" data-sortable-url-value="<%= admin_sort_path %>">
       <% @records.each do |album| %>
-        <li class="sort-item" data-id="<%= album.id %>">
+        <li class="sort-item <%= row_class(album) %>" data-id="<%= album.id %>">
           <span class="sort-handle"><%= icon(:grip, size: 18) %></span>
           <% if (img = album.cover_url(:thumb)) %><%= image_tag img, class: "sort-thumb", alt: "" %><% else %><span class="sort-thumb"><%= illustration("fotos") %></span><% end %>
           <div class="sort-main">
@@ -22,7 +22,7 @@
           </div>
           <div class="sort-meta">
             <% if album.show_in_gallery? %><span class="badge badge-info">En galería</span><% end %>
-            <%= published_badge(album) %>
+            <%= row_actions(album) %>
             <%= link_to icon(:edit, size: 16, title: "Editar"), edit_admin_album_path(album), class: "icon-btn" %>
           </div>
         </li>

@@ -6,7 +6,7 @@
   <% if @records.any? %>
     <ul class="sort-list" <% if can?(:content, :write) %>data-controller="sortable" data-sortable-model-value="plans" data-sortable-url-value="<%= admin_sort_path %>"<% end %>>
       <% @records.each do |plan| %>
-        <li class="sort-item" data-id="<%= plan.id %>">
+        <li class="sort-item <%= row_class(plan) %>" data-id="<%= plan.id %>">
           <span class="sort-handle"><%= icon(:grip, size: 18) %></span>
           <div class="sort-main">
             <%= link_to edit_admin_plan_path(plan) do %><strong><%= plan.title %></strong><% end %>
@@ -17,8 +17,8 @@
           </div>
           <div class="sort-meta">
             <% if plan.badge.present? %><span class="badge badge-info"><%= plan.badge %></span><% end %>
-            <%= published_badge(plan) %>
             <%= audit_line(plan) %>
+            <%= row_actions(plan) %>
             <%= link_to icon(:edit, size: 16, title: "Editar"), edit_admin_plan_path(plan), class: "icon-btn" %>
           </div>
         </li>
