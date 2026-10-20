@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <%# Avisa que hay JS antes de pintar: el hero espera a su secuencia de entrada sin parpadear %>
+  <script>document.documentElement.classList.add("js")</script>
   <title><%= content_for?(:title) ? yield(:title) : (settings.seo_title.presence || page_title) %></title>
   <meta name="description" content="<%= content_for?(:description) ? yield(:description) : settings.seo_description %>">
   <meta name="robots" content="<%= content_for?(:robots) ? yield(:robots) : 'index, follow, max-image-preview:large' %>">

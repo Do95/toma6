@@ -1,6 +1,15 @@
 <section class="hero pr" id="<%= section.anchor %>" data-controller="hero">
   <div class="glow layer" data-speed="0.15" aria-hidden="true"></div>
   <div class="lens layer" data-speed="0.45" aria-hidden="true"><%= render "site/iris" %></div>
+
+  <%# Visor de cámara: esquinas del cuadro y datos de la toma (la f cambia con el diafragma) %>
+  <div class="vf" aria-hidden="true">
+    <i class="vf-c vf-tl"></i><i class="vf-c vf-tr"></i><i class="vf-c vf-bl"></i><i class="vf-c vf-br"></i>
+    <p class="vf-data vf-left"><span>4K</span><span>24p</span><span class="vf-hide-sm">1/50</span></p>
+    <p class="vf-data vf-right"><span>f/<b data-hero-target="fstop">2.8</b></span><span class="vf-hide-sm">ISO 800</span><span class="vf-af" data-hero-target="afLabel">AF</span></p>
+  </div>
+
+  <span class="af" data-hero-target="af" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
   <div class="hero-copy" data-hero-target="copy">
     <p class="rec"><span class="dot" aria-hidden="true"></span>REC <span data-hero-target="timecode">00:00:00:00</span></p>
     <h1 class="wordmark">
