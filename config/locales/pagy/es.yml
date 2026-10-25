@@ -1,0 +1,24 @@
+# Textos del paginador (Pagy). Copia de la versión de la gema con flechas como las del panel.
+
+es:
+  pagy:
+    p11n: 'OneOther'
+    aria_label:
+      nav:
+        one: "Página"
+        other: "Páginas"
+      previous: "Anterior"
+      next: "Siguiente"
+    previous: "‹"
+    next: "›"
+    gap: "&hellip;"
+    item_name:
+      one: "elemento"
+      other: "elementos"
+    info_tag:
+      no_count: "Página %{page} de %{pages}"
+      no_items: "Sin resultados"
+      single_page: "Mostrando %{count} %{item_name}"
+      multiple_pages: "Mostrando %{item_name} %{from}-%{to} de %{count} en total"
+    input_nav_js: "Página %{page_input} de %{pages}"
+    limit_tag_js: "Mostrar %{limit_input} %{item_name} por página"

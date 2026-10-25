@@ -16,7 +16,7 @@ module Site
         send_notifications(@quote_request)
         redirect_to quote_request_thanks_path
       else
-        @services = Service.visible.ordered.includes(:options)
+        @services = Service.visible.ordered.with_photos.includes(:options)
         @quotable = @services.select(&:quotable?)
         @plans = Plan.visible.ordered.includes(:services)
         render "site/services/index", status: :unprocessable_entity

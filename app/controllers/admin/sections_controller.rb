@@ -8,7 +8,7 @@ module Admin
 
     def index
       Section.ensure_home_defaults!(settings) unless @project
-      @records = scope_for(@project).includes(:updater, :album).ordered
+      @records = paginate(scope_for(@project).includes(:updater, :album).ordered, per: 50)
     end
 
     def new

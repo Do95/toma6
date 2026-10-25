@@ -65,7 +65,7 @@ module Admin
       scope
     end
 
-    def per_page = sortable? ? 200 : 30
+    def per_page = sortable? ? 50 : 30
     def sortable? = sortable
 
     def load_record

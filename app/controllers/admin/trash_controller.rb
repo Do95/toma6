@@ -6,8 +6,9 @@ module Admin
       @groups = SoftDeletable::MODELS.filter_map do |name|
         model = name.constantize
         next unless can?(model.permission_resource, :read)
-        records = model.trashed.includes(:deleter).order(deleted_at: :desc).limit(200).to_a
-        [model, records] if records.any?
+        # Cada tipo tiene su propia paginación (?page_projects=2)
+        records = paginate(model.trashed.includes(:deleter).order(deleted_at: :desc), per: 25, page_key: "page_#{model.model_name.plural}")
+        [model, records, @pagy] if records.any?
       end
       @retention = settings.trash_retention_days
     end

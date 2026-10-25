@@ -8,10 +8,10 @@
           <div class="field"><%= f.label :title %><%= f.text_field :title, required: true, placeholder: "Fotografía" %></div>
           <div class="field"><%= f.label :tags %><%= f.text_field :tags, placeholder: "Eventos, Retrato, Producto" %><%= field_hint("Separadas por coma. Se muestran las tres primeras.") %></div>
           <div class="field span-2"><%= f.label :summary %><%= f.text_area :summary, rows: 3 %></div>
-          <div class="field span-2"><%= f.label :visual_style %><%= f.select :visual_style, Service::VISUAL_STYLES.invert %><%= field_hint("Cada estilo es una animación distinta de la tarjeta. Si no subís fotos se usan las de muestra.") %></div>
-          <%= image_field(f, :image, label: "Foto principal", hint: "Ideal 1100 px o más del lado más largo.") %>
-          <%= image_field(f, :image_secondary, label: "Foto 2 (fotos impresas / celulares)", hint: "Ideal 1100 px o más del lado más largo.") %>
-          <%= image_field(f, :image_tertiary, label: "Foto 3 (fotos impresas / celulares)", hint: "Ideal 1100 px o más del lado más largo.") %>
+          <div class="field span-2"><%= f.label :visual_style %><%= f.select :visual_style, Service::VISUAL_STYLES.invert %><%= field_hint("Cada estilo es una animación distinta de la tarjeta. Si no subís ni elegís fotos se usan las de muestra.") %></div>
+          <%= image_field(f, :image, label: "Foto principal", hint: "Subí una o elegí una de la galería. Ideal 1100 px o más del lado más largo.", library: gallery_photos) %>
+          <%= image_field(f, :image_secondary, label: "Foto 2 (fotos impresas / celulares)", hint: "Subí una o elegí una de la galería. Ideal 1100 px o más del lado más largo.", library: gallery_photos) %>
+          <%= image_field(f, :image_tertiary, label: "Foto 3 (fotos impresas / celulares)", hint: "Subí una o elegí una de la galería. Ideal 1100 px o más del lado más largo.", library: gallery_photos) %>
         </div>
       </div>
 

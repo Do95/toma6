@@ -10,9 +10,14 @@ module Admin
     def update
       model = MODELS.fetch(params[:model]) { return head(:unprocessable_entity) }
       authorize!(model.permission_resource, :write)
-      ids = Array(params[:ids]).map(&:to_i)
+      current = model.where(id: Array(params[:ids]).map(&:to_i)).pluck(:id, :position).to_h
+      ids = Array(params[:ids]).map(&:to_i).select { |id| current.key?(id) }
+      # Las listas están paginadas: se reparten las mismas posiciones que ya tenían
+      # los elementos de esta página, así no se mezclan con los de otras páginas.
+      slots = current.values.sort
+      slots = (0...ids.size).map { |i| slots.first.to_i + i } if slots.uniq.size < slots.size
       model.transaction do
-        ids.each_with_index { |id, index| model.where(id: id).update_all(position: index + 1, updated_at: Time.current) }
+        ids.zip(slots).each { |id, position| model.where(id: id).update_all(position: position, updated_at: Time.current) }
       end
       ActivityLog.record!(nil, "update", { "orden de #{model.model_name.human(count: 2).downcase}" => [nil, "#{ids.size} elementos"] })
       head :no_content

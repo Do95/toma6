@@ -54,7 +54,7 @@
   <% end %>
 
   <% if @records.any? %>
-    <p class="muted" style="margin:0 0 10px;font-size:13px"><button type="button" class="btn btn-ghost btn-sm" data-action="bulk-select#all">Seleccionar todos en esta página</button> Con <kbd>Shift</kbd> elegís un rango · <%= pagination.range_label %></p>
+    <p class="muted" style="margin:0 0 10px;font-size:13px"><button type="button" class="btn btn-ghost btn-sm" data-action="bulk-select#all">Seleccionar todos en esta página</button> Con <kbd>Shift</kbd> elegís un rango · <%= pagination_range %></p>
     <div class="media-grid">
       <% @records.each do |item| %>
         <div class="media-card">

@@ -128,37 +128,71 @@ module AdminHelper
   end
 
   # logo: true muestra la vista previa entera (sin recortar) sobre fondo oscuro.
-  def image_field(form, attribute, label:, hint: nil, version: :thumb, logo: false)
+  # library: fotos de la galería para elegir en lugar de subir (guarda <attribute>_media_item_id)
+  def image_field(form, attribute, label:, hint: nil, version: :thumb, logo: false, library: nil)
     uploader = form.object.public_send(attribute)
+    picked = library && form.object.public_send(:"#{attribute}_media_item")
     # Algunos uploaders (el avatar) no tienen miniaturas: se usa el archivo tal cual
     src = (uploader.versions.key?(version) ? uploader.url(version) : uploader.url) if uploader.present?
+    src ||= picked.image_url(version) if picked
     content_tag(:div, class: "field image-field", data: { controller: "image-preview" }) do
       safe_join([
         form.label(attribute, label),
         content_tag(:label, class: "dropzone-mini") do
           safe_join([
-            tag.img(src: src, class: ["preview", ("is-logo" if logo), ("is-empty" if uploader.blank?)].compact.join(" "),
+            tag.img(src: src, class: ["preview", ("is-logo" if logo), ("is-empty" if src.blank?)].compact.join(" "),
                     alt: "", data: { image_preview_target: "preview" }),
-            content_tag(:span, safe_join([icon(:upload, size: 16), uploader.present? ? "Reemplazar" : "Elegir imagen"]), class: "dz-cta"),
-            form.file_field(attribute, accept: "image/*", class: "sr-only", data: { action: "image-preview#show" })
+            content_tag(:span, safe_join([icon(:upload, size: 16), src.present? ? "Reemplazar" : "Elegir imagen"]), class: "dz-cta"),
+            form.file_field(attribute, accept: "image/*", class: "sr-only", data: { action: "image-preview#show", image_preview_target: "file" })
           ])
         end,
+        (gallery_library(form, attribute, library, picked) if library),
         (content_tag(:label, safe_join([form.check_box(:"remove_#{attribute}"), " Quitar imagen"]), class: "check-inline") if uploader.present?),
         (field_hint(hint) if hint)
       ].compact)
     end
   end
 
-  def pagination_nav
-    p = pagination
-    return unless p && p.total_pages > 1
-    content_tag(:nav, class: "pager", aria: { label: "Paginación" }) do
+  def gallery_library(form, attribute, library, picked)
+    items = picked && library.exclude?(picked) ? [picked, *library] : library
+    field = :"#{attribute}_media_item_id"
+    content_tag(:details, class: "gallery-pick", open: picked.present?) do
       safe_join([
-        (p.prev_page ? link_to("‹ Anterior", url_with(page: p.prev_page), class: "btn btn-ghost") : content_tag(:span, "")),
-        content_tag(:span, p.range_label, class: "pager-info"),
-        (p.next_page ? link_to("Siguiente ›", url_with(page: p.next_page), class: "btn btn-ghost") : content_tag(:span, ""))
+        content_tag(:summary, picked ? "De la galería: #{picked.display_name}" : "…o elegí una de la galería"),
+        content_tag(:div, class: "library") do
+          safe_join([
+            content_tag(:label, safe_join([form.radio_button(field, "", data: { action: "image-preview#pick" }), "Ninguna"]),
+                        class: "lib-none", title: "Sin foto de la galería"),
+            *items.map do |item|
+              content_tag(:label, title: item.display_name) do
+                safe_join([
+                  form.radio_button(field, item.id, data: { src: item.image_url(:thumb), action: "image-preview#pick" }),
+                  image_tag(item.image_url(:thumb) || "", alt: item.display_name, loading: "lazy")
+                ])
+              end
+            end
+          ])
+        end
       ])
     end
+  end
+
+  # Fotos de la galería que se pueden usar en otros lugares (servicios)
+  def gallery_photos = @gallery_photos ||= MediaItem.kept.photos.order(created_at: :desc).limit(60).to_a
+
+  # Paginador de Pagy: números de página y «41–60 de 324».
+  def pagination_nav(pagy = pagination)
+    return unless pagy && pagy.last > 1
+    content_tag(:div, class: "pager") do
+      safe_join([
+        pagy.series_nav(aria_label: "Paginación").html_safe,
+        content_tag(:span, pagination_range(pagy), class: "pager-info")
+      ])
+    end
+  end
+
+  def pagination_range(pagy = pagination)
+    pagy.count.zero? ? "0 resultados" : "#{pagy.from}–#{pagy.to} de #{pagy.count}"
   end
 
   def filter_chip(label, params_hash, active)

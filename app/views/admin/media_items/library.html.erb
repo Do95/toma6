@@ -27,7 +27,7 @@
     <button class="btn btn-primary btn-sm" type="submit"><%= icon(:plus, size: 14) %> Agregar a la galería</button>
     <button class="btn btn-ghost btn-sm" type="button" data-action="bulk-select#clear" style="color:#fff">Cancelar</button>
   </div>
-  <p class="muted" style="margin:0 0 10px;font-size:13px">Tocá las fotos para elegirlas. Con <kbd>Shift</kbd> elegís un rango. <%= pagination.range_label %></p>
+  <p class="muted" style="margin:0 0 10px;font-size:13px">Tocá las fotos para elegirlas. Con <kbd>Shift</kbd> elegís un rango. <%= pagination_range %></p>
   <div class="media-grid">
     <% @records.each do |item| %>
       <% already = @already.include?(item.id) %>

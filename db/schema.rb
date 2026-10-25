@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_19_000002) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_24_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -645,9 +645,15 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_19_000002) do
     t.bigint "deleted_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "image_media_item_id"
+    t.bigint "image_secondary_media_item_id"
+    t.bigint "image_tertiary_media_item_id"
     t.index ["created_by_id"], name: "index_services_on_created_by_id"
     t.index ["deleted_at"], name: "index_services_on_deleted_at"
     t.index ["deleted_by_id"], name: "index_services_on_deleted_by_id"
+    t.index ["image_media_item_id"], name: "index_services_on_image_media_item_id"
+    t.index ["image_secondary_media_item_id"], name: "index_services_on_image_secondary_media_item_id"
+    t.index ["image_tertiary_media_item_id"], name: "index_services_on_image_tertiary_media_item_id"
     t.index ["slug"], name: "index_services_on_slug"
     t.index ["updated_by_id"], name: "index_services_on_updated_by_id"
   end
@@ -882,6 +888,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_19_000002) do
   add_foreign_key "service_options", "users", column: "created_by_id", on_delete: :nullify
   add_foreign_key "service_options", "users", column: "deleted_by_id", on_delete: :nullify
   add_foreign_key "service_options", "users", column: "updated_by_id", on_delete: :nullify
+  add_foreign_key "services", "media_items", column: "image_media_item_id", on_delete: :nullify
+  add_foreign_key "services", "media_items", column: "image_secondary_media_item_id", on_delete: :nullify
+  add_foreign_key "services", "media_items", column: "image_tertiary_media_item_id", on_delete: :nullify
   add_foreign_key "services", "users", column: "created_by_id", on_delete: :nullify
   add_foreign_key "services", "users", column: "deleted_by_id", on_delete: :nullify
   add_foreign_key "services", "users", column: "updated_by_id", on_delete: :nullify

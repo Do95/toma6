@@ -18,7 +18,7 @@ module Admin
 
     private
 
-    def collection = super.includes(:options)
+    def collection = super.includes(:options, :image_media_item)
 
     def after_save_path = edit_admin_service_path(@record)
 
@@ -26,6 +26,7 @@ module Admin
       params.require(:service).permit(
         :title, :slug, :summary, :description, :tags, :visual_style,
         :image, :image_secondary, :image_tertiary, :remove_image, :remove_image_secondary, :remove_image_tertiary,
+        :image_media_item_id, :image_secondary_media_item_id, :image_tertiary_media_item_id,
         :quotable, :base_price, :price_prefix, :price_unit, :published,
         options_attributes: %i[id name description kind group_name price unit_label min_quantity max_quantity
                                default_selected published position remove]

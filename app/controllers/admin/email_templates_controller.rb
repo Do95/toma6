@@ -7,7 +7,7 @@ module Admin
 
     def index
       EmailTemplate.ensure_defaults!
-      @templates = EmailTemplate.order(:id)
+      @templates = paginate(EmailTemplate.order(:id))
     end
 
     def edit; end

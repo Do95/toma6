@@ -209,6 +209,10 @@ GEM
     nokogiri (1.19.4-x86_64-linux-gnu)
       racc (~> 1.4)
     orm_adapter (0.5.0)
+    pagy (43.8.1)
+      json
+      uri
+      yaml
     pdf-core (0.10.0)
     pg (1.7.0-arm64-darwin)
     pg (1.7.0-x86_64-linux)
@@ -314,6 +318,7 @@ GEM
       base64
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
+    yaml (0.4.0)
     zeitwerk (2.8.3)
 
 PLATFORMS
@@ -335,6 +340,7 @@ DEPENDENCIES
   json (~> 2.21)
   letter_opener
   mini_magick
+  pagy (~> 43.0)
   pg (~> 1.5)
   prawn (~> 2.5)
   prawn-table (~> 0.2.2)

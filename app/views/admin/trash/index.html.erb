@@ -7,9 +7,9 @@
 <% if @groups.empty? %>
   <div class="card"><%= render "admin/shared/empty", title: "La papelera está vacía", text: "Cuando elimines algo, va a aparecer acá por si querés restaurarlo." %></div>
 <% end %>
-<% @groups.each do |model, records| %>
+<% @groups.each do |model, records, pagy| %>
   <div class="card">
-    <div class="card-head"><h2><%= model.model_name.human(count: 2) %> <span class="muted">(<%= records.size %>)</span></h2></div>
+    <div class="card-head"><h2><%= model.model_name.human(count: 2) %> <span class="muted">(<%= pagy.count %>)</span></h2></div>
     <div class="table-wrap">
       <table class="table">
         <thead><tr><th>Registro</th><th>Eliminado por</th><th>Cuándo</th><th>Se borra el</th><th></th></tr></thead>
@@ -34,5 +34,6 @@
         </tbody>
       </table>
     </div>
+    <%= pagination_nav(pagy) %>
   </div>
 <% end %>

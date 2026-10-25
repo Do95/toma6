@@ -74,8 +74,7 @@ module SiteHelper
   def site_contact_link_options = settings.whatsapp_url ? { target: "_blank", rel: "noopener" } : {}
 
   def service_image(service, attr, fallback)
-    uploader = service.public_send(attr)
-    uploader.present? ? uploader.url(:medium) : image_path("site/#{fallback}")
+    service.photo_url(attr) || image_path("site/#{fallback}")
   end
 
   def gallery_count_text(counts)

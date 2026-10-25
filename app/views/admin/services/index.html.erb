@@ -5,10 +5,10 @@
 <div class="card">
   <% if @records.any? %>
     <ul class="sort-list" <% if can?(:content, :write) %>data-controller="sortable" data-sortable-model-value="services" data-sortable-url-value="<%= admin_sort_path %>"<% end %>>
-      <% @records.each_with_index do |service, i| %>
+      <% @records.each do |service| %>
         <li class="sort-item <%= row_class(service) %>" data-id="<%= service.id %>">
           <span class="sort-handle"><%= icon(:grip, size: 18) %></span>
-          <% if service.image.present? %><%= image_tag service.image.url(:thumb), class: "sort-thumb", alt: "" %><% else %><span class="sort-thumb"><%= illustration("fotos") %></span><% end %>
+          <% if (thumb = service.photo_url(:image, :thumb)) %><%= image_tag thumb, class: "sort-thumb", alt: "" %><% else %><span class="sort-thumb"><%= illustration("fotos") %></span><% end %>
           <div class="sort-main">
             <%= link_to edit_admin_service_path(service) do %><strong><%= service.title %></strong><% end %>
             <p>
@@ -28,3 +28,4 @@
                action: link_to("Crear el primero", new_admin_service_path, class: "btn btn-primary") %>
   <% end %>
 </div>
+<%= pagination_nav %>

@@ -3,3 +3,4 @@
            subtitle: "El inicio se arma con estas secciones, en este orden. Editá los textos, ocultá las que no uses o agregá nuevas. Las que marques «en el menú» aparecen en la barra de navegación.",
            actions: link_to(safe_join([icon(:eye, size: 16), "Ver el inicio"]), root_path, class: "btn", target: "_blank") %>
 <div class="card"><%= render "admin/sections/list", sections: @records %></div>
+<%= pagination_nav %>
