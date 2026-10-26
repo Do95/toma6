@@ -186,18 +186,20 @@ Sin S3 (desarrollo con `public/uploads`) la subida directa no se activa y todo s
 
 ## Heroku
 
-El proyecto ya trae `Procfile` (web + migraciones en cada deploy) y `app.json`.
+El proyecto ya trae `Procfile` (web + migraciones en cada deploy) y `app.json`, preparado para el stack
+**heroku-26** (Ubuntu 26.04). Probado en la imagen oficial `heroku/heroku:26-build` (amd64 y arm64): Ruby 3.3.6,
+gemas nativas, ImageMagick 7 (miniaturas) y assets.
+
+En cada deploy, la fase de release corre las migraciones y `bin/rails toma6:check_image_tools`: si ImageMagick
+no procesa imágenes en el stack, el deploy se frena y queda la versión anterior.
 
 > Las fotos van a S3 (ver «Fotos en S3»): configurá el bucket antes del primer deploy.
 
 ```bash
-# 1. Generar el Gemfile.lock con la plataforma de Heroku y subirlo al repo
-bundle install
-bundle lock --add-platform x86_64-linux
-git add Gemfile.lock && git commit -m "Gemfile.lock"
+# 1. El Gemfile.lock ya incluye las plataformas de Heroku (x86_64-linux y aarch64-linux)
 
-# 2. Crear la app con Postgres
-heroku create toma6
+# 2. Crear la app con Postgres en heroku-26
+heroku create toma6 --stack heroku-26
 heroku addons:create heroku-postgresql:essential-0
 
 # 3. Variables
@@ -222,6 +224,19 @@ Para Cloudflare R2 o DigitalOcean Spaces agregá también `S3_ENDPOINT` (y `S3_P
 **Tareas en segundo plano:** están en pausa por defecto (`JOBS_ENABLED=false`): GoodJob no arranca y los correos se envían en memoria, dentro del mismo proceso. Para la purga de la papelera y los posts programados usá Heroku Scheduler con `bin/rails trash:purge` (diario) y `bin/rails social:publish_scheduled` (cada 10 minutos). Con `JOBS_ENABLED=true` vuelve GoodJob con su cron y su panel en `/admin/tareas`.
 
 **Tareas programadas (con GoodJob):** la purga de la papelera y las publicaciones programadas corren dentro del dyno web. Con planes que se "duermen" (Eco), conviene agregar **Heroku Scheduler** con `bin/rails trash:purge` una vez por día.
+
+**Pasar una app existente a heroku-26:**
+
+```bash
+heroku stack:set heroku-26 -a toma6
+git commit --allow-empty -m "Rebuild en heroku-26" && git push heroku main   # el cambio de stack se aplica en el próximo build
+```
+
+Si algo falla, `heroku stack:set heroku-24` y otro push vuelven al stack anterior.
+
+**Caché (opcional, recomendado):** con un Redis (`heroku addons:create heroku-redis:mini`) el caché de las páginas se
+comparte entre dynos y sobrevive a los deploys; sin Redis usa la memoria del dyno. Para que la clave cambie con cada
+deploy usando el commit: `heroku labs:enable runtime-dyno-metadata`.
 
 **QR:** los PNG se generan en Ruby puro, sin librerías del sistema; `heroku run bin/rails qr:check` genera uno de prueba.
 

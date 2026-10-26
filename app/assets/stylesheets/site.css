@@ -852,6 +852,7 @@ footer a{text-decoration:underline}
 .skip-link{position:absolute;left:12px;top:-60px;z-index:200;background:var(--red);color:#fff;padding:10px 16px;border-radius:6px;font-weight:800;text-decoration:none;transition:top .2s}
 .skip-link:focus{top:12px}
 .hp{position:absolute!important;left:-9999px;width:1px;height:1px;overflow:hidden}
+.turnstile{margin:14px 0 4px;min-height:65px}
 
 /* Navegación */
 .nav{transition:background .25s,box-shadow .25s}

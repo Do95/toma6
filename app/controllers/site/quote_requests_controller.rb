@@ -1,8 +1,22 @@
 module Site
   class QuoteRequestsController < BaseController
+    include SpamProtection
+    protect_from_spam only: :create, success_path: -> { quote_request_thanks_path }, form_path: -> { services_path(anchor: "cotizador") }
+
+    # Además de lo anterior, con lo guardado en la base (funciona con o sin caché):
+    MAX_PER_EMAIL = 3   # solicitudes por correo en una hora
+    MAX_PER_IP = 5      # solicitudes por IP en una hora
+
     def create
-      # Campo trampa contra bots: los humanos no lo ven.
-      return redirect_to(quote_request_thanks_path) if params[:website].present?
+      if (previous = duplicate_request)
+        # Doble envío (o reintento): no se crea otra solicitud ni se mandan más correos
+        session[:last_quote_request_id] = previous.id
+        return redirect_to(quote_request_thanks_path)
+      end
+      if too_many_requests?
+        return redirect_to(services_path(anchor: "cotizador"), status: :see_other,
+                           alert: "Ya recibimos varias solicitudes tuyas en la última hora. Te respondemos pronto; si es urgente, escribinos por WhatsApp.")
+      end
 
       selections = parse_selections(params[:selections])
       estimate = QuoteEstimator.new(selections, plan_id: params[:plan_id])
@@ -28,6 +42,20 @@ module Site
     end
 
     private
+
+    def duplicate_request
+      email = params.dig(:quote_request, :email).to_s.strip
+      return if email.blank?
+      QuoteRequest.where(created_at: 10.minutes.ago..).where("lower(email) = ?", email.downcase)
+                  .find_by(message: params.dig(:quote_request, :message).to_s.strip.presence)
+    end
+
+    def too_many_requests?
+      recent = QuoteRequest.unscoped.where(created_at: 1.hour.ago..)
+      email = params.dig(:quote_request, :email).to_s.strip.downcase
+      (email.present? && recent.where("lower(email) = ?", email).count >= MAX_PER_EMAIL) ||
+        recent.where(ip_address: request.remote_ip).count >= MAX_PER_IP
+    end
 
     def request_params
       params.require(:quote_request).permit(:name, :email, :phone, :company, :event_date, :location, :message)

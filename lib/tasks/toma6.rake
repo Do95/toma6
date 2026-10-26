@@ -136,3 +136,21 @@ namespace :site_cache do
     puts "Caché renovado. Versión del contenido: #{SiteCache.version} (#{CacheStoreConfig.label})"
   end
 end
+
+namespace :toma6 do
+  # Corre en la fase de release de Heroku: si ImageMagick no está o no funciona en el
+  # stack, el deploy se frena y queda la versión anterior (en vez de romper las fotos).
+  desc "Verifica que ImageMagick procese imágenes (miniaturas, orientación, JPG)"
+  task check_image_tools: :environment do
+    require "mini_magick"
+    sample = Rails.root.join("app/assets/images/site/imagen-07.jpg").to_s
+    Dir.mktmpdir do |dir|
+      out = File.join(dir, "prueba.jpg")
+      MiniMagick.convert { |c| c << sample << "-auto-orient" << "-strip" << "-resize" << "120x120" << out } # en IM7 usa «magick»
+      width, height = MiniMagick::Image.open(out).dimensions
+      raise "ImageMagick devolvió una imagen vacía" unless width.to_i.positive? && height.to_i.positive?
+      version = MiniMagick.cli_version rescue "?"
+      puts "ImageMagick OK (#{version}, #{MiniMagick.imagemagick7? ? 'comando magick' : 'comandos clásicos'}): #{width}x#{height}"
+    end
+  end
+end

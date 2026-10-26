@@ -78,3 +78,17 @@
     </div>
   </div>
 </div>
+
+<div class="card" id="antispam" style="margin-top:18px">
+  <div class="card-head"><div><h2>Protección contra spam</h2><p>Se aplica al cotizador (y a cualquier formulario público).</p></div></div>
+  <div class="card-body">
+    <ul style="margin:0;padding-left:18px;line-height:1.8">
+      <li>Campo trampa invisible y tiempo mínimo de <%= SpamProtection::MIN_SECONDS %> segundos para completar el formulario.</li>
+      <li>Hasta <%= Site::QuoteRequestsController::MAX_PER_EMAIL %> solicitudes por correo y <%= Site::QuoteRequestsController::MAX_PER_IP %> por conexión en una hora; los envíos repetidos no se duplican.</li>
+      <li>Se rechazan mensajes con más de <%= QuoteRequest::MAX_LINKS %> enlaces o con enlaces en el nombre.</li>
+      <li>Captcha de Cloudflare Turnstile: <strong><%= SpamProtection.turnstile? ? "activo" : "desactivado" %></strong>
+        <% unless SpamProtection.turnstile? %><span class="muted">(se activa con TURNSTILE_SITE_KEY y TURNSTILE_SECRET_KEY)</span><% end %></li>
+    </ul>
+  </div>
+</div>
+

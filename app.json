@@ -1,7 +1,7 @@
 {
   "name": "toma6",
   "description": "Sitio y panel de administración de toma6",
-  "stack": "heroku-24",
+  "stack": "heroku-26",
   "buildpacks": [
     {
       "url": "heroku/ruby"
@@ -54,6 +54,14 @@
     },
     "ADMIN_PASSWORD": {
       "description": "Contraseña del primer administrador (cambiala al entrar)"
+    },
+    "TURNSTILE_SITE_KEY": {
+      "description": "Opcional: clave pública de Cloudflare Turnstile (captcha del cotizador)",
+      "required": false
+    },
+    "TURNSTILE_SECRET_KEY": {
+      "description": "Opcional: clave secreta de Cloudflare Turnstile",
+      "required": false
     }
   },
   "scripts": {

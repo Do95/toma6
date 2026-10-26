@@ -176,8 +176,8 @@
             <label class="fld"><span>Fecha del evento</span><%= f.date_field :event_date %></label>
             <label class="fld"><span>Lugar</span><%= f.text_field :location %></label>
             <label class="fld fld-wide"><span>Contanos tu idea</span><%= f.text_area :message, rows: 3 %></label>
-            <label class="hp" aria-hidden="true">Sitio web <input type="text" name="website" tabindex="-1" autocomplete="off"></label>
           </div>
+          <%= spam_guard_fields %>
           <%= hidden_field_tag :selections, params[:selections].presence || "[]", data: { estimator_target: "payload" } %>
           <button class="btn primary est-submit" type="submit" data-estimator-target="submit" disabled>Enviar solicitud</button>
           <p class="est-need" data-estimator-target="need">Elegí un plan o al menos un servicio para enviar.</p>

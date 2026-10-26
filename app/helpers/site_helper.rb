@@ -6,6 +6,17 @@ module SiteHelper
     page_cache_key ? cache(page_cache_key, skip_digest: true, &block) : yield
   end
 
+  # Campos anti-spam para los formularios públicos (ver SpamProtection): campo trampa,
+  # marca de tiempo firmada y, si está configurado, el captcha de Cloudflare Turnstile.
+  def spam_guard_fields
+    safe_join([
+      content_tag(:label, safe_join(["Sitio web ", tag.input(type: "text", name: SpamProtection::HONEYPOT, tabindex: -1, autocomplete: "off")]),
+                  class: "hp", aria: { hidden: true }),
+      hidden_field_tag(SpamProtection::STAMP, SpamProtection.stamp_for(params[SpamProtection::STAMP]), id: nil),
+      (tag.div(class: "turnstile", data: { controller: "turnstile", turnstile_site_key_value: SpamProtection.turnstile_site_key }) if SpamProtection.turnstile?)
+    ].compact)
+  end
+
   def nav_link(label, path)
     link_to label, path, class: (current_page?(path) ? "is-current" : nil)
   end
