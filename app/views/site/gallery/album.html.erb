@@ -1,6 +1,6 @@
 <% content_for :title, page_title(@album.title, "Galería") %>
 <% content_for :description, @album.description.presence || "Álbum #{@album.title}" %>
-
+<% cache_page do %>
 <div class="gallery-page">
   <% back = @album.project ? ["‹ #{@album.project.title}", project_path(@album.project.slug)] : ["‹ Galería", gallery_path] %>
   <%= render "site/shared/page_head", title: @album.title, intro: @album.description, back: back do %>
@@ -23,3 +23,4 @@
     </section>
   <% end %>
 </div>
+<% end %>

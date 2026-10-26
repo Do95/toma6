@@ -1,6 +1,7 @@
 # Plan con precio cerrado del cotizador ("Boda completa", "Pack redes").
 # Los servicios que cubre no suman su precio base; sus extras sí.
 class Plan < ApplicationRecord
+  include BustsSiteCache
   include Auditable
   include FriendlySlug
   friendly_slug :title

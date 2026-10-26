@@ -4,6 +4,8 @@
 <% heading = page_heading("services", settings.services_title, settings.services_intro) %>
 <%= render "site/shared/page_head", title: heading.first, intro: heading.last %>
 
+<%# Las tarjetas se guardan en caché; el cotizador (formulario) no, porque lleva el token de cada visitante %>
+<% cache SiteCache.key("services", "cards"), skip_digest: true do %>
 <section class="section services services-page" data-controller="parallax">
   <div class="wrap">
     <% if @services.empty? && @plans.empty? %>
@@ -12,6 +14,7 @@
     <%= render partial: "site/shared/service_card", collection: @services, as: :service, locals: { show_price: settings.estimator_shows_prices? } %>
   </div>
 </section>
+<% end %>
 
 <% if @quotable.any? || @plans.any? %>
 <% prices = settings.estimator_shows_prices? %>

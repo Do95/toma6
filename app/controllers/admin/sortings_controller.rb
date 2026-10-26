@@ -19,6 +19,7 @@ module Admin
       model.transaction do
         ids.zip(slots).each { |id, position| model.where(id: id).update_all(position: position, updated_at: Time.current) }
       end
+      SiteCache.bump! # update_all no dispara callbacks: el orden nuevo se ve en el sitio
       ActivityLog.record!(nil, "update", { "orden de #{model.model_name.human(count: 2).downcase}" => [nil, "#{ids.size} elementos"] })
       head :no_content
     end

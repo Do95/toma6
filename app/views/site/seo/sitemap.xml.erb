@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<% cache_page do %>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <% base = settings.public_base_url %>
   <url><loc><%= base %>/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
@@ -12,3 +13,4 @@
   <url><loc><%= base %>/galeria/albumes/<%= a.slug %></loc><lastmod><%= a.updated_at.to_date.iso8601 %></lastmod><priority>0.5</priority></url>
   <% end %>
 </urlset>
+<% end %>

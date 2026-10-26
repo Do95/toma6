@@ -1,4 +1,5 @@
 class ServiceOption < ApplicationRecord
+  include BustsSiteCache
   include Auditable
   include SoftDeletable
   include Positionable

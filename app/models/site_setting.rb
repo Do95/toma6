@@ -1,4 +1,5 @@
 class SiteSetting < ApplicationRecord
+  include BustsSiteCache
   mount_uploader :logo, LogoUploader
   mount_uploader :wordmark, LogoUploader
   mount_uploader :pdf_logo, LogoUploader

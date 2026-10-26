@@ -1,7 +1,7 @@
 <% content_for :title, page_title(@project.title, "Trabajos") %>
 <% content_for :description, @project.summary.to_s.truncate(160) %>
 <% if (img = @project.hero_image_url(:large)) %><% content_for :og_image, absolute_url(img) %><% end %>
-
+<% cache_page do %>
 <article class="project-page" data-controller="parallax">
   <header class="project-hero">
     <div class="project-hero-media">
@@ -39,3 +39,4 @@
 </article>
 
 <%= render "site/shared/contact" %>
+<% end %>

@@ -1,4 +1,5 @@
 class Category < ApplicationRecord
+  include BustsSiteCache
   include Auditable
   include SoftDeletable
   include Positionable

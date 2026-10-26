@@ -1,4 +1,5 @@
 class Album < ApplicationRecord
+  include BustsSiteCache
   include Auditable
   include SoftDeletable
   include Positionable

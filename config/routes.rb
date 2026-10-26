@@ -29,7 +29,9 @@ Rails.application.routes.draw do
     root "dashboard#show"
 
     resource :site_content, only: %i[edit update], path: "contenido"
-    resource :settings, only: %i[edit update], path: "ajustes"
+    resource :settings, only: %i[edit update], path: "ajustes" do
+      post :clear_cache, path: "vaciar-cache"
+    end
     resource :profile, only: %i[edit update], path: "perfil"
 
     resources :services, path: "servicios" do

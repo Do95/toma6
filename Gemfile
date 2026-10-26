@@ -52,3 +52,5 @@ group :development do
 end
 
 gem "pagy", "~> 43.0"
+
+gem "redis", "~> 5.4"

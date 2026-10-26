@@ -1,3 +1,4 @@
+require_relative "../cache_store"
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
@@ -11,7 +12,7 @@ Rails.application.configure do
 
   if Rails.root.join("tmp/caching-dev.txt").exist?
     config.action_controller.perform_caching = true
-    config.cache_store = :memory_store
+    config.cache_store = CacheStoreConfig.store # bin/rails dev:cache lo activa
   else
     config.action_controller.perform_caching = false
     config.cache_store = :null_store

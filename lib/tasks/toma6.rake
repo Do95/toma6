@@ -128,3 +128,11 @@ namespace :uploads do
     puts "\n✓ Listo. Ahora las fotos se sirven desde el bucket. Podés borrar public/uploads cuando verifiques el sitio."
   end
 end
+
+namespace :site_cache do
+  desc "Renueva el caché de las páginas públicas (también: Panel › Ajustes › Vaciar caché)"
+  task clear: :environment do
+    SiteCache.bump!
+    puts "Caché renovado. Versión del contenido: #{SiteCache.version} (#{CacheStoreConfig.label})"
+  end
+end

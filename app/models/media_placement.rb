@@ -1,6 +1,7 @@
 # Ubicación de una foto o video en una galería (un álbum o la galería general
 # de un proyecto). Cada galería tiene su propio orden.
 class MediaPlacement < ApplicationRecord
+  include BustsSiteCache
   include Auditable
   include RandomSlug
 

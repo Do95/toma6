@@ -21,5 +21,12 @@ module Admin
         render :edit, status: :unprocessable_entity
       end
     end
+
+    # Renueva el caché del sitio público (normalmente se renueva solo al guardar cambios)
+    def clear_cache
+      SiteCache.bump!
+      ActivityLog.record!(nil, "update", { "caché del sitio" => [nil, "renovado a mano"] })
+      redirect_to edit_admin_settings_path(anchor: "cache"), notice: "Listo: el sitio se vuelve a armar con lo último."
+    end
   end
 end

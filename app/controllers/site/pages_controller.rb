@@ -1,6 +1,7 @@
 module Site
   class PagesController < BaseController
     def home
+      return if page_cached?
       Section.ensure_home_defaults!(settings)
       @sections = Section.home.visible.ordered.includes(:album).to_a
       kinds = @sections.map(&:kind)

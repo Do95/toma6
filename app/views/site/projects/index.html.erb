@@ -1,7 +1,7 @@
 <% content_for :title, page_title("Trabajos") %>
 <% heading = page_heading("work", "Trabajos", settings.work_intro) %>
 <% content_for :description, heading.last %>
-
+<% cache_page do %>
 <div data-controller="filter" data-filter-empty-text-value="No hay proyectos en esta categoría.">
   <%= render "site/shared/page_head", title: heading.first, intro: heading.last do %>
     <% if @categories.size > 1 %>
@@ -41,3 +41,4 @@
 </div>
 
 <%= render "site/shared/contact" %>
+<% end %>

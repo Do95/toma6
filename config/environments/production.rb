@@ -1,3 +1,4 @@
+require_relative "../cache_store"
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
@@ -18,7 +19,7 @@ Rails.application.configure do
   config.silence_healthcheck_path = "/up"
   config.active_support.report_deprecations = false
 
-  config.cache_store = :memory_store
+  config.cache_store = CacheStoreConfig.store # Redis si está configurado (config/cache_store.rb)
 
   host = ENV.fetch("APP_HOST", "www.toma6.com")
   protocol = ENV.fetch("APP_PROTOCOL", "https")

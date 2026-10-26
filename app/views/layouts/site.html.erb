@@ -39,11 +39,14 @@
       <a class="brand" href="<%= root_path %>" aria-label="<%= settings.site_name %>, inicio">
         <%= image_tag(settings.logo.present? ? settings.logo.url(:small) : "site/imagen-02.png", class: "brand-logo", alt: settings.site_name, width: 67, height: 32) %>
       </a>
-      <ul id="menu" data-nav-target="menu">
-        <% nav_sections.each do |section| %>
-          <li><%= nav_link section.nav_text, section_href(section) %></li>
-        <% end %>
-      </ul>
+      <%# Menú en caché por ruta (marca la página actual) %>
+      <% cache SiteCache.key("nav", request.path), skip_digest: true do %>
+        <ul id="menu" data-nav-target="menu">
+          <% nav_sections.each do |section| %>
+            <li><%= nav_link section.nav_text, section_href(section) %></li>
+          <% end %>
+        </ul>
+      <% end %>
       <div class="nav-actions">
         <%= link_to "Cotizar", services_path(anchor: "cotizador"), class: "btn primary" %>
         <button class="nav-toggle" type="button" aria-controls="menu" aria-expanded="false" data-action="nav#toggle" data-nav-target="toggle">
@@ -61,6 +64,7 @@
     <%= yield %>
   </main>
 
+  <% cache SiteCache.key("footer", Date.current.year), skip_digest: true do %>
   <footer>
     <div class="foot">
       <span>
@@ -75,6 +79,7 @@
       </nav>
     </div>
   </footer>
+  <% end %>
 
   <%# Ilustración que reemplaza a cualquier imagen que no cargue %>
   <template id="illus-fallback"><%= illustration("fotos") %></template>

@@ -1,5 +1,6 @@
 # Columna de una sección personalizada.
 class SectionBlock < ApplicationRecord
+  include BustsSiteCache
   include Auditable
   include SoftDeletable
   include Positionable

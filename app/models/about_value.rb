@@ -1,4 +1,5 @@
 class AboutValue < ApplicationRecord
+  include BustsSiteCache
   include Auditable
   include FriendlySlug
   friendly_slug :title

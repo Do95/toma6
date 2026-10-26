@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_27_000003) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_27_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -792,6 +792,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_27_000003) do
     t.integer "quote_number_start", default: 1, null: false
     t.string "request_prefix", default: "SOL", null: false
     t.boolean "estimator_shows_prices", default: true, null: false
+    t.integer "content_version", default: 0, null: false
   end
 
   create_table "social_posts", force: :cascade do |t|

@@ -1,5 +1,5 @@
 <% content_for :head, organization_json_ld %>
-
+<% cache_page do %>
 <% if @sections.empty? %>
   <section class="site-empty">
     <div>
@@ -15,4 +15,5 @@
     <%= render "site/sections/#{section.kind}", section: section %>
   <% end %>
 </div>
+<% end %>
 <% end %>

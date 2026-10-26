@@ -286,6 +286,10 @@ GEM
       prism (>= 1.6.0)
       rbs (>= 4.0.0)
       tsort
+    redis (5.4.1)
+      redis-client (>= 0.22.0)
+    redis-client (0.31.0)
+      connection_pool
     reline (0.7.0)
       io-console (~> 0.5)
     responders (3.2.1)
@@ -348,6 +352,7 @@ DEPENDENCIES
   puma (>= 6.4)
   rails (~> 8.0.2)
   rails-i18n (~> 8.0)
+  redis (~> 5.4)
   rqrcode_core (~> 2.0)
   stimulus-rails
   turbo-rails

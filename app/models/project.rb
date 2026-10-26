@@ -1,4 +1,5 @@
 class Project < ApplicationRecord
+  include BustsSiteCache
   include Auditable
   include SoftDeletable
   include Positionable

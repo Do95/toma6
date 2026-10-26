@@ -12,6 +12,13 @@ class BaseUploader < CarrierWave::Uploader::Base
     "#{secure_token}-#{base.first(60)}.#{file.extension.to_s.downcase}"
   end
 
+  # ¿Hay archivo? Se responde con el nombre guardado en la base, sin preguntarle
+  # a S3 (cada consulta tardaba ~400 ms y una galería hacía decenas por página).
+  # Un archivo recién elegido (todavía en caché local) se revisa como siempre.
+  def blank?
+    cached? ? super : identifier.blank?
+  end
+
   private
 
   def secure_token

@@ -1,4 +1,11 @@
 module SiteHelper
+  # Contenido de la página guardado en caché (ver Site::BaseController#page_cached?).
+  # skip_digest: la clave la arma el controlador; el caché se vacía en cada deploy.
+  # Se usa como <% cache_page do %> … <% end %>
+  def cache_page(&block)
+    page_cache_key ? cache(page_cache_key, skip_digest: true, &block) : yield
+  end
+
   def nav_link(label, path)
     link_to label, path, class: (current_page?(path) ? "is-current" : nil)
   end

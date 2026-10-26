@@ -1,6 +1,7 @@
 # Bloques que arman el inicio y la página de cada proyecto. Se ordenan, se
 # ocultan, se duplican y se agregan nuevos desde el panel.
 class Section < ApplicationRecord
+  include BustsSiteCache
   include Auditable
   include FriendlySlug
   friendly_slug :slug_title

@@ -1,7 +1,7 @@
 <% content_for :title, page_title("Galería") %>
 <% heading = page_heading("gallery_teaser", "Galería", settings.gallery_intro) %>
 <% content_for :description, heading.last %>
-
+<% cache_page do %>
 <div class="gallery-page" data-controller="filter" data-filter-empty-text-value="No hay nada con esos filtros.">
   <% empty = @media.empty? && @albums.empty? %>
   <%= render "site/shared/page_head", title: heading.first, intro: heading.last do %>
@@ -51,3 +51,4 @@
   </div>
   <p class="g-empty" data-filter-target="empty" hidden></p>
 </div>
+<% end %>

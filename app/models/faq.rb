@@ -1,4 +1,5 @@
 class Faq < ApplicationRecord
+  include BustsSiteCache
   include Auditable
   include FriendlySlug
   friendly_slug :question

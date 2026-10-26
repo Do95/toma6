@@ -63,3 +63,18 @@
 
   <div class="sticky-actions"><span class="spacer"></span><button type="submit" class="btn btn-primary"><%= icon(:check, size: 16) %> Guardar ajustes</button></div>
 <% end %>
+
+<div class="card" id="cache" style="margin-top:18px">
+  <div class="card-head"><div><h2>Caché del sitio</h2><p>Las páginas públicas se guardan ya armadas para que carguen rápido. Se renuevan solas cada vez que guardás un cambio en el panel y en cada actualización del sistema.</p></div></div>
+  <div class="card-body form-grid">
+    <div class="field"><span class="label">Dónde se guarda</span><p style="margin:8px 0 0"><strong><%= Rails.application.config.action_controller.perform_caching ? CacheStoreConfig.label : "Desactivado" %></strong></p>
+      <%= field_hint("Usa Redis si está configurado (REDIS_URL); si no, la memoria del servidor.") %></div>
+    <div class="field"><span class="label">Versión del contenido</span><p style="margin:8px 0 0"><strong><%= SiteCache.version %></strong></p>
+      <%= field_hint("Sube sola con cada cambio.") %></div>
+    <div class="span-2">
+      <%= button_to safe_join([icon(:refresh, size: 16), "Vaciar caché ahora"]), clear_cache_admin_settings_path, class: "btn",
+                    form: { data: { turbo_confirm: "Las páginas se vuelven a armar en la próxima visita. ¿Continuar?" } } %>
+      <%= field_hint("Usalo solo si algo no se actualiza en el sitio (por ejemplo, después de cambiar algo directo en la base).") %>
+    </div>
+  </div>
+</div>
