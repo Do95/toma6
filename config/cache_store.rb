@@ -7,7 +7,7 @@ module CacheStoreConfig
   def self.store
     return :null_store if ENV["CACHE_STORE"] == "none"
 
-    url = ENV["CACHE_REDIS_URL"].presence || ENV["REDIS_URL"].presence
+    url = ENV["CACHE_REDIS_URL"].presence || ENV["REDIS_URL"].presence || ENV['REDISCLOUD_URL'].presence
     return [:memory_store, { size: 64 * 1024 * 1024 }] unless url
 
     [:redis_cache_store, {
