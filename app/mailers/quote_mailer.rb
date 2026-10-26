@@ -17,7 +17,7 @@ class QuoteMailer < ApplicationMailer
   def accepted_team
     @quote = params[:quote]
     compose("quote_accepted_team", to: team_inbox, vars: quote_vars,
-                                   button_url: site_url("/admin/cotizaciones/#{@quote.id}"))
+                                   button_url: site_url("/admin/cotizaciones/#{@quote.to_param}"))
   end
 
   private

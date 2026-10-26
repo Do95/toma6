@@ -1,4 +1,6 @@
 class ActivityLog < ApplicationRecord
+  include RandomSlug
+
   ACTIONS = {
     "create" => "Creó",
     "update" => "Modificó",

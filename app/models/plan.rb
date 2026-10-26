@@ -2,6 +2,8 @@
 # Los servicios que cubre no suman su precio base; sus extras sí.
 class Plan < ApplicationRecord
   include Auditable
+  include FriendlySlug
+  friendly_slug :title
   include SoftDeletable
   include Positionable
   include Publishable

@@ -21,7 +21,7 @@ class QuoteRequestMailer < ApplicationMailer
     @quote_request = params[:quote_request]
     compose("quote_request_team", to: team_inbox, vars: request_vars,
                                   details: { kind: :request, record: @quote_request },
-                                  button_url: site_url("/admin/solicitudes/#{@quote_request.id}"), reply_to: @quote_request.email)
+                                  button_url: site_url("/admin/solicitudes/#{@quote_request.to_param}"), reply_to: @quote_request.email)
   end
 
   private

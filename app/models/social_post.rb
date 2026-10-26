@@ -1,5 +1,6 @@
 class SocialPost < ApplicationRecord
   include Auditable
+  include RandomSlug
   include SoftDeletable
 
   STATUSES = {

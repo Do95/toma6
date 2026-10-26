@@ -1,7 +1,8 @@
 class ApplicationMailer < ActionMailer::Base
-  default from: proc { ENV.fetch("MAIL_FROM") { "#{SiteSetting.current.site_name} <#{SiteSetting.current.contact_email.presence || 'hola@toma6.com'}>" } }
+  # Todos los correos salen de hola@toma6.com (MAIL_FROM lo puede cambiar por entorno)
+  default from: proc { ENV.fetch("MAIL_FROM") { "#{SiteSetting.current.site_name} <hola@toma6.com>" } }
   layout "mailer"
-  helper :application
+  helper :application, :mailer
   helper_method :settings
 
   private
@@ -10,15 +11,19 @@ class ApplicationMailer < ActionMailer::Base
 
   # Arma un correo a partir de su plantilla editable. Si la plantilla está
   # desactivada o no hay destinatario, no se envía (queda "No enviado").
+  # Los correos de la cuenta (invitación, contraseña) se envían siempre.
   def compose(key, to:, vars:, details: nil, button_url: nil, reply_to: nil)
     template = EmailTemplate.for(key)
     recipients = template.team? ? template.recipient_list(to) : Array(to).compact_blank
     test = params.is_a?(Hash) && params[:to_override].present?
     recipients = [params[:to_override]] if test
-    return if (!template.enabled? && !test) || recipients.empty?
+    return if (!template.enabled? && !template.account? && !test) || recipients.empty?
 
     content = template.render(common_vars.merge(vars))
     content[:subject] = "[Prueba] #{content[:subject]}" if test
+    @hero_url = hero_url(template)
+    @audience = template.audience
+    @preheader = ActionController::Base.helpers.strip_tags(content[:body_html]).squish.truncate(120)
     @heading = content[:heading]
     @body_html = content[:body_html]
     @button_label = content[:button_label]
@@ -40,4 +45,11 @@ class ApplicationMailer < ActionMailer::Base
     "#{settings.currency_symbol}#{ActiveSupport::NumberHelper.number_to_rounded(amount, precision: precision, delimiter: ',', separator: '.')}"
   end
   def site_url(path) = "#{settings.public_base_url}#{path}"
+
+  # Portada de la plantilla: subida, de la galería o la predeterminada. Sin ninguna, nil.
+  def hero_url(template)
+    url = template.photo_url(:hero_image, :large) ||
+          (ActionController::Base.helpers.image_path(template.hero_asset) if template.hero_asset.present?)
+    url && (url.start_with?("http") ? url : site_url(url))
+  end
 end

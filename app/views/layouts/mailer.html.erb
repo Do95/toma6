@@ -1,29 +1,82 @@
+<%# Diseño de todos los correos. Tablas y estilos en línea: es lo que respetan Gmail y Outlook. %>
+<% font = MailerHelper::FONT %>
+<% logo = settings.pdf_logo.present? ? absolute_url(settings.pdf_logo.url(:small)) : mail_image_url("mail/logo.png") %>
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="x-apple-disable-message-reformatting">
+  <meta name="color-scheme" content="light only">
+  <meta name="supported-color-schemes" content="light only">
+  <title><%= message.subject %></title>
   <style>
-    body{margin:0;background:#efeeec;font-family:Helvetica,Arial,sans-serif;color:#171717}
-    .wrap{max-width:560px;margin:0 auto;padding:24px 12px}
-    .head{background:#171717;border-bottom:5px solid #b63830;padding:22px 28px;border-radius:8px 8px 0 0}
-    .head img{height:40px;width:auto}
-    .body{background:#fff;padding:28px;border-radius:0 0 8px 8px;font-size:15px;line-height:1.55}
-    h1{font-size:22px;margin:0 0 14px;text-transform:uppercase;letter-spacing:.01em}
-    table.lines{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
-    table.lines td{padding:8px 0;border-bottom:1px solid #ebe9e5}
-    table.lines td.r{text-align:right;white-space:nowrap}
-    .total{background:#b63830;color:#fff;padding:12px 16px;border-radius:6px;font-weight:bold;font-size:18px;text-align:right}
-    .cta a{display:inline-block;background:#b63830;color:#fff !important;text-decoration:none;font-weight:bold;padding:12px 22px;border-radius:6px;box-shadow:0 3px 0 #6e1e18}
-    .muted{color:#6b6b6b;font-size:13px}
-    .foot{text-align:center;color:#8a8784;font-size:12px;padding:18px}
+    body{margin:0;padding:0;width:100%!important;-webkit-text-size-adjust:100%}
+    img{border:0;outline:none;text-decoration:none;display:block}
+    a{color:#b63830}
+    @media (max-width:620px){
+      .shell{width:100%!important}
+      .px{padding-left:22px!important;padding-right:22px!important}
+      .h1{font-size:24px!important}
+      .hero img{height:auto!important}
+      .tag{display:none!important}
+    }
   </style>
 </head>
-<body>
-  <div class="wrap">
-    <div class="head"><img src="<%= absolute_url(settings.pdf_logo.present? ? settings.pdf_logo.url(:small) : image_path("site/imagen-02.png")) %>" alt="<%= settings.site_name %>"></div>
-    <div class="body"><%= yield %></div>
-    <div class="foot"><%= settings.site_name %> · <%= settings.contact_email %><% if settings.whatsapp_number.present? %> · WhatsApp <%= settings.whatsapp_number %><% end %></div>
-  </div>
+<body style="margin:0;padding:0;background:#efeeec">
+  <%# Texto que se ve junto al asunto en la bandeja de entrada %>
+  <% if @preheader.present? %>
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;font-size:1px;line-height:1px"><%= @preheader %>&#8199;&#847;&#8199;&#847;&#8199;&#847;&#8199;&#847;&#8199;&#847;&#8199;&#847;</div>
+  <% end %>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#efeeec" style="background:#efeeec">
+    <tr><td align="center" style="padding:28px 12px">
+      <table role="presentation" class="shell" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px">
+
+        <%# Cabecera: logo sobre negro con la franja roja de claqueta %>
+        <tr><td bgcolor="#171717" style="background:#171717;border-radius:10px 10px 0 0;padding:22px 32px" class="px">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+            <td><a href="<%= settings.public_base_url %>" target="_blank"><img src="<%= logo %>" width="120" alt="<%= settings.site_name %>" style="width:120px;height:auto;color:#ffffff;font-family:<%= font %>;font-size:22px;font-weight:bold"></a></td>
+            <td align="right" class="tag" style="font-family:<%= font %>;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#8a8784">
+              <%= { "team" => "Aviso del panel", "account" => "Tu cuenta" }.fetch(@audience.to_s, "Producción audiovisual") %>
+            </td>
+          </tr></table>
+        </td></tr>
+        <tr><td height="5" bgcolor="#b63830" style="background:#b63830;font-size:0;line-height:0">&nbsp;</td></tr>
+
+        <% if @hero_url %>
+          <tr><td class="hero" bgcolor="#171717" style="background:#171717;font-size:0;line-height:0">
+            <img src="<%= @hero_url %>" width="600" height="300" alt="" style="width:100%;max-width:600px;height:auto">
+          </td></tr>
+        <% end %>
+
+        <%# Contenido %>
+        <tr><td bgcolor="#ffffff" class="px" style="background:#ffffff;padding:40px 44px 36px;border-radius:0 0 10px 10px">
+          <%= yield %>
+        </td></tr>
+
+        <%# Pie: contacto y redes %>
+        <tr><td align="center" class="px" style="padding:28px 32px 8px;font-family:<%= font %>;font-size:13px;line-height:1.7;color:#8a8784">
+          <p style="margin:0 0 6px;font-size:14px;font-weight:bold;color:#171717;letter-spacing:.04em;text-transform:uppercase"><%= settings.site_name %></p>
+          <p style="margin:0 0 6px">
+            <a href="mailto:<%= settings.contact_email %>" style="color:#55524e;text-decoration:none"><%= settings.contact_email %></a>
+            <% if settings.whatsapp_url %> &nbsp;·&nbsp; <a href="<%= settings.whatsapp_url %>" style="color:#55524e;text-decoration:none">WhatsApp <%= settings.whatsapp_number %></a><% end %>
+            <% if settings.phone.present? && settings.whatsapp_number.blank? %> &nbsp;·&nbsp; <%= settings.phone %><% end %>
+          </p>
+          <% if (links = mail_social_links).any? %>
+            <p style="margin:0 0 6px">
+              <%= safe_join(links.map { |label, url| link_to(label, url, target: "_blank", style: "color:#b63830;font-weight:bold;text-decoration:none") }, "  ·  ") %>
+            </p>
+          <% end %>
+          <% if (place = [settings.city, settings.country].compact_blank.join(", ")).present? %><p style="margin:0 0 6px"><%= place %></p><% end %>
+          <p style="margin:14px 0 0;font-size:12px;color:#a8a5a1">
+            <%= { "team" => "Aviso automático del panel de #{settings.site_name}.",
+                  "account" => "Recibiste este correo porque tenés una cuenta (o una invitación) en el panel de #{settings.site_name}." }
+                  .fetch(@audience.to_s, "Recibiste este correo por tu contacto con #{settings.site_name}. Si tenés dudas, respondé este correo.") %>
+            <br>© <%= Date.current.year %> <%= settings.legal_name.presence || settings.site_name %>
+          </p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
 </body>
 </html>

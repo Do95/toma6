@@ -4,7 +4,7 @@ module Admin
     self.sortable = true
 
     def new
-      @record = Album.new(project_id: params[:project_id])
+      @record = Album.new(project: (Project.kept.friendly.find(params[:project_id]) if params[:project_id].present?))
     end
 
     def edit
@@ -24,8 +24,11 @@ module Admin
 
     def collection
       scope = super.includes(:project, placements: :media_item)
-      scope = scope.where(project_id: params[:project_id]) if params[:project_id].present?
-      scope = scope.where(project_id: nil) if params[:project_id] == "none"
+      if params[:project_id] == "none"
+        scope = scope.where(project_id: nil)
+      elsif params[:project_id].present?
+        scope = scope.joins(:project).where(projects: { slug: params[:project_id] })
+      end
       scope
     end
 

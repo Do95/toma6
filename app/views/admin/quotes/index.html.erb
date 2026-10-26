@@ -12,6 +12,11 @@
 <%= form_with url: admin_quotes_path, method: :get, class: "toolbar", data: { controller: "autosubmit", turbo_action: "replace" } do %>
   <label class="search field"><%= icon(:search, size: 16) %><input type="search" name="q" value="<%= params[:q] %>" placeholder="Número, cliente o empresa" class="input" data-action="input->autosubmit#submit"></label>
   <input type="hidden" name="status" value="<%= params[:status] %>">
+  <select name="por" class="input" style="width:auto" data-action="autosubmit#submit" aria-label="Creada por">
+    <option value="">Creadas por cualquiera</option>
+    <option value="<%= current_user.code %>" <%= "selected" if params[:por] == current_user.code %>>Mis cotizaciones (<%= current_user.code %>)</option>
+    <% @creators.reject { |u| u == current_user }.each do |u| %><option value="<%= u.code %>" <%= "selected" if params[:por] == u.code %>><%= u.code %> · <%= u.name %></option><% end %>
+  </select>
   <div class="chips">
     <%= filter_chip "Todas", { status: nil }, params[:status].blank? %>
     <% Quote::STATUSES.each do |key, label| %><%= filter_chip label, { status: key }, params[:status] == key %><% end %>
@@ -21,11 +26,12 @@
 <div class="card table-wrap">
   <% if @records.any? %>
     <table class="table">
-      <thead><tr><th>Número</th><th>Cliente</th><th>Emitida</th><th>Estado</th><th class="num">Total</th><th></th></tr></thead>
+      <thead><tr><th>Número</th><th>Creada por</th><th>Cliente</th><th>Emitida</th><th>Estado</th><th class="num">Total</th><th></th></tr></thead>
       <tbody>
         <% @records.each do |quote| %>
           <tr>
-            <td><%= link_to quote.number, admin_quote_path(quote), class: "row-title" %><span class="row-sub"><%= quote.creator&.name %></span></td>
+            <td><%= link_to quote.number, admin_quote_path(quote), class: "row-title" %></td>
+            <td><% if quote.creator %><span class="code-chip" title="<%= quote.creator.name %>"><%= quote.creator.code %></span><span class="row-sub"><%= quote.creator.name %></span><% else %><span class="muted">Sistema</span><% end %></td>
             <td><strong><%= quote.client_name %></strong><span class="row-sub"><%= quote.title.presence || quote.client_company %></span></td>
             <td><%= l(quote.issued_on, format: :short) %><% if quote.expired? %><span class="row-sub" style="color:var(--warn)">Vencida</span><% end %></td>
             <td><%= status_badge(quote.expired? ? "expired" : quote.status, quote.expired? ? "Vencida" : quote.status_label) %></td>

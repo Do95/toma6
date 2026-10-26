@@ -1,0 +1,30 @@
+<% if @heading %><%= @heading.upcase %>
+
+<% end %><%= mail_text(@body_html) %>
+<% if @details && @details[:kind] == :request %>
+<% r = @details[:record] %><% prices = @details.fetch(:prices, true) %><% plan_line = r.plan_line %>
+
+RESUMEN <%= r.number %>
+<% r.selection_lines.each do |line| %>
+- <%= line["label"] %><%= " × #{line['quantity']}" if line["quantity"].to_i > 1 %><% if prices || line.equal?(plan_line) %>: <%= line["total"].to_d.positive? ? money(line["total"]) : "Incluido" %><% end %>
+<% end %>
+<% if prices %>
+Total estimado: <%= money(r.estimated_total) %>
+<% elsif plan_line %>
+<%= r.priced_extras? ? "Desde" : "Total" %>: <%= money(plan_line["total"]) %>
+<% end %>
+<% elsif @details && @details[:kind] == :quote %>
+<% q = @details[:record] %>
+
+COTIZACIÓN <%= q.number %>
+<% q.items.each do |item| %>
+- <%= item.description %>: <%= q.money(item.total) %>
+<% end %>
+<% if q.discount_amount.to_d.positive? %>Descuento: −<%= q.money(q.discount_amount) %>
+<% end %><% if q.tax_amount.to_d.positive? %><%= q.tax_name %>: <%= q.money(q.tax_amount) %>
+<% end %>Total: <%= q.money(q.total) %>
+<% end %>
+<% if @button_label && @button_url %>
+
+<%= @button_label %>: <%= @button_url %>
+<% end %>

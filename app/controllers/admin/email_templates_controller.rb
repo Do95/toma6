@@ -13,7 +13,8 @@ module Admin
     def edit; end
 
     def update
-      if @template.update(params.require(:email_template).permit(:subject, :heading, :body, :button_label, :recipients, :enabled))
+      if @template.update(params.require(:email_template).permit(:subject, :heading, :body, :button_label, :recipients, :enabled,
+                                                                   :hero_image, :remove_hero_image, :hero_image_media_item_id))
         redirect_to edit_admin_email_template_path(@template), notice: "Plantilla guardada."
       else
         render :edit, status: :unprocessable_entity
@@ -27,7 +28,7 @@ module Admin
 
     # Vista previa con datos de ejemplo
     def preview
-      message = SampleMail.build(@template.key)
+      message = SampleMail.build(@template.key, user: (SampleMail.sample_user if @template.key == "user_invitation") || current_user)
       html = message.html_part&.body&.decoded || message.body.decoded
       render html: html.to_s.html_safe, layout: false
     rescue StandardError => e

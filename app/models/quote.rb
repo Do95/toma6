@@ -1,5 +1,7 @@
 class Quote < ApplicationRecord
   include Auditable
+  extend FriendlyId
+  friendly_id :number, use: :finders # /admin/cotizaciones/COT-2026-0001
   include SoftDeletable
 
   STATUSES = {

@@ -1,5 +1,5 @@
 module Admin
-  # Historial de correos enviados, con su estado y error. Permite reintentar.
+  # Historial de correos enviados, con su estado y error. Permite reintentar y eliminar.
   class EmailLogsController < BaseController
     self.permission_resource = :sales
 
@@ -35,8 +35,33 @@ module Admin
       redirect_to admin_email_logs_path, notice: "Reintentando #{logs.size} correos."
     end
 
+    def destroy
+      log = EmailLog.find(params[:id])
+      return redirect_to(admin_email_log_path(log), alert: "Este correo se está enviando ahora: esperá a que termine.") unless log.deletable?
+      log.destroy!
+      ActivityLog.record!(nil, "purge", { "correo del historial" => [log.display_name, nil] })
+      redirect_to admin_email_logs_path(list_filters), notice: "Se eliminó el correo del historial.", status: :see_other
+    end
+
+    # Elimina los seleccionados o, con failed=1, todos los que fallaron
+    def bulk_destroy
+      scope = params[:failed] == "1" ? EmailLog.failed : EmailLog.where(id: Array(params[:ids]).map(&:to_i))
+      count = scope.where.not(status: "sending").delete_all
+      ActivityLog.record!(nil, "purge", { "correos del historial" => [nil, "#{count} eliminados"] }) if count.positive?
+      redirect_to admin_email_logs_path(list_filters), notice: "Se #{count == 1 ? 'eliminó 1 correo' : "eliminaron #{count} correos"} del historial.", status: :see_other
+    end
+
     private
 
-    def required_action = action_name.in?(%w[index show body]) ? :read : :write
+    # Al volver a la lista se conservan el filtro y la búsqueda
+    def list_filters = params.permit(:status, :q).to_h.compact_blank
+
+    def required_action
+      case action_name
+      when "index", "show", "body" then :read
+      when "destroy", "bulk_destroy" then :delete
+      else :write
+      end
+    end
   end
 end

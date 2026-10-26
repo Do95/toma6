@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_24_000001) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_27_000003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -25,9 +25,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_24_000001) do
     t.bigint "deleted_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "slug", null: false
     t.index ["created_by_id"], name: "index_about_values_on_created_by_id"
     t.index ["deleted_at"], name: "index_about_values_on_deleted_at"
     t.index ["deleted_by_id"], name: "index_about_values_on_deleted_by_id"
+    t.index ["slug"], name: "index_about_values_on_slug", unique: true
     t.index ["updated_by_id"], name: "index_about_values_on_updated_by_id"
   end
 
@@ -41,8 +43,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_24_000001) do
     t.jsonb "changeset", default: {}, null: false
     t.string "ip_address"
     t.datetime "created_at", null: false
+    t.string "slug", null: false
     t.index ["action"], name: "index_activity_logs_on_action"
     t.index ["created_at"], name: "index_activity_logs_on_created_at"
+    t.index ["slug"], name: "index_activity_logs_on_slug", unique: true
     t.index ["subject_type", "subject_id"], name: "index_activity_logs_on_subject_type_and_subject_id"
     t.index ["user_id"], name: "index_activity_logs_on_user_id"
   end
@@ -107,8 +111,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_24_000001) do
     t.datetime "last_attempt_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "slug", null: false
     t.index ["created_at"], name: "index_email_logs_on_created_at"
     t.index ["record_type", "record_id"], name: "index_email_logs_on_record"
+    t.index ["slug"], name: "index_email_logs_on_slug", unique: true
     t.index ["status"], name: "index_email_logs_on_status"
     t.index ["triggered_by_id"], name: "index_email_logs_on_triggered_by_id"
   end
@@ -127,7 +133,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_24_000001) do
     t.bigint "updated_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "hero_image"
+    t.string "hero_asset"
+    t.bigint "hero_image_media_item_id"
     t.index ["created_by_id"], name: "index_email_templates_on_created_by_id"
+    t.index ["hero_image_media_item_id"], name: "index_email_templates_on_hero_image_media_item_id"
     t.index ["key"], name: "index_email_templates_on_key", unique: true
     t.index ["updated_by_id"], name: "index_email_templates_on_updated_by_id"
   end
@@ -143,9 +153,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_24_000001) do
     t.bigint "deleted_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "slug", null: false
     t.index ["created_by_id"], name: "index_faqs_on_created_by_id"
     t.index ["deleted_at"], name: "index_faqs_on_deleted_at"
     t.index ["deleted_by_id"], name: "index_faqs_on_deleted_by_id"
+    t.index ["slug"], name: "index_faqs_on_slug", unique: true
     t.index ["updated_by_id"], name: "index_faqs_on_updated_by_id"
   end
 
@@ -326,12 +338,14 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_24_000001) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "checksum"
+    t.string "slug", null: false
     t.index ["category_id"], name: "index_media_items_on_category_id"
     t.index ["checksum"], name: "index_media_items_on_checksum"
     t.index ["created_by_id"], name: "index_media_items_on_created_by_id"
     t.index ["deleted_at"], name: "index_media_items_on_deleted_at"
     t.index ["deleted_by_id"], name: "index_media_items_on_deleted_by_id"
     t.index ["show_in_gallery", "published"], name: "index_media_items_on_show_in_gallery_and_published"
+    t.index ["slug"], name: "index_media_items_on_slug", unique: true
     t.index ["updated_by_id"], name: "index_media_items_on_updated_by_id"
   end
 
@@ -344,12 +358,14 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_24_000001) do
     t.bigint "updated_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "slug", null: false
     t.index ["album_id"], name: "index_media_placements_on_album_id"
     t.index ["created_by_id"], name: "index_media_placements_on_created_by_id"
     t.index ["media_item_id", "album_id"], name: "index_placements_unique_album", unique: true, where: "(album_id IS NOT NULL)"
     t.index ["media_item_id", "project_id"], name: "index_placements_unique_project", unique: true, where: "(album_id IS NULL)"
     t.index ["media_item_id"], name: "index_media_placements_on_media_item_id"
     t.index ["project_id"], name: "index_media_placements_on_project_id"
+    t.index ["slug"], name: "index_media_placements_on_slug", unique: true
     t.index ["updated_by_id"], name: "index_media_placements_on_updated_by_id"
     t.check_constraint "(album_id IS NOT NULL) <> (project_id IS NOT NULL)", name: "placement_one_gallery"
   end
@@ -370,9 +386,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_24_000001) do
     t.bigint "deleted_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "slug", null: false
     t.index ["created_by_id"], name: "index_plans_on_created_by_id"
     t.index ["deleted_at"], name: "index_plans_on_deleted_at"
     t.index ["deleted_by_id"], name: "index_plans_on_deleted_by_id"
+    t.index ["slug"], name: "index_plans_on_slug", unique: true
     t.index ["updated_by_id"], name: "index_plans_on_updated_by_id"
   end
 
@@ -393,9 +411,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_24_000001) do
     t.bigint "deleted_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "slug", null: false
     t.index ["created_by_id"], name: "index_process_steps_on_created_by_id"
     t.index ["deleted_at"], name: "index_process_steps_on_deleted_at"
     t.index ["deleted_by_id"], name: "index_process_steps_on_deleted_by_id"
+    t.index ["slug"], name: "index_process_steps_on_slug", unique: true
     t.index ["updated_by_id"], name: "index_process_steps_on_updated_by_id"
   end
 
@@ -588,12 +608,14 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_24_000001) do
     t.string "block_style", default: "card", null: false
     t.text "embed_code"
     t.integer "embed_height", default: 450, null: false
+    t.string "slug", null: false
     t.index ["album_id"], name: "index_sections_on_album_id"
     t.index ["created_by_id"], name: "index_sections_on_created_by_id"
     t.index ["deleted_at"], name: "index_sections_on_deleted_at"
     t.index ["deleted_by_id"], name: "index_sections_on_deleted_by_id"
     t.index ["page", "project_id", "position"], name: "index_sections_on_page_and_project_id_and_position"
     t.index ["project_id"], name: "index_sections_on_project_id"
+    t.index ["slug"], name: "index_sections_on_slug", unique: true
     t.index ["updated_by_id"], name: "index_sections_on_updated_by_id"
   end
 
@@ -793,10 +815,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_24_000001) do
     t.bigint "deleted_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "slug", null: false
     t.index ["created_by_id"], name: "index_social_posts_on_created_by_id"
     t.index ["deleted_at"], name: "index_social_posts_on_deleted_at"
     t.index ["deleted_by_id"], name: "index_social_posts_on_deleted_by_id"
     t.index ["media_item_id"], name: "index_social_posts_on_media_item_id"
+    t.index ["slug"], name: "index_social_posts_on_slug", unique: true
     t.index ["status", "scheduled_at"], name: "index_social_posts_on_status_and_scheduled_at"
     t.index ["updated_by_id"], name: "index_social_posts_on_updated_by_id"
   end
@@ -822,8 +846,14 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_24_000001) do
     t.bigint "deleted_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "invited_at"
+    t.datetime "invitation_accepted_at"
+    t.bigint "invited_by_id"
+    t.string "code", null: false
+    t.index ["code"], name: "index_users_on_code", unique: true
     t.index ["deleted_at"], name: "index_users_on_deleted_at"
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["invited_by_id"], name: "index_users_on_invited_by_id"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["role"], name: "index_users_on_role"
   end
@@ -841,6 +871,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_24_000001) do
   add_foreign_key "categories", "users", column: "deleted_by_id", on_delete: :nullify
   add_foreign_key "categories", "users", column: "updated_by_id", on_delete: :nullify
   add_foreign_key "email_logs", "users", column: "triggered_by_id", on_delete: :nullify
+  add_foreign_key "email_templates", "media_items", column: "hero_image_media_item_id", on_delete: :nullify
   add_foreign_key "email_templates", "users", column: "created_by_id", on_delete: :nullify
   add_foreign_key "email_templates", "users", column: "updated_by_id", on_delete: :nullify
   add_foreign_key "faqs", "users", column: "created_by_id", on_delete: :nullify
@@ -905,5 +936,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_24_000001) do
   add_foreign_key "social_posts", "users", column: "updated_by_id", on_delete: :nullify
   add_foreign_key "users", "users", column: "created_by_id", on_delete: :nullify
   add_foreign_key "users", "users", column: "deleted_by_id", on_delete: :nullify
+  add_foreign_key "users", "users", column: "invited_by_id", on_delete: :nullify
   add_foreign_key "users", "users", column: "updated_by_id", on_delete: :nullify
 end

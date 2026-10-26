@@ -11,7 +11,7 @@
     <div class="card" style="margin-top:18px">
       <div class="card-head"><div><h2>Fotos y videos</h2><p><%= pluralize(@placements.size, "elemento", plural: "elementos") %> · arrastrá para ordenar · ★ elige la portada · ✕ quita del álbum (no borra la foto)</p></div>
         <div class="actions" style="display:flex;gap:8px">
-          <%= link_to safe_join([icon(:plus, size: 16), "Video"]), new_admin_media_item_path(kind: "video", album_id: @record.id, return_to: request.path), class: "btn btn-sm" %>
+          <%= link_to safe_join([icon(:plus, size: 16), "Video"]), new_admin_media_item_path(kind: "video", album_id: @record.to_param, return_to: request.path), class: "btn btn-sm" %>
         </div></div>
       <div class="card-body"><%= render "admin/media_items/placement_grid", placements: @placements, album: @record %></div>
     </div>

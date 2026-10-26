@@ -6,6 +6,10 @@
         <div class="card-body form-grid">
           <div class="field"><%= f.label :name %><%= f.text_field :name, required: true %></div>
           <div class="field"><%= f.label :email %><%= f.email_field :email, required: true %></div>
+          <% if record.persisted? %>
+            <div class="field"><%= f.label :code, "Código" %><%= f.text_field :code, maxlength: 8, style: "text-transform:uppercase" %>
+              <%= field_hint("Identifica sus cotizaciones. Se generó solo; podés cambiarlo.") %></div>
+          <% end %>
           <div class="field span-2">
             <span class="label">Rol</span>
             <div class="role-picks">
@@ -14,18 +18,46 @@
               <% end %>
             </div>
           </div>
-          <div class="field"><%= f.label :password, record.persisted? ? "Nueva contraseña (opcional)" : "Contraseña" %><%= f.password_field :password, autocomplete: "new-password" %>
-            <% unless record.persisted? %><%= field_hint("Si la dejás vacía se genera una temporal.") %><% end %></div>
-          <div class="field"><%= f.label :password_confirmation %><%= f.password_field :password_confirmation, autocomplete: "new-password" %></div>
-          <% unless record.persisted? %>
-            <div class="span-2"><label class="check-inline"><%= check_box_tag :send_invite, "1", true %> Enviarle un correo para que cree su propia contraseña</label></div>
+          <% if record.persisted? %>
+            <div class="field"><%= f.label :password, "Nueva contraseña (opcional)" %><%= f.password_field :password, autocomplete: "new-password" %>
+              <%= field_hint("Le avisamos por correo que su contraseña cambió.") %></div>
+            <div class="field"><%= f.label :password_confirmation %><%= f.password_field :password_confirmation, autocomplete: "new-password" %></div>
+          <% else %>
+            <div class="span-2" data-controller="toggle">
+              <label class="check-inline"><%= check_box_tag :send_invite, "1", action_name == "new" || params[:send_invite] == "1", data: { toggle_target: "source", action: "toggle#update" } %>
+                Invitarla por correo para que cree su propia contraseña</label>
+              <%= field_hint("Le llega un correo de bienvenida con un enlace que sirve #{User::INVITATION_VALID_FOR.in_days.to_i} días. Podés editar el texto en Correos › Plantillas.") %>
+              <div class="form-grid" style="margin-top:12px" data-toggle-target="item" data-show-when="false">
+                <div class="field"><%= f.label :password, "Contraseña" %><%= f.password_field :password, autocomplete: "new-password" %>
+                  <%= field_hint("Si la dejás vacía se genera una temporal y te la mostramos.") %></div>
+                <div class="field"><%= f.label :password_confirmation %><%= f.password_field :password_confirmation, autocomplete: "new-password" %></div>
+              </div>
+            </div>
           <% end %>
           <div class="span-2"><%= switch_field(f, :active, "Cuenta activa", "Si la desactivás, no puede entrar pero se conserva su historial.") %></div>
         </div>
         <%= render "admin/shared/form_actions", form: f, cancel: admin_users_path %>
       </div>
     </div>
-    <aside><%= render "admin/shared/record_meta", record: record, trash: false %></aside>
+    <aside>
+      <% if record.persisted? && record.invitation_pending? %>
+        <div class="card">
+          <div class="card-head"><h2>Invitación</h2></div>
+          <div class="card-body">
+            <p style="margin:0 0 6px">
+              <%= record.invitation_expired? ? content_tag(:span, "Vencida", class: "badge badge-red") : content_tag(:span, "Pendiente", class: "badge badge-warn") %>
+            </p>
+            <p class="hint" style="margin:0 0 12px">
+              Enviada hace <%= time_ago_in_words(record.invited_at) %><%= " por #{record.invited_by.name}" if record.invited_by %>.
+              <%= record.invitation_expired? ? "El enlace ya no sirve." : "El enlace sirve hasta el #{l(record.invitation_expires_at, format: :long)}." if record.invitation_expires_at %>
+            </p>
+            <%= button_to safe_join([icon(:send, size: 16), "Reenviar invitación"]), invite_admin_user_path(record), class: "btn btn-block",
+                          form: { data: { turbo_confirm: "Le mandamos un correo nuevo a #{record.email}. El enlace anterior deja de funcionar. ¿Continuar?" } } %>
+          </div>
+        </div>
+      <% end %>
+      <%= render "admin/shared/record_meta", record: record, trash: false %>
+    </aside>
   </div>
 <% end %>
 <% if record.persisted? && record != current_user %><div class="danger-zone"><%= trash_button(record, label: "Eliminar usuario") %></div><% end %>

@@ -24,7 +24,7 @@
       <div class="card" style="margin-top:18px">
         <div class="card-head"><div><h2>Galería general</h2><p><%= pluralize(@general_placements.size, "elemento", plural: "elementos") %> · arrastrá para ordenar</p></div>
           <div class="actions" style="display:flex;gap:8px">
-            <%= link_to safe_join([icon(:plus, size: 16), "Video"]), new_admin_media_item_path(kind: "video", project_id: @record.id, return_to: request.path), class: "btn btn-sm" %>
+            <%= link_to safe_join([icon(:plus, size: 16), "Video"]), new_admin_media_item_path(kind: "video", project_id: @record.to_param, return_to: request.path), class: "btn btn-sm" %>
           </div></div>
         <div class="card-body">
           <%= render "admin/media_items/placement_grid", placements: @general_placements %>
@@ -35,7 +35,7 @@
     <section class="tab-panel" data-tabs-target="panel" data-tab="albumes" hidden>
       <div class="card">
         <div class="card-head"><div><h2>Álbumes del proyecto</h2><p>Por ejemplo: Ceremonia, Fiesta, Detrás de cámara.</p></div>
-          <%= link_to safe_join([icon(:plus, size: 16), "Nuevo álbum"]), new_admin_album_path(project_id: @record.id), class: "btn btn-primary btn-sm" %></div>
+          <%= link_to safe_join([icon(:plus, size: 16), "Nuevo álbum"]), new_admin_album_path(project_id: @record.to_param), class: "btn btn-primary btn-sm" %></div>
         <% if @albums.any? %>
           <ul class="sort-list" data-controller="sortable" data-sortable-model-value="albums" data-sortable-url-value="<%= admin_sort_path %>">
             <% @albums.each do |album| %>
@@ -52,7 +52,7 @@
           </ul>
         <% else %>
           <%= render "admin/shared/empty", title: "Este proyecto no tiene álbumes", text: "Los álbumes ordenan las fotos por momento. Aparecen como pestañas en la página del proyecto.",
-                     action: link_to("Crear álbum", new_admin_album_path(project_id: @record.id), class: "btn btn-primary") %>
+                     action: link_to("Crear álbum", new_admin_album_path(project_id: @record.to_param), class: "btn btn-primary") %>
         <% end %>
       </div>
     </section>

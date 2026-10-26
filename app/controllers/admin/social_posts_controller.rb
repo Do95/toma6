@@ -90,11 +90,11 @@ module Admin
     end
 
     def prefill_from_context
-      if (project = Project.kept.find_by(id: params[:project_id]))
+      if (project = params[:project_id].presence && Project.kept.friendly.find_by_friendly_id(params[:project_id]))
         @record.body = [project.title, project.summary].compact_blank.join("\n\n")
         @record.link = "#{settings.public_base_url}/proyectos/#{project.slug}"
         @record.media_item = project.visible_media.find(&:photo?)
-      elsif (item = MediaItem.kept.find_by(id: params[:media_item_id]))
+      elsif (item = params[:media_item_id].presence && MediaItem.kept.friendly.find_by_friendly_id(params[:media_item_id]))
         @record.media_item = item
         @record.body = [item.title, item.description].compact_blank.join("\n\n")
       end

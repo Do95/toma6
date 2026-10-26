@@ -2,6 +2,7 @@
 # de un proyecto). Cada galería tiene su propio orden.
 class MediaPlacement < ApplicationRecord
   include Auditable
+  include RandomSlug
 
   belongs_to :media_item, inverse_of: :placements
   belongs_to :album, optional: true, inverse_of: :placements
@@ -25,14 +26,15 @@ class MediaPlacement < ApplicationRecord
   end
 
   # "album-12" / "project-5" ↔ registro
-  def self.gallery_key(gallery) = "#{gallery.is_a?(Album) ? 'album' : 'project'}-#{gallery.id}"
+  # "album-boda-sofia" / "project-boda-sofia": va en filtros y formularios, sin ids
+  def self.gallery_key(gallery) = "#{gallery.is_a?(Album) ? 'album' : 'project'}-#{gallery.to_param}"
 
   def self.gallery_from_key(key)
-    type, id = key.to_s.split("-", 2)
-    case type
-    when "album" then Album.kept.find_by(id: id)
-    when "project" then Project.kept.find_by(id: id)
-    end
+    type, param = key.to_s.split("-", 2)
+    model = { "album" => Album, "project" => Project }[type]
+    model && param.present? ? model.kept.friendly.find(param) : nil
+  rescue ActiveRecord::RecordNotFound
+    nil
   end
 
   # Todas las galerías posibles, para selectores: [[etiqueta, clave], …]

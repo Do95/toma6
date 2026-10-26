@@ -41,3 +41,4 @@ Rails.application.configure do
   # Las tareas programadas corren dentro de Puma: un solo proceso que mantener.
   config.good_job.execution_mode = :async
 end
+

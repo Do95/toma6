@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   devise_for :users, path: "admin/cuenta",
                      path_names: { sign_in: "ingresar", sign_out: "salir", password: "clave" },
-                     skip: [:registrations]
+                     skip: [:registrations], controllers: { passwords: "users/passwords" }
 
   get "up" => "rails/health#show", as: :rails_health_check
 
@@ -116,14 +116,19 @@ Rails.application.routes.draw do
         post :restore
       end
     end
-    resources :email_logs, path: "correos", only: %i[index show] do
+    resources :email_logs, path: "correos", only: %i[index show destroy] do
       member do
         get :body
         post :retry
       end
-      collection { post :retry_failed }
+      collection do
+        post :retry_failed
+        delete :bulk_destroy, path: "eliminar"
+      end
     end
-    resources :users, path: "usuarios"
+    resources :users, path: "usuarios" do
+      member { post :invite, path: "invitar" }
+    end
     resources :activity_logs, path: "actividad", only: %i[index show]
     delete "eliminar/:type/:id", to: "destroys#destroy", as: :hard_delete
     get "papelera", to: "trash#index", as: :trash

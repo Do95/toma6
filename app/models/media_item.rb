@@ -1,5 +1,7 @@
 class MediaItem < ApplicationRecord
   include Auditable
+  include FriendlySlug
+  friendly_slug :title
   include SoftDeletable
   include Positionable
   include Publishable
@@ -23,7 +25,7 @@ class MediaItem < ApplicationRecord
   validate :direct_video_uploaded, if: -> { video_direct_key.present? }
   after_save :attach_direct_video, if: -> { video_direct_key.present? }
 
-  before_validation :default_title
+  before_validation :default_title, prepend: true # antes del slug, que sale del título
 
   scope :in_gallery, -> { where(show_in_gallery: true) }
   scope :featured, -> { where(featured: true) }
@@ -76,7 +78,7 @@ class MediaItem < ApplicationRecord
   # Datos para el visor (lightbox).
   def lightbox_data(version: :large)
     {
-      id: id,
+      id: to_param, # va en el enlace directo: /galeria#foto-<slug>
       type: kind,
       src: video? ? video.url : image_url(version),
       thumb: image_url(:thumb),

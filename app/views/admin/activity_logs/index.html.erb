@@ -3,7 +3,7 @@
 <%= form_with url: admin_activity_logs_path, method: :get, class: "toolbar", data: { controller: "autosubmit", turbo_action: "replace" } do %>
   <select name="user_id" class="input" style="width:auto" data-action="autosubmit#submit">
     <option value="">Todas las personas</option>
-    <% @users.each do |u| %><option value="<%= u.id %>" <%= "selected" if params[:user_id] == u.id.to_s %>><%= u.name %></option><% end %>
+    <% @users.each do |u| %><option value="<%= u.to_param %>" <%= "selected" if params[:user_id] == u.to_param %>><%= u.name %></option><% end %>
   </select>
   <select name="log_action" class="input" style="width:auto" data-action="autosubmit#submit">
     <option value="">Todas las acciones</option>

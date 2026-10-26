@@ -1,5 +1,7 @@
 class ProcessStep < ApplicationRecord
   include Auditable
+  include FriendlySlug
+  friendly_slug :title
   include SoftDeletable
   include Positionable
   include Publishable

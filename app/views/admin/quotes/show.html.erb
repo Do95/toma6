@@ -16,6 +16,7 @@
         <h2 style="margin-top:10px"><%= @record.client_name %></h2>
         <p><%= [@record.title, @record.client_company].compact_blank.join(" · ") %></p>
         <p>Emitida el <%= l(@record.issued_on, format: :long) %><% if @record.valid_until %> · válida hasta el <%= l(@record.valid_until, format: :long) %><% end %></p>
+        <% if @record.creator %><p>Creada por <strong><%= @record.creator.name %></strong> <span class="code-chip"><%= @record.creator.code %></span></p><% end %>
       </div>
       <div class="total"><small>Total</small><strong><%= @record.money(@record.total) %></strong></div>
     </div>

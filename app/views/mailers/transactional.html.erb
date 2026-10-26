@@ -1,32 +1,64 @@
-<% if @heading %><h1><%= @heading %></h1><% end %>
-<%= @body_html %>
+<% font = MailerHelper::FONT %>
+<% cell = "padding:11px 0;border-bottom:1px solid #{MailerHelper::LINE};font-family:#{font};font-size:14px;line-height:1.4;color:#{MailerHelper::INK_2}" %>
+<% amount = "#{cell};text-align:right;white-space:nowrap;color:#{MailerHelper::INK};font-weight:bold" %>
+<% muted = "margin:10px 0 0;font-family:#{font};font-size:12.5px;line-height:1.5;color:#{MailerHelper::INK_3}" %>
+
+<% if @heading %>
+  <h1 class="h1" style="margin:0 0 6px;font-family:<%= font %>;font-size:28px;line-height:1.15;font-weight:800;letter-spacing:-.01em;text-transform:uppercase;color:<%= MailerHelper::INK %>"><%= @heading %></h1>
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:14px 0 24px"><tr><td width="44" height="4" bgcolor="<%= MailerHelper::RED %>" style="background:<%= MailerHelper::RED %>;font-size:0;line-height:0">&nbsp;</td></tr></table>
+<% end %>
+
+<%= mail_rich(@body_html) %>
+
 <% if @details && @details[:kind] == :request %>
   <% r = @details[:record] %>
   <% prices = @details.fetch(:prices, true) %>
   <% plan_line = r.plan_line %>
-  <table class="lines">
-    <% r.selection_lines.each do |line| %>
-      <tr>
-        <td><% if line["label"] == line["service"] %><strong><%= line["label"] %></strong><% else %>+ <%= line["label"] %><% end %><%= " × #{line['quantity']}" if line["quantity"].to_i > 1 %></td>
-        <td class="r"><%= (line["total"].to_d.positive? ? money(line["total"]) : "Incluido") if prices || line.equal?(plan_line) %></td>
-      </tr>
-    <% end %>
-    <% if prices && r.discount.to_d.positive? %><tr><td>Combo de servicios</td><td class="r">−<%= money(r.discount) %></td></tr><% end %>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 24px">
+    <tr><td style="padding:0 0 4px;font-family:<%= font %>;font-size:11px;font-weight:bold;letter-spacing:.14em;text-transform:uppercase;color:<%= MailerHelper::RED %>">Resumen<%= " · #{r.number}" if r.number.present? %></td></tr>
+    <tr><td>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+        <% r.selection_lines.each do |line| %>
+          <tr>
+            <td style="<%= cell %>"><% if line["label"] == line["service"] %><strong style="color:<%= MailerHelper::INK %>"><%= line["label"] %></strong><% else %>+ <%= line["label"] %><% end %><%= " × #{line['quantity']}" if line["quantity"].to_i > 1 %></td>
+            <td style="<%= amount %>"><%= (line["total"].to_d.positive? ? money(line["total"]) : "Incluido") if prices || line.equal?(plan_line) %></td>
+          </tr>
+        <% end %>
+        <% if prices && r.discount.to_d.positive? %><tr><td style="<%= cell %>">Combo de servicios</td><td style="<%= amount %>;color:#2f7a4e">−<%= money(r.discount) %></td></tr><% end %>
+      </table>
+      <% if prices %>
+        <%= render "mailers/total", label: "Total estimado", value: money(r.estimated_total) %>
+        <% if settings.estimator_disclaimer.present? %><p style="<%= muted %>"><%= settings.estimator_disclaimer %></p><% end %>
+      <% elsif plan_line %>
+        <%= render "mailers/total", label: r.priced_extras? ? "Desde" : "Total", value: money(plan_line["total"]) %>
+        <% if r.priced_extras? %><p style="<%= muted %>">El precio de lo que sumaste al plan va en la propuesta.</p><% end %>
+      <% end %>
+    </td></tr>
   </table>
-  <% if prices %>
-    <div class="total">Total estimado: <%= money(r.estimated_total) %></div>
-    <p class="muted"><%= settings.estimator_disclaimer %></p>
-  <% elsif plan_line %>
-    <div class="total"><%= r.priced_extras? ? "Desde" : "Total" %>: <%= money(plan_line["total"]) %></div>
-    <% if r.priced_extras? %><p class="muted">El precio de lo que sumaste al plan va en la propuesta.</p><% end %>
-  <% end %>
 <% elsif @details && @details[:kind] == :quote %>
   <% q = @details[:record] %>
-  <table class="lines">
-    <% q.items.each do |item| %>
-      <tr><td><%= item.description %><%= " × #{item.quantity.to_d.to_s('F').sub(/\.0\z/, '')}" if item.quantity.to_d != 1 %></td><td class="r"><%= q.money(item.total) %></td></tr>
-    <% end %>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 24px">
+    <tr><td style="padding:0 0 4px;font-family:<%= font %>;font-size:11px;font-weight:bold;letter-spacing:.14em;text-transform:uppercase;color:<%= MailerHelper::RED %>">Cotización <%= q.number %></td></tr>
+    <tr><td>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+        <% q.items.each do |item| %>
+          <tr><td style="<%= cell %>"><%= item.description %><%= " × #{item.quantity.to_d.to_s('F').sub(/\.0\z/, '')}" if item.quantity.to_d != 1 %></td><td style="<%= amount %>"><%= q.money(item.total) %></td></tr>
+        <% end %>
+        <% if q.discount_amount.to_d.positive? || q.tax_amount.to_d.positive? %>
+          <tr><td style="<%= cell %>">Subtotal</td><td style="<%= amount %>"><%= q.money(q.subtotal) %></td></tr>
+          <% if q.discount_amount.to_d.positive? %><tr><td style="<%= cell %>">Descuento</td><td style="<%= amount %>;color:#2f7a4e">−<%= q.money(q.discount_amount) %></td></tr><% end %>
+          <% if q.tax_amount.to_d.positive? %><tr><td style="<%= cell %>"><%= q.tax_name %> (<%= q.tax_rate.to_d.to_s("F").sub(/\.0\z/, "") %>%)</td><td style="<%= amount %>"><%= q.money(q.tax_amount) %></td></tr><% end %>
+        <% end %>
+      </table>
+      <%= render "mailers/total", label: "Total", value: q.money(q.total) %>
+    </td></tr>
   </table>
-  <div class="total">Total: <%= q.money(q.total) %></div>
 <% end %>
-<% if @button_label && @button_url %><p class="cta"><a href="<%= @button_url %>"><%= @button_label %></a></p><% end %>
+
+<% if @button_label && @button_url %>
+  <%= mail_button(@button_label, @button_url) %>
+  <p style="margin:18px 0 0;font-family:<%= font %>;font-size:12px;line-height:1.5;color:<%= MailerHelper::INK_3 %>">
+    ¿El botón no funciona? Copiá este enlace en tu navegador:<br>
+    <a href="<%= @button_url %>" style="color:<%= MailerHelper::INK_3 %>;word-break:break-all"><%= @button_url %></a>
+  </p>
+<% end %>

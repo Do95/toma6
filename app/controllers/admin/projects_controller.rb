@@ -21,7 +21,7 @@ module Admin
 
     # Atajo: crear una publicación para redes a partir del proyecto.
     def share
-      redirect_to new_admin_social_post_path(project_id: @record.id)
+      redirect_to new_admin_social_post_path(project_id: @record.to_param)
     end
 
     private

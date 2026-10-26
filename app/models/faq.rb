@@ -1,5 +1,7 @@
 class Faq < ApplicationRecord
   include Auditable
+  include FriendlySlug
+  friendly_slug :question
   include SoftDeletable
   include Positionable
   include Publishable

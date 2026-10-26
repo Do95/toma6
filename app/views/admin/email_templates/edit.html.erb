@@ -1,21 +1,30 @@
 <% content_for :title, @template.name %>
 <% content_for :crumbs do %><%= link_to "Correos", admin_email_logs_path %> / <%= link_to "Plantillas", admin_email_templates_path %> / <%= @template.name %><% end %>
 <%= render "admin/shared/header", title: @template.name,
-           subtitle: @template.team? ? "Se envía al equipo." : "Se envía a la persona que pidió o recibe la cotización.",
+           subtitle: @template.team? ? "Se envía al equipo." : (@template.account? ? "Se envía a la persona dueña de la cuenta del panel." : "Se envía a la persona que pidió o recibe la cotización."),
            actions: safe_join([
              button_to(safe_join([icon(:send, size: 16), "Enviarme una prueba"]), test_admin_email_template_path(@template), class: "btn"),
              button_to("Restaurar texto original", restore_admin_email_template_path(@template), class: "btn btn-ghost", form: { data: { turbo_confirm: "¿Volver al texto original de esta plantilla?" } })
            ]) %>
 <div class="layout-aside" style="--aside:420px" data-controller="var-insert">
-  <%= form_with model: @template, url: admin_email_template_path(@template), method: :patch, class: "card" do |f| %>
+  <%= form_with model: @template, url: admin_email_template_path(@template), method: :patch, class: "card", html: { multipart: true } do |f| %>
     <div class="card-body form-grid">
       <%= form_errors(@template) %>
-      <div class="span-2"><%= switch_field(f, :enabled, "Plantilla activa", "Si la desactivás, este correo deja de enviarse.") %></div>
+      <% if @template.account? %>
+        <p class="hint span-2" style="margin:0">Este correo es parte del acceso al panel: se envía siempre y no se puede desactivar. El botón lleva a la página segura correspondiente.</p>
+      <% else %>
+        <div class="span-2"><%= switch_field(f, :enabled, "Plantilla activa", "Si la desactivás, este correo deja de enviarse.") %></div>
+      <% end %>
       <div class="field span-2"><%= f.label :subject, "Asunto" %><%= f.text_field :subject, data: { var_insert_target: "field", action: "focus->var-insert#remember" } %></div>
       <div class="field span-2"><%= f.label :heading, "Título dentro del correo" %><%= f.text_field :heading, data: { var_insert_target: "field", action: "focus->var-insert#remember" } %></div>
       <div class="field span-2"><%= f.label :body, "Texto" %><%= f.text_area :body, rows: 10, data: { var_insert_target: "field", action: "focus->var-insert#remember" } %>
         <%= field_hint("**negrita**, ==resaltado== y línea vacía para separar párrafos. El detalle de servicios o ítems se agrega solo debajo del texto.") %></div>
       <div class="field"><%= f.label :button_label, "Texto del botón" %><%= f.text_field :button_label %></div>
+      <div class="span-2">
+        <%= image_field(f, :hero_image, label: "Foto de portada", version: :medium, library: gallery_photos,
+                        fallback_src: (image_path(@template.hero_asset) if @template.hero_asset.present?),
+                        hint: "Va arriba del título, a todo el ancho. Ideal horizontal (2:1), de 1200 px o más. Si la quitás, el correo va sin foto.#{' «Restaurar texto original» vuelve a poner la predeterminada.' if @template.default_hero?}") %>
+      </div>
       <% if @template.team? %>
         <div class="field"><%= f.label :recipients, "Destinatarios" %><%= f.text_field :recipients, placeholder: settings.notification_email.presence || settings.contact_email %>
           <%= field_hint("Separados por coma. Vacío = el correo de avisos de Ajustes.") %></div>
@@ -33,7 +42,7 @@
       </div>
     </div>
     <div class="card">
-      <div class="card-head"><div><h2>Vista previa</h2><p>Con la última solicitud o cotización real.</p></div>
+      <div class="card-head"><div><h2>Vista previa</h2><p><%= @template.account? ? "Con tu cuenta como ejemplo (el enlace no funciona)." : "Con la última solicitud o cotización real." %></p></div>
         <%= link_to icon(:refresh, size: 14, title: "Actualizar"), edit_admin_email_template_path(@template), class: "icon-btn" %></div>
       <iframe class="mail-frame" src="<%= preview_admin_email_template_path(@template) %>" title="Vista previa del correo"></iframe>
     </div>

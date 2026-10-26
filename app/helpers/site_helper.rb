@@ -50,7 +50,7 @@ module SiteHelper
     data = tile_data(item, albums: albums)
     data[:preview] = item.video.url if item.video?
     shared = data[:album].split.size + (albums ? 0 : item.placements.count { |p| p.album_id.nil? })
-    content_tag(:button, type: "button", id: "foto-#{item.id}", class: ["ph-tile", ("is-video" if item.video?), extra_class].compact.join(" "),
+    content_tag(:button, type: "button", id: "foto-#{item.to_param}", class: ["ph-tile", ("is-video" if item.video?), extra_class].compact.join(" "),
                          style: "aspect-ratio:#{item.ratio}", data: data,
                          aria: { label: "#{item.video? ? 'Reproducir video' : 'Ver foto'}: #{item.title}" }) do
       safe_join([

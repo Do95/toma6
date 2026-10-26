@@ -6,6 +6,9 @@ module Admin
     def index
       scope = Quote.kept.includes(:creator, :updater).recent
       scope = scope.where(status: params[:status]) if Quote::STATUSES.key?(params[:status])
+      # ?por=DM01: las que creó esa persona (código de usuario)
+      scope = scope.where(created_by_id: User.unscoped.find_by(code: params[:por].to_s.upcase)&.id) if params[:por].present?
+      @creators = User.where(id: Quote.kept.select(:created_by_id)).ordered
       if params[:q].present?
         q = "%#{params[:q]}%"
         scope = scope.where("number ILIKE :q OR client_name ILIKE :q OR client_company ILIKE :q OR title ILIKE :q", q: q)

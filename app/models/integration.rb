@@ -1,5 +1,7 @@
 class Integration < ApplicationRecord
   include Auditable
+  extend FriendlyId
+  friendly_id :provider, use: :finders # «meta» en lugar del id
 
   encrypts :app_secret
   encrypts :user_access_token

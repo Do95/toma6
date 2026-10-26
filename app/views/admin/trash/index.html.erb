@@ -22,10 +22,10 @@
               <td><span class="purge-in"><%= l(record.purge_on, format: :long) %></span></td>
               <td class="actions-cell">
                 <% if can?(model.permission_resource, :write) && can?(:trash, :restore) %>
-                  <%= button_to safe_join([icon(:refresh, size: 14), "Restaurar"]), admin_restore_trash_path(type: model.name, id: record.id), class: "btn btn-sm" %>
+                  <%= button_to safe_join([icon(:refresh, size: 14), "Restaurar"]), admin_restore_trash_path(type: model.name, id: record.to_param), class: "btn btn-sm" %>
                 <% end %>
                 <% if can?(:trash, :purge) %>
-                  <%= button_to icon(:x, size: 14, title: "Eliminar definitivamente"), admin_purge_trash_path(type: model.name, id: record.id), method: :delete, class: "icon-btn btn-danger",
+                  <%= button_to icon(:x, size: 14, title: "Eliminar definitivamente"), admin_purge_trash_path(type: model.name, id: record.to_param), method: :delete, class: "icon-btn btn-danger",
                                 form: { data: { turbo_confirm: "¿Eliminar definitivamente «#{record.display_name.truncate(40)}»? No se puede deshacer." } } %>
                 <% end %>
               </td>

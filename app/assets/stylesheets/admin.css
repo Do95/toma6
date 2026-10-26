@@ -153,6 +153,7 @@ table.table{width:100%;border-collapse:collapse;font-size:14px}
 .badge-red{background:var(--red-soft);color:var(--red)}
 .badge-warn{background:var(--warn-soft);color:var(--warn)}
 .badge-info{background:var(--info-soft);color:var(--info)}
+.code-chip{display:inline-block;padding:1px 6px;border-radius:5px;background:var(--surface-2);border:1px solid var(--line);font-size:11.5px;font-weight:700;letter-spacing:.04em;color:var(--ink-2);font-variant-numeric:tabular-nums;vertical-align:1px}
 .badge-muted{background:#eceae6;color:#6d6a66}
 .avatar{width:var(--s,28px);height:var(--s,28px);border-radius:50%;object-fit:cover;flex:none;display:inline-grid;place-items:center;font-size:calc(var(--s,28px) * .38);font-weight:700;color:#fff;background:hsl(var(--h,4) 45% 38%);vertical-align:middle}
 .audit-line{display:inline-flex;align-items:center;gap:4px;font-size:12.5px;color:var(--ink-3)}
@@ -295,6 +296,9 @@ a.stat:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
 .bulk-bar.is-visible{transform:none;opacity:1;pointer-events:auto}
 .bulk-bar select,.bulk-bar .input{height:34px;padding:4px 10px;width:auto;border-color:#3a3a3a;background:#262626;color:#fff}
 .bulk-bar strong{font-variant-numeric:tabular-nums}
+.table .check-col{width:36px;padding-right:0}
+.table .check-col input{width:17px;height:17px;accent-color:var(--red);cursor:pointer;vertical-align:middle}
+.table tr:has(.check-col input:checked) td{background:var(--red-soft)}
 
 /* Subida masiva */
 .uploader{position:relative;border:2px dashed #c9c5bf;border-radius:12px;background:var(--surface);padding:28px;text-align:center;transition:border-color .2s,background .2s,transform .2s}

@@ -1,6 +1,12 @@
 <% content_for :title, "Correos" %>
-<%= render "admin/shared/header", title: "Correos", subtitle: "Cada correo que sale del sitio queda registrado acá. Si alguno falla, se reintenta solo hasta 3 veces y podés reenviarlo.",
-           actions: ((@counts["failed"].to_i.positive? && can?(:sales, :write)) ? button_to(safe_join([icon(:refresh, size: 16), "Reintentar fallidos (#{@counts['failed']})"]), retry_failed_admin_email_logs_path, class: "btn btn-primary") : nil) %>
+<% failed = @counts["failed"].to_i %>
+<%= render "admin/shared/header", title: "Correos",
+           subtitle: "Cada correo que sale del sitio queda registrado acá. Si alguno falla, se intenta #{EmailLog::MAX_ATTEMPTS} veces en total; después podés reenviarlo o eliminarlo.",
+           actions: safe_join([
+             (button_to(safe_join([icon(:trash, size: 16), "Eliminar fallidos (#{failed})"]), bulk_destroy_admin_email_logs_path, method: :delete, params: { failed: "1", status: params[:status], q: params[:q] }, class: "btn btn-ghost",
+                        form: { data: { turbo_confirm: "Se eliminan del historial los #{failed} correos que fallaron. No se puede deshacer. ¿Continuar?" } }) if failed.positive? && can?(:sales, :delete)),
+             (button_to(safe_join([icon(:refresh, size: 16), "Reintentar fallidos (#{failed})"]), retry_failed_admin_email_logs_path, class: "btn btn-primary") if failed.positive? && can?(:sales, :write))
+           ].compact).presence %>
 <%= render "admin/email_templates/tabs", current: :logs %>
 <%= form_with url: admin_email_logs_path, method: :get, class: "toolbar", data: { controller: "autosubmit", turbo_action: "replace" } do %>
   <label class="search field"><%= icon(:search, size: 16) %><input type="search" name="q" value="<%= params[:q] %>" placeholder="Destinatario o asunto" class="input" data-action="input->autosubmit#submit"></label>
@@ -13,13 +19,26 @@
     <% end %>
   </div>
 <% end %>
+<% deletable = can?(:sales, :delete) %>
+<div data-controller="bulk-select">
+<% if deletable %>
+  <%= form_with url: bulk_destroy_admin_email_logs_path, method: :delete, class: "bulk-bar", data: { bulk_select_target: "bar", turbo_confirm: "¿Eliminar del historial los correos seleccionados? No se puede deshacer." } do %>
+    <strong><span data-bulk-select-target="count">0</span> seleccionados</strong>
+    <div data-bulk-select-target="ids"></div>
+    <input type="hidden" name="status" value="<%= params[:status] %>">
+    <input type="hidden" name="q" value="<%= params[:q] %>">
+    <button class="btn btn-danger btn-sm" type="submit"><%= icon(:trash, size: 14) %> Eliminar</button>
+    <button class="btn btn-ghost btn-sm" type="button" data-action="bulk-select#clear" style="color:#fff">Cancelar</button>
+  <% end %>
+<% end %>
 <div class="card table-wrap">
   <% if @logs.any? %>
     <table class="table">
-      <thead><tr><th>Estado</th><th>Correo</th><th>Para</th><th>Intentos</th><th>Cuándo</th><th></th></tr></thead>
+      <thead><tr><% if deletable %><th class="check-col"><input type="checkbox" aria-label="Seleccionar todos en esta página" data-action="bulk-select#all"></th><% end %><th>Estado</th><th>Correo</th><th>Para</th><th>Intentos</th><th>Cuándo</th><th></th></tr></thead>
       <tbody>
         <% @logs.each do |log| %>
           <tr>
+            <% if deletable %><td class="check-col"><% if log.deletable? %><input type="checkbox" value="<%= log.id %>" data-bulk-select-target="checkbox" data-action="bulk-select#toggle" aria-label="Seleccionar <%= log.display_name %>"><% end %></td><% end %>
             <td><%= status_badge({ "sent" => "published", "failed" => "failed", "retrying" => "partial", "skipped" => "draft" }.fetch(log.status, "scheduled"), log.status_label) %></td>
             <td><%= link_to log.subject.presence || log.template&.name || "#{log.mailer}##{log.action}", admin_email_log_path(log), class: "row-title" %>
               <% if log.error_message.present? && log.status != "sent" %><span class="row-sub" style="color:var(--red)"><%= log.error_message.truncate(90) %></span><% end %></td>
@@ -29,6 +48,10 @@
             <td class="actions-cell">
               <% if log.retryable? && can?(:sales, :write) %><%= button_to icon(:refresh, size: 16, title: "Reintentar"), retry_admin_email_log_path(log), class: "icon-btn" %><% end %>
               <%= link_to icon(:eye, size: 16, title: "Ver"), admin_email_log_path(log), class: "icon-btn" %>
+              <% if deletable && log.deletable? %>
+                <%= button_to icon(:trash, size: 16, title: "Eliminar"), admin_email_log_path(log), method: :delete, params: { status: params[:status], q: params[:q] }, class: "icon-btn btn-danger",
+                              form: { data: { turbo_confirm: "¿Eliminar «#{log.display_name.truncate(50)}» del historial? No se puede deshacer." } } %>
+              <% end %>
             </td>
           </tr>
         <% end %>
@@ -37,5 +60,6 @@
   <% else %>
     <%= render "admin/shared/empty", title: "Todavía no salió ningún correo", text: "Cuando alguien pida una cotización o envíes una, lo vas a ver acá." %>
   <% end %>
+</div>
 </div>
 <%= pagination_nav %>

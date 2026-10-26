@@ -1,18 +1,18 @@
 <% content_for :title, "Plantillas de correo" %>
-<%= render "admin/shared/header", title: "Correos", subtitle: "Correos automáticos que salen cuando alguien pide una cotización, cuando la enviás y cuando la aceptan." %>
+<%= render "admin/shared/header", title: "Correos", subtitle: "Correos automáticos que salen cuando alguien pide una cotización, cuando la enviás y cuando la aceptan, y los de las cuentas del panel (invitaciones y contraseñas)." %>
 <%= render "admin/email_templates/tabs", current: :templates %>
 <div class="card">
   <ul class="sort-list">
     <% @templates.each do |t| %>
       <li class="sort-item">
-        <span class="kind-chip <%= 'is-builtin' if t.team? %>"><%= icon(t.team? ? :users : :send, size: 16) %></span>
+        <span class="kind-chip <%= 'is-builtin' if t.team? %>"><%= icon(t.team? ? :users : (t.account? ? :lock : :send), size: 16) %></span>
         <div class="sort-main">
           <%= link_to edit_admin_email_template_path(t) do %><strong><%= t.name %></strong><% end %>
           <p><%= t.subject %></p>
         </div>
         <div class="sort-meta">
-          <span class="badge <%= t.team? ? 'badge-info' : 'badge-muted' %>"><%= t.team? ? "Al equipo" : "Al cliente" %></span>
-          <%= t.enabled? ? content_tag(:span, "Activa", class: "badge badge-ok") : content_tag(:span, "Desactivada", class: "badge badge-red") %>
+          <span class="badge <%= t.team? ? 'badge-info' : 'badge-muted' %>"><%= t.team? ? "Al equipo" : (t.account? ? "A la cuenta" : "Al cliente") %></span>
+          <%= t.enabled? || t.account? ? content_tag(:span, "Activa", class: "badge badge-ok") : content_tag(:span, "Desactivada", class: "badge badge-red") %>
           <%= link_to icon(:edit, size: 16, title: "Editar"), edit_admin_email_template_path(t), class: "icon-btn" %>
         </div>
       </li>

@@ -1,6 +1,10 @@
 Devise.setup do |config|
   config.mailer_sender = ENV.fetch("MAIL_FROM", "toma6 <hola@toma6.com>")
   config.parent_mailer = "ApplicationMailer"
+  # Correos con las plantillas editables del panel (invitación, contraseña, avisos)
+  config.mailer = "AccountMailer"
+  config.send_password_change_notification = true
+  config.send_email_changed_notification = true
   require "devise/orm/active_record"
 
   config.case_insensitive_keys = [:email]

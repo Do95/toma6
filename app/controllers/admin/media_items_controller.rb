@@ -77,7 +77,7 @@ module Admin
       @categories = Category.kept.ordered
       scope = MediaItem.kept.includes(:category, placements: [:album, :project]).order(created_at: :desc)
       scope = scope.where(kind: params[:kind]) if MediaItem::KINDS.key?(params[:kind])
-      scope = scope.where(category_id: params[:category_id]) if params[:category_id].present?
+      scope = scope.joins(:category).where(categories: { slug: params[:category_id] }) if params[:category_id].present?
       scope = scope.where("media_items.title ILIKE ?", "%#{params[:q]}%") if params[:q].present?
       scope = scope.unplaced if params[:only] == "unplaced"
       @already = MediaPlacement.for_gallery(@gallery).pluck(:media_item_id).to_set
@@ -125,7 +125,7 @@ module Admin
     end
 
     def share
-      redirect_to new_admin_social_post_path(media_item_id: @record.id)
+      redirect_to new_admin_social_post_path(media_item_id: @record.to_param)
     end
 
     private
@@ -141,7 +141,7 @@ module Admin
     def filtered_collection
       scope = MediaItem.kept.includes(:category, :updater, placements: [:album, :project]).order(created_at: :desc)
       scope = scope.where(kind: params[:kind]) if MediaItem::KINDS.key?(params[:kind])
-      scope = scope.where(category_id: params[:category_id]) if params[:category_id].present?
+      scope = scope.joins(:category).where(categories: { slug: params[:category_id] }) if params[:category_id].present?
       if (g = MediaPlacement.gallery_from_key(params[:gallery]))
         scope = scope.where(id: MediaPlacement.for_gallery(g).select(:media_item_id))
       elsif params[:gallery] == "none"

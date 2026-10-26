@@ -30,8 +30,8 @@ export default class extends Controller {
       const dx = e.changedTouches[0].clientX - this.touchX
       if (Math.abs(dx) > 50) dx < 0 ? this.next() : this.prev()
     })
-    // Enlace directo: /galeria#foto-12 abre esa foto
-    const m = window.location.hash.match(/^#foto-(\d+)$/)
+    // Enlace directo: /galeria#foto-spot-de-producto abre esa foto
+    const m = window.location.hash.match(/^#foto-([\w-]+)$/)
     if (m) setTimeout(() => {
       const tile = this.itemTargets.find((t) => t.id === `foto-${m[1]}`)
       if (tile) { tile.scrollIntoView({ block: "center" }); this.open({ currentTarget: tile }) }

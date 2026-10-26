@@ -2,6 +2,8 @@
 # cambiar cuando quieras sin reimprimir el QR.
 class ShortLink < ApplicationRecord
   include Auditable
+  extend FriendlyId
+  friendly_id :code, use: :finders
   include SoftDeletable
 
   STYLES = {

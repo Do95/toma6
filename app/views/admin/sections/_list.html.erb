@@ -6,8 +6,8 @@
              title: project ? "Esta página no tiene secciones" : "El inicio no tiene secciones",
              text: project ? "Agregá la historia y la galería del proyecto, o cualquier bloque nuevo." : "Volvé a poner las secciones fijas (portada, servicios, trabajos…) o empezá con un bloque nuevo.",
              action: (safe_join([
-               button_to(safe_join([icon(:refresh, size: 16), "Restaurar secciones fijas"]), restore_defaults_admin_sections_path(project_id: project&.id), class: "btn"),
-               link_to(safe_join([icon(:plus, size: 16), "Agregar sección"]), new_admin_section_path(project_id: project&.id), class: "btn btn-primary")
+               button_to(safe_join([icon(:refresh, size: 16), "Restaurar secciones fijas"]), restore_defaults_admin_sections_path(project_id: project&.to_param), class: "btn"),
+               link_to(safe_join([icon(:plus, size: 16), "Agregar sección"]), new_admin_section_path(project_id: project&.to_param), class: "btn btn-primary")
              ]) if can_write) %>
 <% else %>
 <% if sections.none?(&:published?) %>
@@ -46,6 +46,6 @@
 <% if can_write && sections.any? %>
   <div class="card-foot" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
     <span class="hint">Arrastrá para cambiar el orden. Las secciones fijas se pueden ocultar pero no eliminar.</span>
-    <%= link_to safe_join([icon(:plus, size: 16), "Agregar sección"]), new_admin_section_path(project_id: project&.id), class: "btn btn-primary" %>
+    <%= link_to safe_join([icon(:plus, size: 16), "Agregar sección"]), new_admin_section_path(project_id: project&.to_param), class: "btn btn-primary" %>
   </div>
 <% end %>

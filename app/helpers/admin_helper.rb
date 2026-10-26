@@ -61,7 +61,7 @@ module AdminHelper
              end
            end
     hard = if can?(resource, :purge) && can?(:trash, :purge)
-             button_to admin_hard_delete_path(type: record.class.base_class.name, id: record.id, return_to: return_to || hard_delete_return(record)),
+             button_to admin_hard_delete_path(type: record.class.base_class.name, id: record.to_param, return_to: return_to || hard_delete_return(record)),
                        method: :delete, class: "btn btn-sm btn-purge",
                        form: { data: { turbo_confirm: "Se borra «#{name}» para siempre, con sus archivos. No va a la papelera y no se puede deshacer.",
                                        confirm_title: "¿Eliminar definitivamente?", confirm_button: "Eliminar para siempre", confirm_variant: "danger" } } do
@@ -129,12 +129,14 @@ module AdminHelper
 
   # logo: true muestra la vista previa entera (sin recortar) sobre fondo oscuro.
   # library: fotos de la galería para elegir en lugar de subir (guarda <attribute>_media_item_id)
-  def image_field(form, attribute, label:, hint: nil, version: :thumb, logo: false, library: nil)
+  # fallback_src: imagen predeterminada que se usa mientras no se suba ni se elija otra
+  def image_field(form, attribute, label:, hint: nil, version: :thumb, logo: false, library: nil, fallback_src: nil)
     uploader = form.object.public_send(attribute)
     picked = library && form.object.public_send(:"#{attribute}_media_item")
     # Algunos uploaders (el avatar) no tienen miniaturas: se usa el archivo tal cual
     src = (uploader.versions.key?(version) ? uploader.url(version) : uploader.url) if uploader.present?
     src ||= picked.image_url(version) if picked
+    src ||= fallback_src
     content_tag(:div, class: "field image-field", data: { controller: "image-preview" }) do
       safe_join([
         form.label(attribute, label),
@@ -147,7 +149,7 @@ module AdminHelper
           ])
         end,
         (gallery_library(form, attribute, library, picked) if library),
-        (content_tag(:label, safe_join([form.check_box(:"remove_#{attribute}"), " Quitar imagen"]), class: "check-inline") if uploader.present?),
+        (content_tag(:label, safe_join([form.check_box(:"remove_#{attribute}"), " Quitar imagen"]), class: "check-inline") if src.present?),
         (field_hint(hint) if hint)
       ].compact)
     end

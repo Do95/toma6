@@ -1,10 +1,10 @@
-# Arma y envía un correo del historial. Si falla, reintenta (hasta 3 veces) y
+# Arma y envía un correo del historial. Si falla, lo reintenta una vez (2 intentos en total) y
 # deja el error guardado para verlo en el panel.
 class DeliverEmailJob < ApplicationJob
   queue_as :mailers
 
-  MAX_ATTEMPTS = 3
-  RETRY_WAITS = [2.minutes, 15.minutes].freeze
+  MAX_ATTEMPTS = EmailLog::MAX_ATTEMPTS
+  RETRY_WAITS = [5.minutes].freeze
 
   discard_on ActiveRecord::RecordNotFound
 
@@ -27,6 +27,7 @@ class DeliverEmailJob < ApplicationJob
     message.raise_delivery_errors = true
     log.update!(status: "sending", to: Array(message.to).join(", "), subject: message.subject,
                 body_html: html_of(message), attempts: log.attempts + 1, last_attempt_at: Time.current)
+    @attempt_counted = true
     delivery.deliver_now
     log.update!(status: "sent", sent_at: Time.current, error_message: nil)
   rescue ActiveJob::DeserializationError
@@ -40,7 +41,8 @@ class DeliverEmailJob < ApplicationJob
   def handle_failure(log, error)
     return unless log
     log.reload
-    attempts = [log.attempts, 1].max
+    # Si falló al armar el correo (antes de enviarlo), este intento todavía no se contó
+    attempts = @attempt_counted ? log.attempts : log.attempts + 1
     message = "#{error.class}: #{error.message}".truncate(1000)
     if attempts < MAX_ATTEMPTS
       log.update_columns(status: "retrying", attempts: attempts, error_message: message, updated_at: Time.current)

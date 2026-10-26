@@ -4,6 +4,7 @@ class Service < ApplicationRecord
   include Positionable
   include Publishable
   include FriendlySlug
+  include PickableImages
   friendly_slug :title
 
   VISUAL_STYLES = {
@@ -15,16 +16,8 @@ class Service < ApplicationRecord
     "image" => "Foto simple (1 foto)"
   }.freeze
 
-  mount_uploader :image, ImageUploader
-  mount_uploader :image_secondary, ImageUploader
-  mount_uploader :image_tertiary, ImageUploader
-
-  # Cada foto se sube o se elige de la galería; la que se eligió último es la que vale.
-  IMAGE_SLOTS = %i[image image_secondary image_tertiary].freeze
-  IMAGE_SLOTS.each do |slot|
-    belongs_to :"#{slot}_media_item", class_name: "MediaItem", optional: true
-  end
-  before_validation :resolve_image_sources
+  # Cada foto se sube o se elige de la galería
+  pickable_images :image, :image_secondary, :image_tertiary
 
   has_many :options, -> { kept.ordered }, class_name: "ServiceOption", inverse_of: :service, dependent: :destroy
   has_many :all_options, class_name: "ServiceOption", dependent: :destroy
@@ -40,21 +33,12 @@ class Service < ApplicationRecord
   validates :base_price, numericality: { greater_than_or_equal_to: 0 }
 
   scope :quotable, -> { where(quotable: true) }
-  scope :with_photos, -> { includes(*IMAGE_SLOTS.map { |slot| :"#{slot}_media_item" }) }
 
   def self.permission_resource = :content
 
   def tag_list = tags.to_s.split(",").map(&:strip).reject(&:blank?)
 
   def visible_options = options.select(&:published?)
-
-  # Foto subida o, si no hay, la elegida de la galería (si sigue existiendo)
-  def photo_url(slot, version = :medium)
-    uploader = public_send(slot)
-    return uploader.url(version) if uploader.present?
-    item = public_send(:"#{slot}_media_item")
-    item.image_url(version) if item&.kept? && item[:image].present?
-  end
 
   # Datos que usa el cotizador público (se recalcula en el servidor al enviar).
   # masked: sin precios en la página; solo 1 (tiene costo) o 0 (incluido), para no
@@ -67,20 +51,5 @@ class Service < ApplicationRecord
       price_unit: price_unit,
       options: visible_options.map { |o| o.estimator_payload(masked: masked) }
     }
-  end
-
-  private
-
-  def resolve_image_sources
-    IMAGE_SLOTS.each do |slot|
-      ref = :"#{slot}_media_item_id"
-      if public_send(:"remove_#{slot}?")
-        self[ref] = nil
-      elsif will_save_change_to_attribute?(slot) && public_send(slot).present?
-        self[ref] = nil # se subió una foto nueva: reemplaza a la de la galería
-      elsif will_save_change_to_attribute?(ref) && self[ref].present? && self[slot].present?
-        public_send(:"remove_#{slot}=", true) # se eligió de la galería: se quita la subida
-      end
-    end
   end
 end

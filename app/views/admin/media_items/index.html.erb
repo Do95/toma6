@@ -16,7 +16,7 @@
   </select>
   <select name="category_id" class="input" style="width:auto" data-action="autosubmit#submit">
     <option value="">Todas las categorías</option>
-    <% @categories.each do |c| %><option value="<%= c.id %>" <%= "selected" if params[:category_id] == c.id.to_s %>><%= c.name %></option><% end %>
+    <% @categories.each do |c| %><option value="<%= c.slug %>" <%= "selected" if params[:category_id] == c.slug %>><%= c.name %></option><% end %>
   </select>
   <select name="kind" class="input" style="width:auto" data-action="autosubmit#submit">
     <option value="">Fotos y videos</option>

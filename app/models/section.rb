@@ -2,6 +2,8 @@
 # ocultan, se duplican y se agregan nuevos desde el panel.
 class Section < ApplicationRecord
   include Auditable
+  include FriendlySlug
+  friendly_slug :slug_title
   include SoftDeletable
   include Positionable
   include Publishable
@@ -123,6 +125,8 @@ class Section < ApplicationRecord
 
   def config = KINDS.fetch(kind, {})
   def kind_label = config[:label] || kind.humanize
+  # Base del slug de la URL: el título o, en las secciones fijas sin título, su tipo
+  def slug_title = title.presence || kind_label
   def builtin? = config[:builtin].present?
   def field?(name) = config.fetch(:fields, []).include?(name)
   def field_label(name) = config.dig(:labels, name) || F[name]

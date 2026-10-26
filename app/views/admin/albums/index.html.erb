@@ -6,7 +6,7 @@
   <%= filter_chip "Todos", { project_id: nil }, params[:project_id].blank? %>
   <%= filter_chip "Sin proyecto", { project_id: "none" }, params[:project_id] == "none" %>
   <% Project.kept.ordered.joins(:all_albums).merge(Album.kept).distinct.each do |p| %>
-    <%= filter_chip p.title, { project_id: p.id }, params[:project_id] == p.id.to_s %>
+    <%= filter_chip p.title, { project_id: p.slug }, params[:project_id] == p.slug %>
   <% end %>
 </div>
 <div class="card">
