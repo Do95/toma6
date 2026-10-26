@@ -11,6 +11,7 @@
 #   protect_from_spam only: :create, success_path: -> { gracias_path }, form_path: -> { formulario_path }
 #   (en la vista: <%= spam_guard_fields %> dentro del formulario)
 module SpamProtection
+  
   extend ActiveSupport::Concern
 
   MIN_SECONDS = 3
