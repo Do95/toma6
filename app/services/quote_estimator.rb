@@ -8,7 +8,7 @@
 class QuoteEstimator
   Line = Struct.new(:service_id, :service, :label, :quantity, :unit_price, :total, :note, keyword_init: true)
 
-  attr_reader :lines, :subtotal, :discount, :total, :services_count, :plan
+  attr_reader :lines, :subtotal, :discount, :tax, :total, :services_count, :plan
 
   def initialize(selections, plan_id: nil, settings: SiteSetting.current)
     @settings = settings
@@ -71,7 +71,8 @@ class QuoteEstimator
     @services_count = extra.map(&:service_id).uniq.size
     @subtotal = @lines.sum { |l| l.total.to_d }
     @discount = (extra.sum { |l| l.total.to_d } * discount_percent / 100).round(2)
-    @total = @subtotal - @discount
+    @tax = @settings.tax_active? ? ((@subtotal - @discount) * @settings.tax_rate.to_d / 100).round(2) : 0
+    @total = @subtotal - @discount + @tax
   end
 
   def applies_bundle?

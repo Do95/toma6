@@ -31,6 +31,7 @@
       <div class="card-foot totals-box" style="max-width:320px;margin-left:auto">
         <div><span>Subtotal</span><span><%= money(@record.subtotal) %></span></div>
         <% if @record.discount.positive? %><div><span>Combo de servicios</span><span>−<%= money(@record.discount) %></span></div><% end %>
+        <% if @record.tax_amount.positive? %><div><span><%= settings.tax_name %></span><span><%= money(@record.tax_amount) %></span></div><% end %>
         <div class="grand"><span>Estimado</span><strong><%= money(@record.estimated_total) %></strong></div>
       </div>
     </div>

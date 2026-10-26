@@ -17,6 +17,7 @@
         </ul>
         <% if prices %>
           <% if @quote_request.discount.positive? %><p class="thanks-discount">Combo de servicios: −<%= money(@quote_request.discount) %></p><% end %>
+          <% if @quote_request.tax_amount.positive? %><p class="thanks-discount"><%= settings.tax_name %>: <%= money(@quote_request.tax_amount) %></p><% end %>
           <p class="thanks-total">Total estimado <strong><%= money(@quote_request.estimated_total) %></strong></p>
         <% elsif plan_line %>
           <p class="thanks-total"><%= @quote_request.priced_extras? ? "Desde" : "Total" %> <strong><%= money(plan_line["total"]) %></strong></p>

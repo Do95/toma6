@@ -11,7 +11,7 @@ class User < ApplicationRecord
   }.freeze
 
   ROLE_DESCRIPTIONS = {
-    "admin" => "Acceso total: usuarios, ajustes, integraciones y papelera.",
+    "admin" => "Acceso total: usuarios, ajustes, integraciones y papelera (restaurar). Eliminar definitivamente es solo del super admin.",
     "editor" => "Gestiona el contenido del sitio, la galería y las publicaciones en redes.",
     "sales" => "Gestiona solicitudes y cotizaciones. Ve el contenido sin editarlo.",
     "viewer" => "Puede ver todo el panel, sin hacer cambios."
@@ -32,6 +32,7 @@ class User < ApplicationRecord
   before_validation :assign_code, on: :create
 
   validates :name, presence: true
+  validate :super_admin_stays_admin
   validates :code, presence: true, uniqueness: { case_sensitive: false },
                    format: { with: /\A[A-Z0-9]{2,8}\z/, message: "usa de 2 a 8 letras o números, sin espacios" }
   validates :role, inclusion: { in: ROLES.keys }
@@ -51,6 +52,7 @@ class User < ApplicationRecord
 
   def role_label = ROLES.fetch(role, role)
   def admin? = role == "admin"
+  def role_display = super_admin? ? "Super admin" : role_label
 
   def initials
     name.to_s.split.first(2).map { |w| w[0] }.join.upcase.presence || email[0].upcase
@@ -90,6 +92,13 @@ class User < ApplicationRecord
   end
 
   private
+
+  # El super admin no puede perder el rol de administrador ni quedar desactivado
+  def super_admin_stays_admin
+    return unless super_admin?
+    errors.add(:role, "del super admin tiene que ser Administrador") if role != "admin"
+    errors.add(:active, "el super admin no se puede desactivar") unless active?
+  end
 
   def normalize_code
     self.code = code.to_s.strip.upcase.presence

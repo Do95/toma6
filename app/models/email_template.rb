@@ -67,11 +67,11 @@ class EmailTemplate < ApplicationRecord
       button_label: "Abrir en el panel"
     },
     "user_invitation" => {
-      name: "Invitación al panel", audience: "account", vars: ACCOUNT_VARS, hero_asset: "mail/hero-bienvenida.jpg",
-      subject: "{{invitado_por}} te invitó al panel de {{sitio}}",
-      heading: "Te sumamos al equipo",
-      body: "Hola {{primer_nombre}},\n\n**{{invitado_por}}** te invitó a administrar el sitio de **{{sitio}}** como **{{rol}}**.\n\nPara entrar, creá tu contraseña con el botón de abajo. Vas a ingresar siempre con este correo: {{correo}}.\n\nEl enlace sirve hasta el {{vence}}. Si vence, pedile a quien te invitó que te lo reenvíe.",
-      button_label: "Crear mi contraseña"
+      name: "Invitación", audience: "account", vars: ACCOUNT_VARS, hero_asset: "mail/hero-bienvenida.jpg",
+      subject: "{{primer_nombre}}, te esperamos en {{sitio}}",
+      heading: "¡Te damos la bienvenida!",
+      body: "Hola {{primer_nombre}}:\n\n{{invitado_por}} te invitó a sumarte a **{{sitio}}**. Ya tenés una cuenta esperándote con el rol de **{{rol}}**.\n\nSolo falta un paso: creá tu contraseña y ya podés entrar. Para ingresar vas a usar este correo: {{correo}}.\n\n==La invitación vale hasta el {{vence}}.== Si se vence, no pasa nada: pedí que te la vuelvan a enviar.\n\n¡Nos vemos adentro!",
+      button_label: "Activar mi cuenta"
     },
     "password_reset" => {
       name: "Recuperar contraseña", audience: "account", vars: ACCOUNT_VARS,

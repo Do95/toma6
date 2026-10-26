@@ -8,7 +8,7 @@
       <% @records.each do |user| %>
         <tr>
           <td><div style="display:flex;gap:10px;align-items:center"><%= avatar_for(user, size: 32) %><div><%= link_to user.name, edit_admin_user_path(user), class: "row-title" %><span class="row-sub"><span class="code-chip"><%= user.code %></span> <%= user.email %></span></div></div></td>
-          <td><%= user.role_label %></td>
+          <td><%= user.super_admin? ? content_tag(:span, "Super admin", class: "badge badge-red") : user.role_label %></td>
           <td>
             <% if !user.active? %><span class="badge badge-muted">Desactivado</span>
             <% elsif user.invitation_expired? %><span class="badge badge-red">Invitación vencida</span>
@@ -21,7 +21,7 @@
               <%= button_to icon(:send, size: 16, title: "Reenviar invitación"), invite_admin_user_path(user), class: "icon-btn",
                             form: { data: { turbo_confirm: "¿Reenviar la invitación a #{user.email}? El enlace anterior deja de funcionar." } } %>
             <% end %>
-            <%= link_to icon(:edit, size: 16, title: "Editar"), edit_admin_user_path(user), class: "icon-btn" %>
+            <% if !user.super_admin? || user == current_user %><%= link_to icon(:edit, size: 16, title: "Editar"), edit_admin_user_path(user), class: "icon-btn" %><% end %>
           </td>
         </tr>
       <% end %>

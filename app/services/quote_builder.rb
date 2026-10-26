@@ -12,7 +12,7 @@ class QuoteBuilder
       event_date: request.event_date,
       event_location: request.location,
       tax_name: settings.tax_name,
-      tax_rate: settings.tax_rate,
+      tax_rate: settings.quote_tax_rate,
       notes: settings.quote_default_notes,
       terms: settings.quote_default_terms,
       payment_info: settings.quote_payment_info

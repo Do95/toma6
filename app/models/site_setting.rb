@@ -25,6 +25,12 @@ class SiteSetting < ApplicationRecord
 
   def display_name = "Contenido y ajustes del sitio"
 
+  # Impuesto activo: el interruptor encendido y una tasa mayor a 0. Si no, no aparece en
+  # ningún lado (cotizador web, cotizaciones nuevas, PDF ni correos).
+  def tax_active? = tax_enabled? && tax_rate.to_d.positive?
+  def quote_tax_rate = tax_active? ? tax_rate : 0
+  def tax_label = "#{tax_name} (#{tax_rate.to_d.to_s('F').sub(/\.0\z/, '')}%)"
+
   def ticker_primary_words = split_words(ticker_primary)
   def ticker_secondary_words = split_words(ticker_secondary)
 

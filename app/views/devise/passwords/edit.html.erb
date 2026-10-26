@@ -1,11 +1,12 @@
 <% if @invited %>
   <h1 class="auth-title">¡Hola, <%= @invited.name.to_s.split.first %>!</h1>
   <p class="auth-lead">
-    <%= @invited.invited_by&.name || "El equipo" %> te invitó al panel de <%= settings.site_name %> como <strong><%= @invited.role_label %></strong>.
-    Creá tu contraseña para entrar con <strong><%= @invited.email %></strong>.
+    Te damos la bienvenida a <%= settings.site_name %>. Tu cuenta ya está lista con el rol de <strong><%= @invited.role_label %></strong>;
+    solo falta que elijas una contraseña.
   </p>
+  <p class="auth-lead" style="font-size:13.5px">Vas a entrar con <strong><%= @invited.email %></strong>.</p>
   <% if @invited.invitation_expired? %>
-    <p class="auth-flash auth-flash-alert">Esta invitación venció. Pedile a <%= @invited.invited_by&.name || "un administrador" %> que te la reenvíe.</p>
+    <p class="auth-flash auth-flash-alert">Esta invitación ya venció. Pedí que te envíen una nueva y vas a poder entrar sin problema.</p>
   <% end %>
 <% else %>
   <h1 class="auth-title">Nueva contraseña</h1>
@@ -14,7 +15,7 @@
   <%= render "devise/shared/error_messages", resource: resource %>
   <%= f.hidden_field :reset_password_token %>
   <div class="field">
-    <%= f.label :password, @invited ? "Tu contraseña" : "Contraseña nueva" %>
+    <%= f.label :password, @invited ? "Elegí tu contraseña" : "Contraseña nueva" %>
     <%= f.password_field :password, autofocus: true, autocomplete: "new-password", required: true %>
     <p class="hint">Mínimo <%= @minimum_password_length || 8 %> caracteres.</p>
   </div>
@@ -22,5 +23,5 @@
     <%= f.label :password_confirmation, "Repetila" %>
     <%= f.password_field :password_confirmation, autocomplete: "new-password", required: true %>
   </div>
-  <button type="submit" class="btn btn-primary btn-block"><%= @invited ? "Crear contraseña y entrar" : "Guardar contraseña" %></button>
+  <button type="submit" class="btn btn-primary btn-block"><%= @invited ? "Crear contraseña y empezar" : "Guardar contraseña" %></button>
 <% end %>

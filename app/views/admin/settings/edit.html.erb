@@ -8,9 +8,12 @@
       <div class="card-body form-grid">
         <div class="field"><%= f.label :currency_symbol, "Símbolo" %><%= f.text_field :currency_symbol %></div>
         <div class="field"><%= f.label :currency_code, "Código" %><%= f.text_field :currency_code %></div>
+        <div class="span-2">
+          <%= switch_field(f, :tax_enabled, "Aplicar impuesto",
+                           "Se suma en el cotizador web, en las cotizaciones nuevas, el PDF y los correos. Apagado: no aparece en ningún lado.") %>
+        </div>
         <div class="field"><%= f.label :tax_name, "Nombre del impuesto" %><%= f.text_field :tax_name %></div>
-        <div class="field"><%= f.label :tax_rate, "Tasa (%)" %><%= f.number_field :tax_rate, step: "0.01" %></div>
-        <div class="span-2"><%= switch_field(f, :estimator_shows_tax, "Sumar el impuesto en el cotizador web", "Si está apagado, el estimado se muestra sin impuesto.") %></div>
+        <div class="field"><%= f.label :tax_rate, "Tasa (%)" %><%= f.number_field :tax_rate, step: "0.01", min: 0 %></div>
       </div>
     </div>
     <div class="card">
@@ -55,7 +58,8 @@
   <div class="card">
     <div class="card-head"><div><h2>Papelera</h2><p>Todo lo que se elimina va primero a la papelera y se puede restaurar.</p></div></div>
     <div class="card-body form-grid">
-      <div class="field"><%= f.label :trash_retention_days, "Borrar definitivamente después de (días)" %><%= f.number_field :trash_retention_days, min: 1, max: 365 %></div>
+      <div class="field"><%= f.label :trash_retention_days, "Borrar definitivamente después de (días)" %><%= f.number_field :trash_retention_days, min: 1, max: 365, disabled: !current_user.super_admin? %>
+        <% unless current_user.super_admin? %><%= field_hint("Solo el super admin puede cambiarlo.") %><% end %></div>
       <div class="field"><span class="label">Última limpieza automática</span><p style="margin:8px 0 0"><%= @setting.last_trash_purge_at ? "#{l(@setting.last_trash_purge_at, format: :long)}" : "Todavía no corrió" %></p>
         <%= field_hint("La limpieza corre todos los días a las 3:00 y borra, con sus archivos, lo que superó los días configurados.") %></div>
     </div>

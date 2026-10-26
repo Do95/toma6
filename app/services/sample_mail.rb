@@ -65,7 +65,8 @@ class SampleMail
   def self.sample_quote
     q = Quote.new(id: 0, number: "COT-0000-0000", token: "ejemplo", client_name: "Andrea Martínez", client_email: "andrea@ejemplo.com",
                   title: "Boda — cobertura completa", issued_on: Date.current, valid_until: 15.days.from_now.to_date,
-                  currency_symbol: "$", tax_name: "IVA", tax_rate: 13, subtotal: 1000, tax_amount: 130, total: 1130)
+                  currency_symbol: "$", tax_name: SiteSetting.current.tax_name, tax_rate: SiteSetting.current.quote_tax_rate,
+                  subtotal: 1000, tax_amount: SiteSetting.current.quote_tax_rate.to_d * 10, total: 1000 + SiteSetting.current.quote_tax_rate.to_d * 10)
     q.items.build(description: "Fotografía", quantity: 1, unit_price: 1000, total: 1000)
     q
   end

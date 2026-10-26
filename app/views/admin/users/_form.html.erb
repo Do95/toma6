@@ -25,7 +25,7 @@
           <% else %>
             <div class="span-2" data-controller="toggle">
               <label class="check-inline"><%= check_box_tag :send_invite, "1", action_name == "new" || params[:send_invite] == "1", data: { toggle_target: "source", action: "toggle#update" } %>
-                Invitarla por correo para que cree su propia contraseña</label>
+                Enviarle una invitación por correo para que elija su propia contraseña</label>
               <%= field_hint("Le llega un correo de bienvenida con un enlace que sirve #{User::INVITATION_VALID_FOR.in_days.to_i} días. Podés editar el texto en Correos › Plantillas.") %>
               <div class="form-grid" style="margin-top:12px" data-toggle-target="item" data-show-when="false">
                 <div class="field"><%= f.label :password, "Contraseña" %><%= f.password_field :password, autocomplete: "new-password" %>

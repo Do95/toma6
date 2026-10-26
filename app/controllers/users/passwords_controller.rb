@@ -11,7 +11,7 @@ module Users
           @accepted = true
         end
       end
-      flash[:notice] = "¡Bienvenido/a, #{resource.name.to_s.split.first}! Tu cuenta quedó lista." if @accepted
+      flash[:notice] = "¡Listo, #{resource.name.to_s.split.first}! Tu cuenta ya está activa. Te damos la bienvenida." if @accepted
     end
 
     private

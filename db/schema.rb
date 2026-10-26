@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_27_100000) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_27_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -493,6 +493,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_27_100000) do
     t.datetime "updated_at", null: false
     t.string "number"
     t.bigint "plan_id"
+    t.decimal "tax_amount", precision: 12, scale: 2, default: "0.0", null: false
     t.index ["created_by_id"], name: "index_quote_requests_on_created_by_id"
     t.index ["deleted_at"], name: "index_quote_requests_on_deleted_at"
     t.index ["deleted_by_id"], name: "index_quote_requests_on_deleted_by_id"
@@ -773,7 +774,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_27_100000) do
     t.string "currency_code", default: "USD", null: false
     t.string "tax_name", default: "IVA", null: false
     t.decimal "tax_rate", precision: 5, scale: 2, default: "13.0", null: false
-    t.boolean "estimator_shows_tax", default: false, null: false
+    t.boolean "tax_enabled", default: false, null: false
     t.decimal "bundle_discount_percent", precision: 5, scale: 2, default: "0.0", null: false
     t.integer "bundle_min_services", default: 2, null: false
     t.text "estimator_disclaimer"
@@ -851,6 +852,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_27_100000) do
     t.datetime "invitation_accepted_at"
     t.bigint "invited_by_id"
     t.string "code", null: false
+    t.boolean "super_admin", default: false, null: false
     t.index ["code"], name: "index_users_on_code", unique: true
     t.index ["deleted_at"], name: "index_users_on_deleted_at"
     t.index ["email"], name: "index_users_on_email", unique: true

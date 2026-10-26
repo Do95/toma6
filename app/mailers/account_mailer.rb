@@ -32,7 +32,7 @@ class AccountMailer < Devise::Mailer
   def account_vars(**extra)
     {
       nombre: @user.name, primer_nombre: @user.name.to_s.split.first, correo: @user.email, rol: @user.role_label,
-      invitado_por: @user.invited_by&.name || settings.site_name
+      invitado_por: @user.invited_by&.name || "El equipo de #{settings.site_name}"
     }.merge(extra)
   end
 

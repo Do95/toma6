@@ -3,7 +3,7 @@ import { Controller } from "@hotwired/stimulus"
 // Editor de cotizaciones: calcula totales en vivo y completa precio y
 // descripción al elegir un servicio del catálogo.
 export default class extends Controller {
-  static targets = ["subtotal", "discount", "tax", "total", "taxLabel"]
+  static targets = ["subtotal", "discount", "tax", "total", "taxLabel", "taxRow"]
   static values = { currency: String, services: Object }
 
   connect() { this.recalc() }
@@ -41,6 +41,7 @@ export default class extends Controller {
     this.set(this.taxTarget, tax)
     this.set(this.totalTarget, total)
     if (this.hasTaxLabelTarget) this.taxLabelTarget.textContent = `${rate}%`
+    if (this.hasTaxRowTarget) this.taxRowTarget.hidden = !(rate > 0) // sin impuesto, la fila no aparece
   }
 
   set(el, value) {

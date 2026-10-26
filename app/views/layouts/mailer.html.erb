@@ -70,7 +70,7 @@
           <% if (place = [settings.city, settings.country].compact_blank.join(", ")).present? %><p style="margin:0 0 6px"><%= place %></p><% end %>
           <p style="margin:14px 0 0;font-size:12px;color:#a8a5a1">
             <%= { "team" => "Aviso automático del panel de #{settings.site_name}.",
-                  "account" => "Recibiste este correo porque tenés una cuenta (o una invitación) en el panel de #{settings.site_name}." }
+                  "account" => "Recibiste este correo porque tenés una cuenta (o una invitación) en #{settings.site_name}." }
                   .fetch(@audience.to_s, "Recibiste este correo por tu contacto con #{settings.site_name}. Si tenés dudas, respondé este correo.") %>
             <br>© <%= Date.current.year %> <%= settings.legal_name.presence || settings.site_name %>
           </p>

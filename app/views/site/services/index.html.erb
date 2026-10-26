@@ -25,7 +25,7 @@
      bundleMin: settings.bundle_min_services,
      taxName: settings.tax_name,
      taxRate: settings.tax_rate.to_f,
-     showTax: settings.estimator_shows_tax,
+     showTax: settings.tax_active?,
      showPrices: prices,
      emptyText: empty_text,
      services: @quotable.map { |svc| svc.estimator_payload(masked: !prices) },

@@ -25,6 +25,7 @@
           </tr>
         <% end %>
         <% if prices && r.discount.to_d.positive? %><tr><td style="<%= cell %>">Combo de servicios</td><td style="<%= amount %>;color:#2f7a4e">−<%= money(r.discount) %></td></tr><% end %>
+        <% if prices && r.tax_amount.to_d.positive? %><tr><td style="<%= cell %>"><%= settings.tax_name %></td><td style="<%= amount %>"><%= money(r.tax_amount) %></td></tr><% end %>
       </table>
       <% if prices %>
         <%= render "mailers/total", label: "Total estimado", value: money(r.estimated_total) %>

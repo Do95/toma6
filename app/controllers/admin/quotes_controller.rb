@@ -28,7 +28,7 @@ module Admin
 
     def new
       s = settings
-      @record = Quote.new(issued_on: Date.current, tax_name: s.tax_name, tax_rate: s.tax_rate,
+      @record = Quote.new(issued_on: Date.current, tax_name: s.tax_name, tax_rate: s.quote_tax_rate,
                           notes: s.quote_default_notes, terms: s.quote_default_terms, payment_info: s.quote_payment_info,
                           valid_until: Date.current + s.quote_validity_days.days)
       @record.items.build(quantity: 1)

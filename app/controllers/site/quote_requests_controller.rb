@@ -21,7 +21,7 @@ module Site
       selections = parse_selections(params[:selections])
       estimate = QuoteEstimator.new(selections, plan_id: params[:plan_id])
       @quote_request = QuoteRequest.new(request_params.merge(
-        plan: estimate.plan, selections: estimate.snapshot, subtotal: estimate.subtotal, discount: estimate.discount,
+        plan: estimate.plan, selections: estimate.snapshot, subtotal: estimate.subtotal, discount: estimate.discount, tax_amount: estimate.tax,
         estimated_total: estimate.total, ip_address: request.remote_ip, user_agent: request.user_agent.to_s.first(250)
       ))
 

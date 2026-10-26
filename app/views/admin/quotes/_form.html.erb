@@ -57,12 +57,17 @@
           <div class="field"><%= f.label :valid_until %><%= f.date_field :valid_until %></div>
           <div class="field"><%= f.label :discount_type, "Descuento" %><%= f.select :discount_type, Quote::DISCOUNT_TYPES.invert, {}, data: { action: "quote-form#recalc" } %></div>
           <div class="field"><%= f.label :discount_value, "Valor" %><%= f.number_field :discount_value, step: "0.01", min: 0 %></div>
-          <div class="field"><%= f.label :tax_name, "Impuesto" %><%= f.text_field :tax_name %></div>
-          <div class="field"><%= f.label :tax_rate, "Tasa (%)" %><%= f.number_field :tax_rate, step: "0.01", min: 0 %></div>
+          <% if settings.tax_active? || record.tax_rate.to_d.positive? %>
+            <div class="field"><%= f.label :tax_name, "Impuesto" %><%= f.text_field :tax_name %></div>
+            <div class="field"><%= f.label :tax_rate, "Tasa (%)" %><%= f.number_field :tax_rate, step: "0.01", min: 0, data: { action: "input->quote-form#recalc" } %>
+              <% unless settings.tax_active? %><%= field_hint("El impuesto está desactivado en Ajustes. Esta cotización lo tiene porque se creó antes: poné 0 para quitarlo.") %><% end %></div>
+          <% else %>
+            <%= f.hidden_field :tax_rate, value: 0 %>
+          <% end %>
           <div class="totals-box span-2">
             <div><span>Subtotal</span><span data-quote-form-target="subtotal"></span></div>
             <div><span>Descuento</span><span data-quote-form-target="discount"></span></div>
-            <div><span>Impuesto (<span data-quote-form-target="taxLabel"></span>)</span><span data-quote-form-target="tax"></span></div>
+            <div data-quote-form-target="taxRow"><span>Impuesto (<span data-quote-form-target="taxLabel"></span>)</span><span data-quote-form-target="tax"></span></div>
             <div class="grand"><span>Total</span><strong data-quote-form-target="total"></strong></div>
           </div>
         </div>

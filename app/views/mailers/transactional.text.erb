@@ -9,7 +9,8 @@ RESUMEN <%= r.number %>
 - <%= line["label"] %><%= " × #{line['quantity']}" if line["quantity"].to_i > 1 %><% if prices || line.equal?(plan_line) %>: <%= line["total"].to_d.positive? ? money(line["total"]) : "Incluido" %><% end %>
 <% end %>
 <% if prices %>
-Total estimado: <%= money(r.estimated_total) %>
+<% if r.tax_amount.to_d.positive? %><%= settings.tax_name %>: <%= money(r.tax_amount) %>
+<% end %>Total estimado: <%= money(r.estimated_total) %>
 <% elsif plan_line %>
 <%= r.priced_extras? ? "Desde" : "Total" %>: <%= money(plan_line["total"]) %>
 <% end %>

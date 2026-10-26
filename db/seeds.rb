@@ -14,6 +14,8 @@ if admin.new_record?
   admin.save!
   puts "  Creado #{admin.email} (cambiá la contraseña al entrar)"
 end
+# Es el super admin: el único que puede eliminar definitivamente
+admin.update_columns(super_admin: true, role: "admin", active: true) unless admin.super_admin?
 Current.user = admin
 
 puts "→ Contenido del sitio"
@@ -306,7 +308,7 @@ if Quote.none?
   video = Service.find_by(title: "Producción audiovisual")
   q = Quote.new(title: "Boda — cobertura completa", client_name: "Cliente de ejemplo", client_company: "Empresa de ejemplo",
                 client_email: "cliente@ejemplo.com", event_date: 2.months.from_now.to_date, event_location: "San Salvador",
-                tax_name: s.tax_name, tax_rate: s.tax_rate, discount_type: "percent", discount_value: 10,
+                tax_name: s.tax_name, tax_rate: s.quote_tax_rate, discount_type: "percent", discount_value: 10,
                 notes: s.quote_default_notes, terms: s.quote_default_terms, payment_info: s.quote_payment_info)
   q.items.build(service: video, description: "Producción audiovisual", details: "Ceremonia y fiesta, 2 cámaras", quantity: 1, unit_price: 700, position: 1)
   q.items.build(service: foto, description: "Fotografía", details: "Jornada completa, 400 fotos editadas", quantity: 1, unit_price: 480, position: 2)

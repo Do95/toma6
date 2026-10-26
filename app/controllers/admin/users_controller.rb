@@ -3,6 +3,9 @@ module Admin
     self.resource_class = User
     self.permission_resource = :users
 
+    # Al super admin solo lo puede tocar él mismo
+    before_action :protect_super_admin, only: %i[edit update destroy invite]
+
     def create
       @record = User.new(record_params)
       invite = params[:send_invite] == "1"
@@ -15,7 +18,7 @@ module Admin
       if @record.save
         if invite
           @record.invite!(by: current_user)
-          notice = "Le enviamos la invitación a #{@record.email}. El enlace sirve #{User::INVITATION_VALID_FOR.in_days.to_i} días."
+          notice = "¡Listo! Le enviamos la invitación a #{@record.email}. Tiene #{User::INVITATION_VALID_FOR.in_days.to_i} días para aceptarla."
         else
           notice = "Se creó la cuenta de #{@record.name}."
           notice += " Contraseña temporal: #{generated}" if generated
@@ -30,7 +33,7 @@ module Admin
     def invite
       return redirect_to(edit_admin_user_path(@record), alert: "#{@record.name} ya creó su contraseña.") unless @record.invitation_pending?
       @record.invite!(by: current_user)
-      redirect_back fallback_location: admin_users_path, notice: "Le reenviamos la invitación a #{@record.email}."
+      redirect_back fallback_location: admin_users_path, notice: "Le enviamos una invitación nueva a #{@record.email}. La anterior ya no sirve."
     end
 
     def update
@@ -47,6 +50,9 @@ module Admin
     end
 
     def destroy
+      if @record.super_admin?
+        return redirect_to admin_users_path, alert: "El super admin no se puede eliminar."
+      end
       if @record == current_user
         return redirect_to admin_users_path, alert: "No podés eliminar tu propia cuenta."
       end
@@ -57,6 +63,11 @@ module Admin
     end
 
     private
+
+    def protect_super_admin
+      return unless @record.super_admin? && @record != current_user
+      redirect_to admin_users_path, alert: "Solo el super admin puede modificar su propia cuenta."
+    end
 
     def collection = User.kept.ordered.includes(:invited_by)
 
