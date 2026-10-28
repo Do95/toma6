@@ -26,6 +26,10 @@
   <%= preload_link_tag "archivo-variable.woff2", as: "font", type: "font/woff2", crossorigin: "anonymous" %>
   <%= stylesheet_link_tag "site", "data-turbo-track": "reload" %>
   <%= javascript_importmap_tags "site" %>
+  <!-- Google Tag Manager -->
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}dataLayer.push({'gtm.start':new Date().getTime(),event:'gtm.js'});gtag('js',new Date());</script>
+  <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-KGFDP9TT"></script>
+  <!-- End Google Tag Manager -->
   <% if settings.google_analytics_id.present? %>
     <script async src="https://www.googletagmanager.com/gtag/js?id=<%= settings.google_analytics_id %>"></script>
     <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','<%= j settings.google_analytics_id %>');</script>
@@ -33,6 +37,7 @@
   <%= yield :head %>
 </head>
 <body class="<%= yield :body_class %>" data-controller="nav lightbox">
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KGFDP9TT" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <a class="skip-link" href="#contenido">Saltar al contenido</a>
   <header class="nav" data-nav-target="bar">
     <div class="nav-inner">
